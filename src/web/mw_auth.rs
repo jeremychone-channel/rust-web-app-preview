@@ -1,14 +1,16 @@
+use crate::crypt::token::{validate_token_sign_and_exp, Token};
 use crate::ctx::Ctx;
-use crate::model::ModelController;
+use crate::model::user::UserBmc;
+use crate::model::ModelManager;
 use crate::web::AUTH_TOKEN;
-use crate::{Error, Result};
+use crate::web::{Error, Result};
 use async_trait::async_trait;
 use axum::extract::{FromRequestParts, State};
 use axum::http::request::Parts;
 use axum::http::Request;
 use axum::middleware::Next;
 use axum::response::Response;
-use lazy_regex::regex_captures;
+use serde::Serialize;
 use tower_cookies::{Cookie, Cookies};
 
 pub async fn mw_require_auth<B>(
@@ -24,30 +26,49 @@ pub async fn mw_require_auth<B>(
 }
 
 pub async fn mw_ctx_resolver<B>(
-	_mc: State<ModelController>,
+	mm: State<ModelManager>,
 	cookies: Cookies,
 	mut req: Request<B>,
 	next: Next<B>,
 ) -> Result<Response> {
 	println!("->> {:<12} - mw_ctx_resolver", "MIDDLEWARE");
 
-	let auth_token = cookies.get(AUTH_TOKEN).map(|c| c.value().to_string());
+	let token = cookies
+		.get(AUTH_TOKEN)
+		.map(|c| c.value().to_string());
 
-	// Compute Result<Ctx>.
-	let result_ctx = match auth_token
-		.ok_or(Error::AuthFailNoAuthTokenCookie)
-		.and_then(parse_token)
-	{
-		Ok((user_id, _exp, _sign)) => {
-			// TODO: Token components validations.
-			Ok(Ctx::new(user_id))
+	// region:    --- Parse & Validate Token to Ctx
+	let token = token
+		.ok_or(CtxAuthError::TokenNotInCookie)
+		.and_then(|t| Token::parse(&t).map_err(|_| CtxAuthError::TokenWrongFormat));
+
+	let result_user = match &token {
+		Ok(token) => {
+			UserBmc::get_for_auth_by_username(&mm, &Ctx::root_ctx(), &token.user)
+				.await?
+				.ok_or(CtxAuthError::FailFoundUser(token.user.to_string()))
 		}
-		Err(e) => Err(e),
+		Err(ex) => CtxAuthResult::Err(ex.clone()),
 	};
+
+	let result_ctx = result_user
+		.and_then(|user| {
+			validate_token_sign_and_exp(
+				&token.unwrap(),
+				&user.token_salt.to_string(),
+			)
+			.map(|_| user)
+			.map_err(|ex| CtxAuthError::FailValidate(ex.to_string()))
+		})
+		.and_then(|user| {
+			Ctx::new(user.id)
+				.map_err(|ex| CtxAuthError::CtxCreateFail(ex.to_string()))
+		});
+	// endregion: --- Parse & Validate Token to Ctx
 
 	// Remove the cookie if something went wrong other than NoAuthTokenCookie.
 	if result_ctx.is_err()
-		&& !matches!(result_ctx, Err(Error::AuthFailNoAuthTokenCookie))
+		&& !matches!(result_ctx, Err(CtxAuthError::TokenNotInCookie))
 	{
 		cookies.remove(Cookie::named(AUTH_TOKEN))
 	}
@@ -68,26 +89,24 @@ impl<S: Send + Sync> FromRequestParts<S> for Ctx {
 
 		parts
 			.extensions
-			.get::<Result<Ctx>>()
-			.ok_or(Error::AuthFailCtxNotInRequestExt)?
+			.get::<CtxAuthResult<Ctx>>()
+			.ok_or(Error::CtxAuth(CtxAuthError::CtxNotInRequestExt))?
 			.clone()
+			.map_err(Error::CtxAuth)
 	}
 }
-
 // endregion: --- Ctx Extractor
 
-/// Parse a token of format `user-[user-id].[expiration].[signature]`
-/// Returns (user_id, expiration, signature)
-fn parse_token(token: String) -> Result<(u64, String, String)> {
-	let (_whole, user_id, exp, sign) = regex_captures!(
-		r#"^user-(\d+)\.(.+)\.(.+)"#, // a literal regex
-		&token
-	)
-	.ok_or(Error::AuthFailTokenWrongFormat)?;
+// region:    --- Ctx Extractor Result/Error
+type CtxAuthResult<T> = core::result::Result<T, CtxAuthError>;
 
-	let user_id: u64 = user_id
-		.parse()
-		.map_err(|_| Error::AuthFailTokenWrongFormat)?;
-
-	Ok((user_id, exp.to_string(), sign.to_string()))
+#[derive(Clone, Serialize, Debug)]
+pub enum CtxAuthError {
+	TokenNotInCookie,
+	TokenWrongFormat,
+	FailValidate(String),
+	FailFoundUser(String),
+	CtxNotInRequestExt,
+	CtxCreateFail(String),
 }
+// endregion: --- Ctx Extractor Result/Error

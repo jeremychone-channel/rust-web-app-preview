@@ -5,5 +5,7 @@ edition = "2021"
 
 # For recording
 max_width = 85
-# chain_width = 40
+struct_lit_width = 40
+# struct_variant_width = 40
+chain_width = 50
 # array_width = 40
