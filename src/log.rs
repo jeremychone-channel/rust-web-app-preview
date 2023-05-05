@@ -1,16 +1,17 @@
 use crate::ctx::Ctx;
 use crate::error::ClientError;
-use crate::utils::now_utc_str;
+use crate::utils::{format_time, now_utc};
 use crate::web::rpc::RpcCtx;
+use crate::web::ReqStamp;
 use crate::{Error, Result};
 use axum::http::{Method, Uri};
 use serde::Serialize;
 use serde_json::{json, Value};
 use serde_with::skip_serializing_none;
-use uuid::Uuid;
+use time::Duration;
 
 pub async fn log_request(
-	uuid: Uuid,
+	req_stamp: ReqStamp,
 	http_method: Method,
 	uri: Uri,
 	rpc_ctx: Option<&RpcCtx>,
@@ -18,15 +19,22 @@ pub async fn log_request(
 	service_error: Option<&Error>,
 	client_error: Option<ClientError>,
 ) -> Result<()> {
+	let ReqStamp { uuid, time_in } = req_stamp;
 	let error_type = service_error.map(|se| se.as_ref().to_string());
 	let error_data = serde_json::to_value(service_error)
 		.ok()
 		.and_then(|mut v| v.get_mut("data").map(|v| v.take()));
 
+	let now = now_utc();
+	let duration: Duration = now - time_in;
+
 	// Create the RequestLogLine
 	let log_line = RequestLogLine {
 		uuid: uuid.to_string(),
-		timestamp: now_utc_str(),
+		timestamp: format_time(now), // LogLine timestamp (could be seen as "time_out")
+
+		time_in: format_time(time_in),
+		duration_ms: duration.as_seconds_f32() * 1000., // duration in ms.
 
 		http_path: uri.to_string(),
 		http_method: http_method.to_string(),
@@ -53,7 +61,10 @@ pub async fn log_request(
 #[derive(Serialize)]
 struct RequestLogLine {
 	uuid: String,      // uuid string formatted
-	timestamp: String, // (should be iso8601)
+	timestamp: String, // (should be ref3339)
+
+	time_in: String,
+	duration_ms: f32,
 
 	// -- User and context attributes.
 	user_id: Option<i64>,

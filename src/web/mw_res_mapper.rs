@@ -1,21 +1,21 @@
 use crate::ctx::Ctx;
 use crate::log::log_request;
 use crate::web::rpc::RpcCtx;
+use crate::web::ReqStamp;
 use crate::Error;
 use axum::http::{Method, Uri};
 use axum::response::{IntoResponse, Response};
 use axum::Json;
 use serde_json::json;
-use uuid::Uuid;
 
 pub async fn main_response_mapper(
-	ctx: Option<Ctx>,
 	uri: Uri,
+	req_stamp: ReqStamp,
 	http_method: Method,
+	ctx: Option<Ctx>,
 	res: Response,
 ) -> Response {
 	println!("->> {:<12} - main_response_mapper", "RES_MAPPER");
-	let uuid = Uuid::new_v4();
 
 	// -- Get the eventual response error.
 	let service_error = res.extensions().get::<Error>();
@@ -29,7 +29,7 @@ pub async fn main_response_mapper(
 				let client_error_body = json!({
 					"error": {
 						"type": client_error.as_ref(),
-						"req_uuid": uuid.to_string(),
+						"req_uuid": req_stamp.uuid.to_string(),
 					}
 				});
 
@@ -43,7 +43,7 @@ pub async fn main_response_mapper(
 	let client_error = client_status_error.unzip().1;
 	let rpc_ctx = res.extensions().get::<RpcCtx>();
 	if let Err(log_err) = log_request(
-		uuid,
+		req_stamp,
 		http_method,
 		uri,
 		rpc_ctx,

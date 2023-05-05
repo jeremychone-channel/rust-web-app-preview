@@ -10,6 +10,8 @@ pub enum Error {
 	RpcMissingParams { rpc_method: String },
 	RpcFailJsonParams { rpc_method: String },
 
+	ReqStampNotInResponseExt,
+
 	// -- Login
 	LoginFail,
 	LoginFailUsernameNotFound,

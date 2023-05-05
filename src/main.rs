@@ -18,6 +18,7 @@ pub use conf::conf;
 
 // -- Imports
 use crate::model::ModelManager;
+use crate::web::mw_req_stamp::mw_req_stamp_resolver;
 use axum::{middleware, Router};
 use std::net::SocketAddr;
 use tower_cookies::CookieManagerLayer;
@@ -44,6 +45,7 @@ async fn main() -> Result<()> {
 			mm.clone(),
 			web::mw_auth::mw_ctx_resolver,
 		))
+		.layer(middleware::from_fn(mw_req_stamp_resolver))
 		.layer(CookieManagerLayer::new())
 		.fallback_service(web::routes_static::routes());
 
