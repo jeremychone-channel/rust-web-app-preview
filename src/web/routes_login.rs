@@ -3,8 +3,8 @@ use crate::crypt::token::generate_token;
 use crate::ctx::Ctx;
 use crate::model::user::UserBmc;
 use crate::model::ModelManager;
+use crate::web;
 use crate::web::{Error, Result};
-use crate::{conf, web};
 use axum::extract::State;
 use axum::routing::post;
 use axum::{Json, Router};
@@ -43,14 +43,7 @@ async fn api_login_handler(
 	)?;
 
 	// -- Generate the web token.
-	// 1800 sec = 30 minutes (should be in conf)
-	let token = generate_token(
-		conf().TOKEN_DURATION_SEC,
-		&user.username,
-		&user.token_salt.to_string(),
-	)?;
-
-	// FIXME: Implement real auth-token generation/signature.
+	let token = generate_token(&user.username, &user.token_salt.to_string())?;
 	cookies.add(Cookie::new(web::AUTH_TOKEN, token.to_string()));
 
 	// Create the success body.

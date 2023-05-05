@@ -1,7 +1,8 @@
-use crate::crypt::token::{validate_token_sign_and_exp, Token};
+use crate::crypt::token::{generate_token, validate_token_sign_and_exp, Token};
 use crate::ctx::Ctx;
 use crate::model::user::UserBmc;
 use crate::model::ModelManager;
+use crate::web;
 use crate::web::AUTH_TOKEN;
 use crate::web::{Error, Result};
 use async_trait::async_trait;
@@ -37,43 +38,45 @@ pub async fn mw_ctx_resolver<B>(
 		.get(AUTH_TOKEN)
 		.map(|c| c.value().to_string());
 
-	// region:    --- Parse & Validate Token to Ctx
+	// -- Get the token.
 	let token = token
 		.ok_or(CtxAuthError::TokenNotInCookie)
 		.and_then(|t| Token::parse(&t).map_err(|_| CtxAuthError::TokenWrongFormat));
 
+	// Get the user from the db.
 	let result_user = match &token {
 		Ok(token) => {
 			UserBmc::get_for_auth_by_username(&mm, &Ctx::root_ctx(), &token.user)
-				.await?
+				.await? // If cannot access the DB, critical enough to return Error. TODO: To reassess.
 				.ok_or(CtxAuthError::FailFoundUser(token.user.to_string()))
 		}
 		Err(ex) => CtxAuthResult::Err(ex.clone()),
 	};
 
-	let result_ctx = result_user
-		.and_then(|user| {
-			validate_token_sign_and_exp(
-				&token.unwrap(),
-				&user.token_salt.to_string(),
-			)
+	// -- Validate the token.
+	let result_user = result_user.and_then(|user| {
+		validate_token_sign_and_exp(&token.unwrap(), &user.token_salt.to_string())
 			.map(|_| user)
 			.map_err(|ex| CtxAuthError::FailValidate(ex.to_string()))
-		})
-		.and_then(|user| {
-			Ctx::new(user.id)
-				.map_err(|ex| CtxAuthError::CtxCreateFail(ex.to_string()))
-		});
-	// endregion: --- Parse & Validate Token to Ctx
+	});
 
-	// Remove the cookie if something went wrong other than NoAuthTokenCookie.
-	if result_ctx.is_err()
-		&& !matches!(result_ctx, Err(CtxAuthError::TokenNotInCookie))
-	{
+	// -- Update the Token.
+	// If auth success, create a new Token with the updated expiration date.
+	if let Ok(user) = result_user.as_ref() {
+		let token = generate_token(&user.username, &user.token_salt.to_string())?;
+		cookies.add(Cookie::new(web::AUTH_TOKEN, token.to_string()));
+	}
+	// Ohterwise, remove the cookie if something went wrong other than NoAuthTokenCookie.
+	else if !matches!(result_user, Err(CtxAuthError::TokenNotInCookie)) {
 		cookies.remove(Cookie::named(AUTH_TOKEN))
 	}
 
-	// Store the ctx_result in the request extension.
+	// -- Create the ctx if we have the user
+	let result_ctx = result_user.and_then(|user| {
+		Ctx::new(user.id).map_err(|ex| CtxAuthError::CtxCreateFail(ex.to_string()))
+	});
+
+	// -- Store the ctx_result in the request extension.
 	req.extensions_mut().insert(result_ctx);
 
 	Ok(next.run(req).await)

@@ -51,7 +51,9 @@ impl std::fmt::Display for Token {
 /// - `expiration` is the utc iso8601 expiration date of this token.
 /// - `signature` is the token signature of the two first parts (base64url encoded) in base64url
 ///
-pub fn generate_token(duration_sec: f64, user: &str, salt: &str) -> Result<Token> {
+pub fn generate_token(user: &str, salt: &str) -> Result<Token> {
+	let duration_sec = conf().TOKEN_DURATION_SEC;
+
 	// -- Compute the two first components.
 	let user = user.to_string();
 	let exp = now_utc_plus_sec_str(duration_sec);
