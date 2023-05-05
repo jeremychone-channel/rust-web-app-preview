@@ -26,7 +26,7 @@ uuid = {version = "1", features = ["v4", "fast-rng",]}
 base64-url = "2"
 # -- Data
 sqlx = { version = "0.6", features = [ "runtime-tokio-rustls", "postgres", "uuid" ] }
-sqlb = { path = "/Users/jeremychone/_jeremy/_rust/utils/rust-sqlb"}
+sqlb = "0.1.0"
 mock-store = "0.2"
 modql = "0.2"
 # -- Others
