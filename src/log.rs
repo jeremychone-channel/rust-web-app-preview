@@ -27,6 +27,8 @@ pub async fn log_request(
 
 	let now = now_utc();
 	let duration: Duration = now - time_in;
+	// duration_ms in milliseconds with microseconds precision.
+	let duration_ms = (duration.as_seconds_f64() * 100000.).floor() / 1000.;
 
 	// Create the RequestLogLine
 	let log_line = RequestLogLine {
@@ -34,7 +36,7 @@ pub async fn log_request(
 		timestamp: format_time(now), // LogLine timestamp (could be seen as "time_out")
 
 		time_in: format_time(time_in),
-		duration_ms: duration.as_seconds_f32() * 1000., // duration in ms.
+		duration_ms,
 
 		http_path: uri.to_string(),
 		http_method: http_method.to_string(),
@@ -64,7 +66,7 @@ struct RequestLogLine {
 	timestamp: String, // (should be ref3339)
 
 	time_in: String,
-	duration_ms: f32,
+	duration_ms: f64,
 
 	// -- User and context attributes.
 	user_id: Option<i64>,
