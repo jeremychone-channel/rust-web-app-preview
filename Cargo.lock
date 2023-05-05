@@ -1456,6 +1456,7 @@ dependencies = [
  "async-trait",
  "axum",
  "base64-url",
+ "dotenvy",
  "hmac",
  "httpc-test",
  "lazy-regex",

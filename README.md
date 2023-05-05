@@ -15,6 +15,7 @@ docker run --rm --name pg -p 5432:5432  -e POSTGRES_PASSWORD=welcome  postgres:1
 # (optional, to see all sql commands on the postgres side)
 # In another terminal (tab) run psql:
 docker exec -it -u postgres pg psql
+
 # Then, in the psql console, type 
 ALTER DATABASE postgres SET log_statement = 'all';
 ```

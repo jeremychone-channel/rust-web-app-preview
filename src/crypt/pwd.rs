@@ -66,7 +66,7 @@ mod tests {
 
 	#[test]
 	fn test_pwd_encrypt() -> Result<()> {
-		test_utils::init_dev_envs();
+		test_utils::init_dev_env();
 
 		let salt = "some-salt";
 		let pwd_clear = "welcome";
@@ -78,7 +78,7 @@ mod tests {
 
 	#[test]
 	fn test_pwd_validate() -> Result<()> {
-		test_utils::init_dev_envs();
+		test_utils::init_dev_env();
 		let salt = "some-salt";
 		let pwd_clear = "welcome";
 

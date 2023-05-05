@@ -2,8 +2,8 @@
 .*
 !.gitignore
 
-# Allow vscode 
-# !.vscode
+# Allow .env (for early developmment) 
+!.env
 
 # By default
 _*
