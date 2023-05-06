@@ -1,5 +1,5 @@
 use crate::crypt::pwd::{self};
-use crate::crypt::EncryptArgs;
+use crate::crypt::EncryptContent;
 use crate::ctx::Ctx;
 use crate::model::store::db::{db_get, DbBmc};
 use crate::model::ModelManager;
@@ -95,17 +95,7 @@ impl UserBmc {
 			.fetch_one::<(i64, Uuid), _>(db)
 			.await?;
 
-		let pwd = pwd::encrypt_pwd(&EncryptArgs {
-			salt: pwd_salt.to_string(),
-			content: user_fc.pwd_clear,
-		})?;
-
-		sqlb::update()
-			.table(Self::TABLE)
-			.and_where("id", "=", id)
-			.data(vec![("pwd", pwd.to_string()).into()])
-			.exec(db)
-			.await?;
+		Self::update_pwd(mm, ctx, id, &user_fc.pwd_clear);
 
 		Ok(id)
 	}
@@ -138,6 +128,31 @@ impl UserBmc {
 			.await?;
 
 		Ok(user)
+	}
+
+	pub async fn update_pwd(
+		mm: &ModelManager,
+		ctx: &Ctx,
+		id: i64,
+		pwd_clear: &str,
+	) -> Result<()> {
+		let db = mm.db();
+
+		let user = Self::get_for_auth_by_id(mm, ctx, id).await?;
+
+		let pwd = pwd::encrypt_pwd(&EncryptContent {
+			salt: user.pwd_salt.to_string(),
+			content: pwd_clear.to_string(),
+		})?;
+
+		sqlb::update()
+			.table(Self::TABLE)
+			.and_where("id", "=", id)
+			.data(vec![("pwd", pwd.to_string()).into()])
+			.exec(db)
+			.await?;
+
+		Ok(())
 	}
 }
 
@@ -186,7 +201,7 @@ mod tests {
 
 		// -- Check - pwd
 		pwd::validate_pwd(
-			&EncryptArgs {
+			&EncryptContent {
 				salt: user.pwd_salt.to_string(),
 				content: pwd_clear.to_string(),
 			},

@@ -1,54 +1,70 @@
 use super::{Error, Result};
 use crate::conf;
-use crate::crypt::{encrypt_into_b64u, EncryptArgs};
+use crate::crypt::{encrypt_into_b64u, EncryptContent};
+use lazy_regex::regex_captures;
 
-pub fn encrypt_pwd(args: &EncryptArgs) -> Result<String> {
-	encrypt_for_scheme("", args) // "" for default scheme
+pub const DEFAULT_SCHEME: &str = "02";
+
+/// Encrypt the password with the default scheme.
+pub fn encrypt_pwd(args: &EncryptContent) -> Result<String> {
+	encrypt_for_scheme(DEFAULT_SCHEME, args) // "" for default scheme
 }
 
-pub fn validate_pwd(args: &EncryptArgs, pwd_ref: &str) -> Result<()> {
-	let origin_scheme = get_scheme(pwd_ref)?;
+fn encrypt_for_scheme(scheme: &str, args: &EncryptContent) -> Result<String> {
+	let pwd = match scheme {
+		"01" => encrypt_scheme_01(args),
+		DEFAULT_SCHEME => encrypt_scheme_02(args),
+		_ => Err(Error::SchemeUnknown(scheme.to_string())),
+	};
+
+	Ok(format!("#{scheme}#{}", pwd?))
+}
+
+// region:    --- Scheme Infra
+fn extract_scheme(enc_content: &str) -> Result<String> {
+	regex_captures!(
+		r#"^#(\w+)#.*"#, // a literal regex
+		enc_content
+	)
+	.map(|(_whole, scheme)| scheme.to_string())
+	.ok_or(Error::SchemeNotFoundInContent)
+}
+
+fn encrypt_scheme_01(enc_pwd_args: &EncryptContent) -> Result<String> {
+	let key = &conf().KEY_PWD;
+
+	encrypt_into_b64u(key, enc_pwd_args)
+}
+
+// In this example, same a scheme_01 (showing that it works)
+fn encrypt_scheme_02(enc_pwd_args: &EncryptContent) -> Result<String> {
+	let key = &conf().KEY_PWD;
+
+	encrypt_into_b64u(key, enc_pwd_args)
+}
+// endregion: --- Scheme Infra
+
+// region:    --- Validation
+pub enum SchemeStatus {
+	Ok,       // The pwd use the latest scheme. All good.
+	Outdated, // The pwd use a old scheme. Would need to be re-encrypted.
+}
+/// Validation if an EncryptContent matches
+/// the encrypted pwd reference (usually coming from `user.pwd`)
+pub fn validate_pwd(args: &EncryptContent, pwd_ref: &str) -> Result<SchemeStatus> {
+	let origin_scheme = extract_scheme(pwd_ref)?;
 	let new_pwd = encrypt_for_scheme(&origin_scheme, args)?;
 	if pwd_ref == new_pwd {
-		Ok(())
+		if origin_scheme == DEFAULT_SCHEME {
+			Ok(SchemeStatus::Ok)
+		} else {
+			Ok(SchemeStatus::Outdated)
+		}
 	} else {
 		Err(Error::PwdNotMatching)
 	}
 }
-
-// region:    --- Scheme Infra.
-fn get_scheme(enc_content: &str) -> Result<String> {
-	enc_content
-		.match_indices('#')
-		.nth(1)
-		.map(|(index, _)| enc_content.split_at(index))
-		.map(|(scheme, _)| format!("{scheme}#")) // add back the last #
-		.ok_or(Error::SchemeNotFoundInContent)
-}
-
-fn encrypt_for_scheme(scheme: &str, args: &EncryptArgs) -> Result<String> {
-	match scheme {
-		"#01#" | "" => Ok(format!("#01#{}", Scheme01::encrypt(args)?)), // This is the default
-		_ => Err(Error::SchemeUnknown(scheme.to_string())),
-	}
-}
-
-trait Scheme {
-	fn encrypt(enc_args: &EncryptArgs) -> Result<String>;
-}
-// endregion: --- Scheme Infra.
-
-// region:    --- Scheme01
-struct Scheme01;
-
-impl Scheme for Scheme01 {
-	fn encrypt(enc_pwd_args: &EncryptArgs) -> Result<String> {
-		let key = &conf().KEY_PWD;
-
-		encrypt_into_b64u(key, enc_pwd_args)
-	}
-}
-// endregion: --- Scheme01
+// endregion: --- Validation
 
 // region:    --- Tests
 #[cfg(test)]
@@ -64,7 +80,7 @@ mod tests {
 	fn test_pwd_encrypt() -> Result<()> {
 		let salt = "some-salt".to_string();
 		let pwd_clear = "welcome".to_string();
-		let pwd_enc = encrypt_pwd(&EncryptArgs { salt, content: pwd_clear })?;
+		let pwd_enc = encrypt_pwd(&EncryptContent { salt, content: pwd_clear })?;
 
 		debug!("pwd_enc: {pwd_enc}");
 		Ok(())
@@ -75,13 +91,13 @@ mod tests {
 		let salt = "some-salt";
 		let pwd_clear = "welcome";
 
-		let pwd_enc_1 = encrypt_pwd(&EncryptArgs {
+		let pwd_enc_1 = encrypt_pwd(&EncryptContent {
 			salt: salt.to_string(),
 			content: pwd_clear.to_string(),
 		})?;
 
 		validate_pwd(
-			&EncryptArgs {
+			&EncryptContent {
 				salt: salt.to_string(),
 				content: pwd_clear.to_string(),
 			},
@@ -94,7 +110,7 @@ mod tests {
 	#[test]
 	fn test_pwd_extract_scheme() -> Result<()> {
 		let s = "#01#G1Awj9k19UY2D04EQ9DCxpSIxMApGgI0Ogvg+Xi/QXoXEO1b5hAXmusXmT2wo/L8VWenfZShPT42gk7k3BZSwA==";
-		assert_eq!("#01#", get_scheme(s)?);
+		assert_eq!("01", extract_scheme(s)?);
 		Ok(())
 	}
 }

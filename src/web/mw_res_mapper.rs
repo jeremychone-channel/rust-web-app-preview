@@ -58,7 +58,7 @@ pub async fn main_response_mapper(
 	};
 
 	// The empty line.
-	debug!("");
+	debug!("-----------------------------------------------");
 
 	// -- Return the appropriate response.
 	error_response.unwrap_or(res)

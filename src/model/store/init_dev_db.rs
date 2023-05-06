@@ -1,5 +1,5 @@
 use crate::crypt::pwd::{self};
-use crate::crypt::EncryptArgs;
+use crate::crypt::EncryptContent;
 use crate::model::{self, Db};
 use sqlx::postgres::PgPoolOptions;
 use std::fs;
@@ -70,7 +70,7 @@ pub async fn init_dev_db() -> Result<(), model::Error> {
 	.await?;
 
 	let salt = salt.to_string();
-	let pwd = pwd::encrypt_pwd(&EncryptArgs {
+	let pwd = pwd::encrypt_pwd(&EncryptContent {
 		salt: salt.to_string(),
 		content: "welcome".to_string(),
 	})?;

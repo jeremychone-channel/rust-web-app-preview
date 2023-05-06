@@ -12,11 +12,12 @@ MIT OR Apache, all free to use.
 # Start postgresql server docker image:
 docker run --rm --name pg -p 5432:5432  -e POSTGRES_PASSWORD=welcome  postgres:15
 
-# (optional, to see all sql commands on the postgres side)
+# (optional) To have a psql terminal on pg. 
 # In another terminal (tab) run psql:
 docker exec -it -u postgres pg psql
 
-# Then, in the psql console, type 
+# (optional) For pg to print all sql statements.
+# In psql command line started above.
 ALTER DATABASE postgres SET log_statement = 'all';
 ```
 

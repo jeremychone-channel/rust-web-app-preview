@@ -1,6 +1,6 @@
-use crate::crypt::pwd::{self};
+use crate::crypt::pwd::{self, SchemeStatus};
 use crate::crypt::token::generate_token;
-use crate::crypt::EncryptArgs;
+use crate::crypt::EncryptContent;
 use crate::ctx::Ctx;
 use crate::model::user::UserBmc;
 use crate::model::ModelManager;
@@ -26,7 +26,7 @@ async fn api_login_handler(
 	cookies: Cookies,
 	Json(payload): Json<LoginPayload>,
 ) -> Result<Json<Value>> {
-	debug!("{:<12} - api_login", "HANDLER");
+	debug!("{:<12} - api_login_handler", "HANDLER");
 
 	let LoginPayload { username, pwd: pwd_clear } = payload;
 
@@ -36,13 +36,19 @@ async fn api_login_handler(
 		.ok_or(Error::LoginFailUsernameNotFound)?;
 
 	// -- Validate the password.
-	pwd::validate_pwd(
-		&EncryptArgs {
+	let scheme_status = pwd::validate_pwd(
+		&EncryptContent {
 			salt: user.pwd_salt.to_string(),
-			content: pwd_clear,
+			content: pwd_clear.clone(),
 		},
 		&user.pwd,
 	)?;
+
+	// -- If pwd scheme outdated, update it.
+	if let SchemeStatus::Outdated = scheme_status {
+		debug!("pwd encrypt scheme outdated, upgrading.");
+		UserBmc::update_pwd(&mm, &Ctx::root_ctx(), user.id, &pwd_clear).await?;
+	}
 
 	// -- Generate the web token.
 	let token = generate_token(&user.username, &user.token_salt.to_string())?;
