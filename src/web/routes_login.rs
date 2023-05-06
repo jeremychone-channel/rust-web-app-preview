@@ -1,5 +1,6 @@
-use crate::crypt::pwd::{self, EncPwdArgs};
+use crate::crypt::pwd::{self};
 use crate::crypt::token::generate_token;
+use crate::crypt::EncryptArgs;
 use crate::ctx::Ctx;
 use crate::model::user::UserBmc;
 use crate::model::ModelManager;
@@ -36,9 +37,9 @@ async fn api_login_handler(
 
 	// -- Validate the password.
 	pwd::validate_pwd(
-		EncPwdArgs {
-			salt: &user.pwd_salt.to_string(),
-			content: &pwd_clear,
+		&EncryptArgs {
+			salt: user.pwd_salt.to_string(),
+			content: pwd_clear,
 		},
 		&user.pwd,
 	)?;

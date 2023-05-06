@@ -1,4 +1,5 @@
-use crate::crypt::pwd::{self, EncPwdArgs};
+use crate::crypt::pwd::{self};
+use crate::crypt::EncryptArgs;
 use crate::ctx::Ctx;
 use crate::model::store::db::{db_get, DbBmc};
 use crate::model::ModelManager;
@@ -94,9 +95,9 @@ impl UserBmc {
 			.fetch_one::<(i64, Uuid), _>(db)
 			.await?;
 
-		let pwd = pwd::encrypt_pwd(EncPwdArgs {
-			salt: &pwd_salt.to_string(),
-			content: &user_fc.pwd_clear,
+		let pwd = pwd::encrypt_pwd(&EncryptArgs {
+			salt: pwd_salt.to_string(),
+			content: user_fc.pwd_clear,
 		})?;
 
 		sqlb::update()
@@ -185,9 +186,9 @@ mod tests {
 
 		// -- Check - pwd
 		pwd::validate_pwd(
-			EncPwdArgs {
-				salt: &user.pwd_salt.to_string(),
-				content: pwd_clear,
+			&EncryptArgs {
+				salt: user.pwd_salt.to_string(),
+				content: pwd_clear.to_string(),
 			},
 			&user.pwd,
 		)?;

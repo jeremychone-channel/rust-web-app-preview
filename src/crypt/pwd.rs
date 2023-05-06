@@ -1,20 +1,15 @@
 use super::{Error, Result};
 use crate::conf;
-use crate::crypt::{encrypt_into_b64u, EncArgs};
+use crate::crypt::{encrypt_into_b64u, EncryptArgs};
 
-pub struct EncPwdArgs<'a> {
-	pub salt: &'a str,
-	pub content: &'a str,
-}
-
-pub fn encrypt_pwd(args: EncPwdArgs) -> Result<String> {
+pub fn encrypt_pwd(args: &EncryptArgs) -> Result<String> {
 	encrypt_for_scheme("", args) // "" for default scheme
 }
 
-pub fn validate_pwd(args: EncPwdArgs, origin_pwd: &str) -> Result<()> {
-	let origin_scheme = get_scheme(origin_pwd)?;
+pub fn validate_pwd(args: &EncryptArgs, pwd_ref: &str) -> Result<()> {
+	let origin_scheme = get_scheme(pwd_ref)?;
 	let new_pwd = encrypt_for_scheme(&origin_scheme, args)?;
-	if origin_pwd == new_pwd {
+	if pwd_ref == new_pwd {
 		Ok(())
 	} else {
 		Err(Error::PwdNotMatching)
@@ -31,7 +26,7 @@ fn get_scheme(enc_content: &str) -> Result<String> {
 		.ok_or(Error::SchemeNotFoundInContent)
 }
 
-fn encrypt_for_scheme(scheme: &str, args: EncPwdArgs) -> Result<String> {
+fn encrypt_for_scheme(scheme: &str, args: &EncryptArgs) -> Result<String> {
 	match scheme {
 		"#01#" | "" => Ok(format!("#01#{}", Scheme01::encrypt(args)?)), // This is the default
 		_ => Err(Error::SchemeUnknown(scheme.to_string())),
@@ -39,7 +34,7 @@ fn encrypt_for_scheme(scheme: &str, args: EncPwdArgs) -> Result<String> {
 }
 
 trait Scheme {
-	fn encrypt(enc_args: EncPwdArgs) -> Result<String>;
+	fn encrypt(enc_args: &EncryptArgs) -> Result<String>;
 }
 // endregion: --- Scheme Infra.
 
@@ -47,10 +42,10 @@ trait Scheme {
 struct Scheme01;
 
 impl Scheme for Scheme01 {
-	fn encrypt(EncPwdArgs { content, salt }: EncPwdArgs) -> Result<String> {
+	fn encrypt(enc_pwd_args: &EncryptArgs) -> Result<String> {
 		let key = &conf().KEY_PWD;
 
-		encrypt_into_b64u(EncArgs { key, salt, content })
+		encrypt_into_b64u(key, enc_pwd_args)
 	}
 }
 // endregion: --- Scheme01
@@ -67,9 +62,9 @@ mod tests {
 
 	#[test]
 	fn test_pwd_encrypt() -> Result<()> {
-		let salt = "some-salt";
-		let pwd_clear = "welcome";
-		let pwd_enc = encrypt_pwd(EncPwdArgs { salt, content: pwd_clear })?;
+		let salt = "some-salt".to_string();
+		let pwd_clear = "welcome".to_string();
+		let pwd_enc = encrypt_pwd(&EncryptArgs { salt, content: pwd_clear })?;
 
 		debug!("pwd_enc: {pwd_enc}");
 		Ok(())
@@ -80,9 +75,18 @@ mod tests {
 		let salt = "some-salt";
 		let pwd_clear = "welcome";
 
-		let pwd_enc_1 = encrypt_pwd(EncPwdArgs { salt, content: pwd_clear })?;
+		let pwd_enc_1 = encrypt_pwd(&EncryptArgs {
+			salt: salt.to_string(),
+			content: pwd_clear.to_string(),
+		})?;
 
-		validate_pwd(EncPwdArgs { salt, content: pwd_clear }, &pwd_enc_1)?;
+		validate_pwd(
+			&EncryptArgs {
+				salt: salt.to_string(),
+				content: pwd_clear.to_string(),
+			},
+			&pwd_enc_1,
+		)?;
 
 		Ok(())
 	}

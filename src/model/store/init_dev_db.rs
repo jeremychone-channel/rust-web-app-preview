@@ -1,4 +1,5 @@
-use crate::crypt::pwd::{self, EncPwdArgs};
+use crate::crypt::pwd::{self};
+use crate::crypt::EncryptArgs;
 use crate::model::{self, Db};
 use sqlx::postgres::PgPoolOptions;
 use std::fs;
@@ -69,7 +70,10 @@ pub async fn init_dev_db() -> Result<(), model::Error> {
 	.await?;
 
 	let salt = salt.to_string();
-	let pwd = pwd::encrypt_pwd(EncPwdArgs { salt: &salt, content: "welcome" })?;
+	let pwd = pwd::encrypt_pwd(&EncryptArgs {
+		salt: salt.to_string(),
+		content: "welcome".to_string(),
+	})?;
 
 	sqlx::query(r#"UPDATE "user" SET pwd = $1 WHERE id = $2"#)
 		.bind(pwd)

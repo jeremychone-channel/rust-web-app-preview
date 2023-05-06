@@ -1,4 +1,5 @@
-use crate::crypt::{EncArgs, Error, Result};
+use crate::crypt::EncryptArgs;
+use crate::crypt::{Error, Result};
 use crate::utils::{
 	b64u_decode, b64u_encode, now_utc, now_utc_plus_sec_str, parse_iso8601,
 };
@@ -88,8 +89,10 @@ pub fn validate_token_sign_and_exp(origin_token: &Token, salt: &str) -> Result<(
 fn sign_into_b64u(user: &str, exp: &str, salt: &str) -> Result<String> {
 	let key = &conf().KEY_TOKEN;
 	let content = format!("{}.{}", b64u_encode(user), b64u_encode(exp));
-	let signature =
-		crypt::encrypt_into_b64u(EncArgs { key, salt, content: &content })?;
+	let signature = crypt::encrypt_into_b64u(
+		key,
+		&EncryptArgs { content, salt: salt.to_string() },
+	)?;
 
 	Ok(signature)
 }
