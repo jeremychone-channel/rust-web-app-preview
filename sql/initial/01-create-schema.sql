@@ -1,7 +1,7 @@
 ---- Base app schema
 ---- - Timestamps 
 ----   - cid/ctime for the creator id and time. 
-----   - mid/mtime for the last modifier id and time
+----   - mid/mtime for the last modifier id and time.
 
 
 -- User
