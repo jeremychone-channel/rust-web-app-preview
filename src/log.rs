@@ -9,6 +9,7 @@ use serde::Serialize;
 use serde_json::{json, Value};
 use serde_with::skip_serializing_none;
 use time::Duration;
+use tracing::debug;
 
 pub async fn log_request(
 	req_stamp: ReqStamp,
@@ -52,7 +53,7 @@ pub async fn log_request(
 		error_data,
 	};
 
-	println!("   ->> log_request: \n{}", json!(log_line));
+	debug!("REQUEST LOG LINE:\n{}", json!(log_line));
 
 	// TODO - Send to cloud-watch.
 

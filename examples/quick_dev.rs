@@ -4,6 +4,7 @@ use anyhow::Result;
 use serde_json::json;
 use std::time::Duration;
 use tokio::time::sleep;
+use tracing::info;
 
 #[tokio::main]
 async fn main() -> Result<()> {

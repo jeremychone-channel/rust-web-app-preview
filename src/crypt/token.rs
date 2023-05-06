@@ -93,32 +93,3 @@ fn sign_into_b64u(user: &str, exp: &str, salt: &str) -> Result<String> {
 
 	Ok(signature)
 }
-
-// region:    --- Tests
-// #[cfg(test)]
-// mod tests {
-// 	#![allow(unused)]
-// 	use super::*;
-// 	use crate::test_utils;
-// 	use anyhow::Result;
-
-// 	#[test]
-// 	fn test_crypt_validate() -> Result<()> {
-// 		test_utils::init_envs();
-
-// 		let gen_args = GenTokenArgs {
-// 			user_ident: "aaa",
-// 			user_token_salt: "bbb",
-// 		};
-// 		let origin_token = generate_token(10.3, &gen_args)?;
-// 		println!("->> origin_token: {origin_token}");
-
-// 		let r = parse_token(&origin_token)?;
-// 		println!("->> token parsed: {r:?}");
-
-// 		validate_token(&gen_args, &origin_token)?;
-
-// 		Ok(())
-// 	}
-// }
-// endregion: --- Tests

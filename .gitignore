@@ -2,7 +2,9 @@
 .*
 !.gitignore
 
-# Allow .env (for early developmment) 
+# Allows cargo config (for cargo envs)
+!.cargo/
+# Allows .env (for early developmment) 
 !.env
 
 # By default

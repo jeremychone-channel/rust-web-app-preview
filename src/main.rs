@@ -22,9 +22,17 @@ use crate::web::mw_req_stamp::mw_req_stamp_resolver;
 use axum::{middleware, Router};
 use std::net::SocketAddr;
 use tower_cookies::CookieManagerLayer;
+use tracing::info;
+use tracing_subscriber::EnvFilter;
 
 #[tokio::main]
 async fn main() -> Result<()> {
+	tracing_subscriber::fmt()
+		.without_time()
+		.with_target(false)
+		.with_env_filter(EnvFilter::from_default_env())
+		.init();
+
 	// -- FOR DEV ONLY
 	test_utils::init_dev_all().await;
 
@@ -51,7 +59,7 @@ async fn main() -> Result<()> {
 
 	// region:    --- Start Server
 	let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
-	println!("{:<12} - on {addr}\n", "LISTENING");
+	info!("{:<12} - on {addr}\n", "LISTENING");
 	axum::Server::bind(&addr)
 		.serve(routes_all.into_make_service())
 		.await

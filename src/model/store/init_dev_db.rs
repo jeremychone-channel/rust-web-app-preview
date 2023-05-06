@@ -5,6 +5,8 @@ use std::fs;
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::Duration;
+use tracing::log::warn;
+use tracing::{error, info};
 use uuid::Uuid;
 
 // TODO: Probably need to move this to crate::test_utils
@@ -21,7 +23,7 @@ const SQL_RECREATE: &str = "sql/initial/00-recreate-db.sql";
 // type Db = Pool<Postgres>;
 
 pub async fn init_dev_db() -> Result<(), model::Error> {
-	println!("{:<12} - init_dev_db()", "FOR-DEV-ONLY");
+	info!("{:<12} - init_dev_db()", "FOR-DEV-ONLY");
 
 	// Prevent to call this function more than one time to ensure
 	// unicity is insured upstream.
@@ -79,11 +81,11 @@ pub async fn init_dev_db() -> Result<(), model::Error> {
 }
 
 async fn pexec(db: &Db, file: &str) -> Result<(), sqlx::Error> {
-	println!("{:<12} - pexec: {file}", "FOR-DEV-ONLY");
+	info!("{:<12} - pexec: {file}", "FOR-DEV-ONLY");
 
 	// -- Read the file.
 	let content = fs::read_to_string(file).map_err(|ex| {
-		println!("ERROR reading {} (cause: {:?})", file, ex);
+		error!("ERROR reading {} (cause: {:?})", file, ex);
 		ex
 	})?;
 
@@ -94,10 +96,10 @@ async fn pexec(db: &Db, file: &str) -> Result<(), sqlx::Error> {
 	for sql in sqls {
 		match sqlx::query(sql).execute(db).await {
 			Ok(_) => (),
-			Err(ex) => println!(
-				"WARNING - pexec - Sql file '{}' FAILED cause: {}",
-				file, ex
-			),
+			Err(ex) => {
+				// Note: For now we do not stop on part failure (since for dev only)
+				warn!("WARNING - pexec - Sql file '{}' FAILED cause: {}", file, ex)
+			}
 		}
 	}
 

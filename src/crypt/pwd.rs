@@ -63,22 +63,20 @@ mod tests {
 	use crate::test_utils;
 	use anyhow::Result;
 	use rand::RngCore;
+	use tracing::debug;
 
 	#[test]
 	fn test_pwd_encrypt() -> Result<()> {
-		test_utils::init_dev_env();
-
 		let salt = "some-salt";
 		let pwd_clear = "welcome";
 		let pwd_enc = encrypt_pwd(EncPwdArgs { salt, content: pwd_clear })?;
 
-		println!("->> pwd_enc: {pwd_enc}");
+		debug!("pwd_enc: {pwd_enc}");
 		Ok(())
 	}
 
 	#[test]
 	fn test_pwd_validate() -> Result<()> {
-		test_utils::init_dev_env();
 		let salt = "some-salt";
 		let pwd_clear = "welcome";
 

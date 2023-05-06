@@ -7,6 +7,7 @@ use axum::http::request::Parts;
 use axum::http::Request;
 use axum::middleware::Next;
 use axum::response::Response;
+use tracing::debug;
 use uuid::Uuid;
 
 pub async fn mw_req_stamp_resolver<B>(
@@ -14,7 +15,7 @@ pub async fn mw_req_stamp_resolver<B>(
 	mut req: Request<B>,
 	next: Next<B>,
 ) -> Result<Response> {
-	println!("->> {:<12} - mw_req_stamp_resolver - {ctx:?}", "MIDDLEWARE");
+	debug!("{:<12} - mw_req_stamp_resolver - {ctx:?}", "MIDDLEWARE");
 
 	let time_in = now_utc();
 	let uuid = Uuid::new_v4();
@@ -31,7 +32,7 @@ impl<S: Send + Sync> FromRequestParts<S> for ReqStamp {
 	type Rejection = Error;
 
 	async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self> {
-		println!("->> {:<12} - ReqStamp", "EXTRACTOR");
+		debug!("{:<12} - ReqStamp", "EXTRACTOR");
 
 		parts
 			.extensions

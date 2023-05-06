@@ -2,6 +2,7 @@ use crate::{model, web};
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use serde::Serialize;
+use tracing::debug;
 
 pub type Result<T> = core::result::Result<T, Error>;
 
@@ -58,7 +59,7 @@ impl From<crate::model::Error> for Error {
 // region:    --- Axum IntoResponse
 impl IntoResponse for Error {
 	fn into_response(self) -> Response {
-		println!("->> {:<12} - {self:?}", "INTO_RES");
+		debug!("{:<12} - {self:?}", "INTO_RES");
 
 		// Create a placeholder Axum reponse.
 		let mut response = StatusCode::INTERNAL_SERVER_ERROR.into_response();
@@ -73,7 +74,6 @@ impl IntoResponse for Error {
 
 impl Error {
 	pub fn client_status_and_error(&self) -> (StatusCode, ClientError) {
-		println!("->> client_status_and_error {self:?}");
 		match self {
 			// -- Web
 			Self::Web(web::Error::LoginFail) => {

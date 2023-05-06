@@ -13,6 +13,7 @@ use axum::{Json, Router};
 use serde::Deserialize;
 use serde_json::{from_value, json, to_value, Value};
 use sqlb::Fields;
+use tracing::debug;
 
 #[derive(Deserialize)]
 struct RpcRequest {
@@ -80,7 +81,7 @@ async fn rpc_handler_inner(
 		params: rpc_params,
 	} = rpc_req;
 
-	println!("->> {:<12} - rpc_handler - method: {rpc_method}", "HANDLER");
+	debug!("{:<12} - rpc_handler - method: {rpc_method}", "HANDLER");
 
 	let res = match rpc_method.as_str() {
 		// Ticket CRUD

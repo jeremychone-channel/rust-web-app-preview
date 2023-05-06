@@ -30,14 +30,28 @@ cargo watch -q -c -w src/ -x "run"
 cargo watch -q -c -w examples/ -x "run --example quick_dev"
 ```
 
+or cargo watch the unit tests.
+
+```sh
+cargo watch -q -c -x "test -- --test-threads=1"
+```
+
+
 # Dev
 
 ```sh
 # Terminal 1 - For server run.
 cargo run
 
-# Terminal 2 - For test.
-cargo test quick_dev -- --nocapture
+# Terminal 2 - For quick dev.
+cargo watch -q -c -w examples/ -x "run --example quick_dev"
+```
+
+or unit tests
+
+```sh
+# threads=1 for now, since recreate DB and could cause issue when concurrent.
+cargo test -- --test-threads=1
 ```
 
 

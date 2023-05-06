@@ -7,6 +7,7 @@ use axum::http::{Method, Uri};
 use axum::response::{IntoResponse, Response};
 use axum::Json;
 use serde_json::json;
+use tracing::{debug, error};
 
 pub async fn main_response_mapper(
 	uri: Uri,
@@ -15,7 +16,7 @@ pub async fn main_response_mapper(
 	ctx: Option<Ctx>,
 	res: Response,
 ) -> Response {
-	println!("->> {:<12} - main_response_mapper", "RES_MAPPER");
+	debug!("{:<12} - main_response_mapper", "RES_MAPPER");
 
 	// -- Get the eventual response error.
 	let service_error = res.extensions().get::<Error>();
@@ -33,7 +34,7 @@ pub async fn main_response_mapper(
 					}
 				});
 
-				println!("   ->> client_error_body:\n{client_error_body}");
+				debug!("client_error_body:\n{client_error_body}");
 
 				// Build the new response from the client_error_body.
 				(*status_code, Json(client_error_body)).into_response()
@@ -53,10 +54,11 @@ pub async fn main_response_mapper(
 	)
 	.await
 	{
-		println!("CRITICAL ERROR - COULD NOT LOG_REQUEST - {log_err:?}");
+		error!("CRITICAL ERROR - COULD NOT LOG_REQUEST - {log_err:?}");
 	};
 
-	println!();
+	// The empty line.
+	debug!("");
 
 	// -- Return the appropriate response.
 	error_response.unwrap_or(res)

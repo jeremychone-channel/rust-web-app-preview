@@ -85,16 +85,21 @@ impl TicketBmc {
 mod tests {
 	#![allow(unused)]
 	use super::*;
+	use crate::test_utils::init_test_tracing;
 	use crate::{model, test_utils};
 	use anyhow::Result;
+	use std::env;
+	use tracing::{debug, info};
 
 	#[tokio::test]
 	async fn test_model_ticket_create() -> Result<()> {
-		println!("->> test_model_ticket_create");
 		// -- Setup & Fixtures
+		init_test_tracing();
 		let mm = test_utils::init_dev_all().await;
 		let root_ctx = Ctx::root_ctx();
 		let title = "TEST TITLE - test_model_ticket_create";
+
+		info!("hello");
 
 		// -- Exec - Create
 		let id = TicketBmc::create(
