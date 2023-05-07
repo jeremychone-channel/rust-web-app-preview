@@ -1,7 +1,7 @@
 use crate::crypt::pwd::{self};
 use crate::crypt::EncryptContent;
 use crate::ctx::Ctx;
-use crate::model::store::db::{db_get, DbBmc};
+use crate::model::base::{db_get, DbBmc};
 use crate::model::ModelManager;
 use crate::model::Result;
 use crate::utils;
@@ -72,8 +72,8 @@ impl DbBmc for UserBmc {
 impl UserBmc {
 	#[allow(unused)]
 	pub async fn create(
-		mm: &ModelManager,
 		ctx: &Ctx,
+		mm: &ModelManager,
 		user_fc: UserForCreate,
 	) -> Result<i64> {
 		let db = mm.db();
@@ -95,28 +95,28 @@ impl UserBmc {
 			.fetch_one::<(i64, Uuid), _>(db)
 			.await?;
 
-		Self::update_pwd(mm, ctx, id, &user_fc.pwd_clear);
+		Self::update_pwd(ctx, mm, id, &user_fc.pwd_clear);
 
 		Ok(id)
 	}
 
 	#[allow(unused)]
-	pub async fn get(mm: &ModelManager, _ctx: &Ctx, id: i64) -> Result<User> {
-		db_get::<Self, _>(mm.db(), id).await
+	pub async fn get(ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<User> {
+		db_get::<Self, _>(ctx, mm, id).await
 	}
 
 	#[allow(unused)] // For now, for test only.
 	pub async fn get_for_auth_by_id(
+		ctx: &Ctx,
 		mm: &ModelManager,
-		_ctx: &Ctx,
 		id: i64,
 	) -> Result<UserForAuth> {
-		db_get::<Self, _>(mm.db(), id).await
+		db_get::<Self, _>(ctx, mm, id).await
 	}
 
 	pub async fn get_for_auth_by_username(
-		mm: &ModelManager,
 		_ctx: &Ctx,
+		mm: &ModelManager,
 		username: &str,
 	) -> Result<Option<UserForAuth>> {
 		let db = mm.db();
@@ -131,14 +131,14 @@ impl UserBmc {
 	}
 
 	pub async fn update_pwd(
-		mm: &ModelManager,
 		ctx: &Ctx,
+		mm: &ModelManager,
 		id: i64,
 		pwd_clear: &str,
 	) -> Result<()> {
 		let db = mm.db();
 
-		let user = Self::get_for_auth_by_id(mm, ctx, id).await?;
+		let user = Self::get_for_auth_by_id(ctx, mm, id).await?;
 
 		let pwd = pwd::encrypt_pwd(&EncryptContent {
 			salt: user.pwd_salt.to_string(),
@@ -168,7 +168,7 @@ mod tests {
 	async fn test_model_user_get_demo1() -> Result<()> {
 		let mm = test_utils::init_dev_all().await;
 
-		let user = UserBmc::get_for_auth_by_username(&mm, &Ctx::root_ctx(), "demo1")
+		let user = UserBmc::get_for_auth_by_username(&Ctx::root_ctx(), &mm, "demo1")
 			.await?
 			.context("Should have user 'demo1'")?;
 
@@ -186,8 +186,8 @@ mod tests {
 
 		// -- Exec
 		let id = UserBmc::create(
-			&mm,
 			&ctx,
+			&mm,
 			UserForCreate {
 				username: username.to_string(),
 				pwd_clear: pwd_clear.to_string(),
@@ -196,7 +196,7 @@ mod tests {
 		.await?;
 
 		// -- Check - username
-		let user = UserBmc::get_for_auth_by_id(&mm, &ctx, id).await?;
+		let user = UserBmc::get_for_auth_by_id(&ctx, &mm, id).await?;
 		assert_eq!("demo2", user.username);
 
 		// -- Check - pwd

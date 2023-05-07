@@ -1,4 +1,4 @@
-// #![allow(unused)] // For early development stages.
+#![allow(unused)] // For early development stages.
 
 // -- Sub-Modules
 mod conf;

@@ -13,8 +13,8 @@ pub async fn create_ticket(
 ) -> Result<Ticket> {
 	debug!("{:<12} - create_task", "HANDLER");
 
-	let id = TicketBmc::create(&mm, &ctx, task_fc).await?;
-	let ticket = TicketBmc::get(&mm, &ctx, id).await?;
+	let id = TicketBmc::create(&ctx, &mm, task_fc).await?;
+	let ticket = TicketBmc::get(&ctx, &mm, id).await?;
 
 	Ok(ticket)
 }
@@ -22,7 +22,7 @@ pub async fn create_ticket(
 pub async fn list_tickets(mm: ModelManager, ctx: Ctx) -> Result<Vec<Ticket>> {
 	debug!("{:<12} - create_task", "HANDLER");
 
-	let tickets = TicketBmc::list(&mm, &ctx, None).await?;
+	let tickets = TicketBmc::list(&ctx, &mm, None).await?;
 
 	Ok(tickets)
 }
@@ -35,9 +35,9 @@ pub async fn update_ticket(
 	debug!("{:<12} - update_ticket", "HANDLER");
 
 	let ParamsForUpdate { id, data: ticket_fu } = params;
-	TicketBmc::update(&mm, &ctx, id, ticket_fu).await?;
+	TicketBmc::update(&ctx, &mm, id, ticket_fu).await?;
 
-	let ticket = TicketBmc::get(&mm, &ctx, id).await?;
+	let ticket = TicketBmc::get(&ctx, &mm, id).await?;
 
 	Ok(ticket)
 }
@@ -51,8 +51,8 @@ pub async fn delete_ticket(
 
 	let ParamsIded { id } = params;
 
-	let ticket = TicketBmc::get(&mm, &ctx, id).await?;
-	TicketBmc::delete(&mm, &ctx, id).await?;
+	let ticket = TicketBmc::get(&ctx, &mm, id).await?;
+	TicketBmc::delete(&ctx, &mm, id).await?;
 
 	Ok(ticket)
 }

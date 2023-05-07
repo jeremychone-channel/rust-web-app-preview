@@ -11,11 +11,10 @@ use tracing::debug;
 use uuid::Uuid;
 
 pub async fn mw_req_stamp_resolver<B>(
-	ctx: Result<Ctx>,
 	mut req: Request<B>,
 	next: Next<B>,
 ) -> Result<Response> {
-	debug!("{:<12} - mw_req_stamp_resolver - {ctx:?}", "MIDDLEWARE");
+	debug!("{:<12} - mw_req_stamp_resolver", "MIDDLEWARE");
 
 	let time_in = now_utc();
 	let uuid = Uuid::new_v4();

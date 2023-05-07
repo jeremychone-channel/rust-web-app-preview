@@ -1,7 +1,5 @@
 use crate::ctx::Ctx;
-use crate::model::store::db::{
-	db_create, db_delete, db_get, db_list, db_update, DbBmc,
-};
+use crate::model::base::{db_create, db_delete, db_get, db_list, db_update, DbBmc};
 use crate::model::{ModelManager, Result};
 use modql::filter::FilterGroups;
 use serde::{Deserialize, Serialize};
@@ -47,36 +45,36 @@ impl DbBmc for TicketBmc {
 
 impl TicketBmc {
 	pub async fn create(
-		mm: &ModelManager,
 		ctx: &Ctx,
+		mm: &ModelManager,
 		ticket_fc: TicketForCreate,
 	) -> Result<i64> {
-		db_create::<Self, _>(mm.db(), Some(ctx.user_id()), ticket_fc).await
+		db_create::<Self, _>(ctx, mm, Some(ctx.user_id()), ticket_fc).await
 	}
 
-	pub async fn get(mm: &ModelManager, _ctx: &Ctx, id: i64) -> Result<Ticket> {
-		db_get::<Self, _>(mm.db(), id).await
+	pub async fn get(ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<Ticket> {
+		db_get::<Self, _>(ctx, mm, id).await
 	}
 
 	pub async fn list(
+		ctx: &Ctx,
 		mm: &ModelManager,
-		_ctx: &Ctx,
 		_filter: impl Into<Option<FilterGroups>>,
 	) -> Result<Vec<Ticket>> {
-		db_list::<Self, _>(mm.db()).await
+		db_list::<Self, _>(ctx, mm).await
 	}
 
 	pub async fn update(
-		mm: &ModelManager,
 		ctx: &Ctx,
+		mm: &ModelManager,
 		id: i64,
 		ticket_fu: TicketForUpdate,
 	) -> Result<()> {
-		db_update::<Self, _>(mm.db(), Some(ctx.user_id()), id, ticket_fu).await
+		db_update::<Self, _>(ctx, mm, Some(ctx.user_id()), id, ticket_fu).await
 	}
 
-	pub async fn delete(mm: &ModelManager, _ctx: &Ctx, id: i64) -> Result<()> {
-		db_delete::<Self>(mm.db(), id).await
+	pub async fn delete(ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<()> {
+		db_delete::<Self>(ctx, mm, id).await
 	}
 }
 
@@ -103,18 +101,18 @@ mod tests {
 
 		// -- Exec - Create
 		let id = TicketBmc::create(
-			&mm,
 			&root_ctx,
+			&mm,
 			TicketForCreate { title: title.to_string() },
 		)
 		.await?;
 
 		// -- Check - Create
-		let ticket = TicketBmc::get(&mm, &root_ctx, id).await?;
+		let ticket = TicketBmc::get(&root_ctx, &mm, id).await?;
 		assert_eq!(title, ticket.title);
 
 		// -- Clean - Delete
-		TicketBmc::delete(&mm, &root_ctx, id).await?;
+		TicketBmc::delete(&root_ctx, &mm, id).await?;
 
 		Ok(())
 	}
@@ -127,7 +125,7 @@ mod tests {
 		let id = 10; // below 1000 so should have no row.
 
 		// -- Exec
-		let res = TicketBmc::delete(&mm, &root_ctx, id).await;
+		let res = TicketBmc::delete(&root_ctx, &mm, id).await;
 
 		// -- Check
 		assert!(

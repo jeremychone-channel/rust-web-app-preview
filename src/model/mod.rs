@@ -3,6 +3,7 @@
 
 // region:    --- Modules
 // -- Sub-Modules
+mod base;
 pub mod error;
 mod store;
 pub mod ticket;
@@ -14,7 +15,7 @@ pub use self::store::init_dev_db::init_dev_db;
 
 // -- Imports
 use crate::conf;
-use crate::model::store::db::Db;
+use crate::model::store::Db;
 use sqlx::postgres::PgPoolOptions;
 // endregion: --- Modules
 

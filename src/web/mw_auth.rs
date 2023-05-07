@@ -47,7 +47,7 @@ pub async fn mw_ctx_resolver<B>(
 	// Get the user from the db.
 	let result_user = match &token {
 		Ok(token) => {
-			UserBmc::get_for_auth_by_username(&mm, &Ctx::root_ctx(), &token.user)
+			UserBmc::get_for_auth_by_username(&Ctx::root_ctx(), &mm, &token.user)
 				.await? // If cannot access the DB, critical enough to return Error. TODO: To reassess.
 				.ok_or(CtxAuthError::FailFoundUser(token.user.to_string()))
 		}

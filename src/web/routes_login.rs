@@ -31,7 +31,7 @@ async fn api_login_handler(
 	let LoginPayload { username, pwd: pwd_clear } = payload;
 
 	// -- Get the user.
-	let user = UserBmc::get_for_auth_by_username(&mm, &Ctx::root_ctx(), &username)
+	let user = UserBmc::get_for_auth_by_username(&Ctx::root_ctx(), &mm, &username)
 		.await?
 		.ok_or(Error::LoginFailUsernameNotFound)?;
 
@@ -47,14 +47,14 @@ async fn api_login_handler(
 	// -- If pwd scheme outdated, update it.
 	if let SchemeStatus::Outdated = scheme_status {
 		debug!("pwd encrypt scheme outdated, upgrading.");
-		UserBmc::update_pwd(&mm, &Ctx::root_ctx(), user.id, &pwd_clear).await?;
+		UserBmc::update_pwd(&Ctx::root_ctx(), &mm, user.id, &pwd_clear).await?;
 	}
 
 	// -- Generate the web token.
 	let token = generate_token(&user.username, &user.token_salt.to_string())?;
 	cookies.add(Cookie::new(web::AUTH_TOKEN, token.to_string()));
 
-	// Create the success body.
+	// -- Create the success body.
 	let body = Json(json!({
 		"result": {
 			"success": true

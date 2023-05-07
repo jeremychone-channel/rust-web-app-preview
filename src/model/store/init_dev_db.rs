@@ -1,6 +1,7 @@
 use crate::crypt::pwd::{self};
 use crate::crypt::EncryptContent;
-use crate::model::{self, Db};
+use crate::model;
+use crate::model::store::Db;
 use sqlx::postgres::PgPoolOptions;
 use std::fs;
 use std::path::PathBuf;
