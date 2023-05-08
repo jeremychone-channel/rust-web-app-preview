@@ -20,7 +20,14 @@ RUST_LOG="rust_axum_base=debug,quick_dev=debug"
 # e.g., "welcome" type of passwords.
 # i.e., Encryption not needed.
 
+## -- Secrets
 SERVICE_DB_URL="postgres://app_user:dev_only_pwd@localhost/app_db"
 
 SERVICE_KEY_PWD="U96vOyRaI4tjumjHRk0FK2D1N1UAg2jiVZ66y-3Q0k_BfgY3Gmvft0A2JDzb9ZgT2QzGPgBUJnGtc_1MBeUS5w"
 SERVICE_KEY_TOKEN="CUF2rzJgVUSMYKls9ysmUGbZlha7H-HvqjHroY_wYPuUZsXqz7wpkGn3XVubVY8wfhLH7H8_0ksxOMkJiSiCWQ"
+
+
+## -- ConfigMap
+# This will be relative to Cargo.toml
+# In prod dockers, probalby use absolute path.
+SERVICE_WEB_FOLDER="content/" 

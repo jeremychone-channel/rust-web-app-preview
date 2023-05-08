@@ -19,6 +19,7 @@ pub use conf::conf;
 // -- Imports
 use crate::model::ModelManager;
 use crate::web::mw_req_stamp::mw_req_stamp_resolver;
+use crate::web::routes_static::serve_dir;
 use axum::{middleware, Router};
 use std::net::SocketAddr;
 use tower_cookies::CookieManagerLayer;
@@ -55,7 +56,7 @@ async fn main() -> Result<()> {
 		))
 		.layer(middleware::from_fn(mw_req_stamp_resolver))
 		.layer(CookieManagerLayer::new())
-		.fallback_service(web::routes_static::routes());
+		.fallback_service(web::routes_static::serve_dir());
 
 	// region:    --- Start Server
 	let addr = SocketAddr::from(([127, 0, 0, 1], 8080));

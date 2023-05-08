@@ -1,7 +1,7 @@
 #![allow(unused)] // For initial development only.
 
 use anyhow::Result;
-use serde_json::json;
+use serde_json::{json, Value};
 use std::time::Duration;
 use tokio::time::sleep;
 use tracing::info;
@@ -10,7 +10,7 @@ use tracing::info;
 async fn main() -> Result<()> {
 	let hc = httpc_test::new_client("http://localhost:8080")?;
 
-	// hc.do_get("/main.rs").await?.print().await?;
+	hc.do_get("/index.html").await?.print().await?;
 
 	let req_login = hc.do_post(
 		"/api/login",
@@ -35,6 +35,7 @@ async fn main() -> Result<()> {
 	);
 	req_create_ticket.await?.print().await?;
 
+	// region:    --- Opional Delete
 	// let req_delete_tickets = hc.do_post(
 	// 	"/api/rpc",
 	// 	json!({
@@ -46,6 +47,7 @@ async fn main() -> Result<()> {
 	// 	}),
 	// );
 	// req_delete_tickets.await?.print().await?;
+	// endregion: --- Opional Delete
 
 	let req_list_tickets = hc.do_post(
 		"/api/rpc",
