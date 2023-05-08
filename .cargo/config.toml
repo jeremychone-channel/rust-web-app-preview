@@ -30,4 +30,4 @@ SERVICE_KEY_TOKEN="CUF2rzJgVUSMYKls9ysmUGbZlha7H-HvqjHroY_wYPuUZsXqz7wpkGn3XVubV
 ## -- ConfigMap
 # This will be relative to Cargo.toml
 # In prod dockers, probalby use absolute path.
-SERVICE_WEB_FOLDER="content/" 
+SERVICE_WEB_FOLDER="web-folder/" 

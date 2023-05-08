@@ -21,6 +21,9 @@ pub struct Conf {
 
 	// -- Db
 	pub DB_URL: String,
+
+	// -- Web
+	pub WEB_FOLDER: String,
 }
 
 impl Conf {
@@ -33,6 +36,9 @@ impl Conf {
 
 			// -- Db
 			DB_URL: get_env("SERVICE_DB_URL")?,
+
+			// -- Web
+			WEB_FOLDER: get_env("SERVICE_WEB_FOLDER")?,
 		})
 	}
 }
