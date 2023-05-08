@@ -1,10 +1,8 @@
-mod rpc_ticket;
+mod rpc_task;
 
 use crate::ctx::Ctx;
 use crate::model::ModelManager;
-use crate::web::rpc::rpc_ticket::{
-	create_ticket, delete_ticket, list_tickets, update_ticket,
-};
+use crate::web::rpc::rpc_task::{create_task, delete_task, list_tasks, update_task};
 use crate::web::{Error, Result};
 use axum::extract::State;
 use axum::response::{IntoResponse, Response};
@@ -85,10 +83,10 @@ async fn rpc_handler_inner(
 
 	let res = match rpc_method.as_str() {
 		// Ticket CRUD
-		"create_ticket" => exec_rpc_fn!(create_ticket, mm, ctx, rpc_params),
-		"list_tickets" => exec_rpc_fn!(list_tickets, mm, ctx),
-		"update_ticket" => exec_rpc_fn!(update_ticket, mm, ctx, rpc_params),
-		"delete_ticket" => exec_rpc_fn!(delete_ticket, mm, ctx, rpc_params),
+		"create_task" => exec_rpc_fn!(create_task, mm, ctx, rpc_params),
+		"list_tasks" => exec_rpc_fn!(list_tasks, mm, ctx),
+		"update_task" => exec_rpc_fn!(update_task, mm, ctx, rpc_params),
+		"delete_task" => exec_rpc_fn!(delete_task, mm, ctx, rpc_params),
 		_ => return Err(Error::RpcMethodUnkown(rpc_method)),
 	};
 

@@ -23,40 +23,40 @@ async fn main() -> Result<()> {
 
 	// sleep(Duration::from_secs(3)).await;
 
-	let req_create_ticket = hc.do_post(
+	let req_create_task = hc.do_post(
 		"/api/rpc",
 		json!({
 			"id": null,
-			"method": "create_ticket",
+			"method": "create_task",
 			"params": {
-				"title": "ticket AAA"
+				"title": "task AAA"
 			}
 		}),
 	);
-	req_create_ticket.await?.print().await?;
+	req_create_task.await?.print().await?;
 
 	// region:    --- Opional Delete
-	// let req_delete_tickets = hc.do_post(
+	// let req_delete_tasks = hc.do_post(
 	// 	"/api/rpc",
 	// 	json!({
 	// 		"id": 11,
-	// 		"method": "delete_ticket",
+	// 		"method": "delete_task",
 	// 		"params": {
 	// 			"id": 1001
 	// 		}
 	// 	}),
 	// );
-	// req_delete_tickets.await?.print().await?;
+	// req_delete_tasks.await?.print().await?;
 	// endregion: --- Opional Delete
 
-	let req_list_tickets = hc.do_post(
+	let req_list_tasks = hc.do_post(
 		"/api/rpc",
 		json!({
 			"id": 11,
-			"method": "list_tickets"
+			"method": "list_tasks"
 		}),
 	);
-	req_list_tickets.await?.print().await?;
+	req_list_tasks.await?.print().await?;
 
 	Ok(())
 }

@@ -9,10 +9,10 @@ use sqlx::FromRow;
 use time::format_description::well_known::Rfc3339;
 use time::OffsetDateTime;
 
-// region:    --- Ticket Types
+// region:    --- Task Types
 #[serde_as]
 #[derive(Clone, Fields, FromRow, Debug, Deserialize, Serialize)]
-pub struct Ticket {
+pub struct Task {
 	pub id: i64,
 
 	// -- Timestamps
@@ -27,32 +27,32 @@ pub struct Ticket {
 }
 
 #[derive(Deserialize, Fields)]
-pub struct TicketForCreate {
+pub struct TaskForCreate {
 	pub title: String,
 }
 
 #[derive(Deserialize, Fields)]
-pub struct TicketForUpdate {
+pub struct TaskForUpdate {
 	pub title: Option<String>,
 }
-// endregion: --- Ticket Types
+// endregion: --- Task Types
 
-pub struct TicketBmc;
+pub struct TaskBmc;
 
-impl DbBmc for TicketBmc {
-	const TABLE: &'static str = "ticket";
+impl DbBmc for TaskBmc {
+	const TABLE: &'static str = "task";
 }
 
-impl TicketBmc {
+impl TaskBmc {
 	pub async fn create(
 		ctx: &Ctx,
 		mm: &ModelManager,
-		ticket_fc: TicketForCreate,
+		task_fc: TaskForCreate,
 	) -> Result<i64> {
-		db_create::<Self, _>(ctx, mm, Some(ctx.user_id()), ticket_fc).await
+		db_create::<Self, _>(ctx, mm, Some(ctx.user_id()), task_fc).await
 	}
 
-	pub async fn get(ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<Ticket> {
+	pub async fn get(ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<Task> {
 		db_get::<Self, _>(ctx, mm, id).await
 	}
 
@@ -60,7 +60,7 @@ impl TicketBmc {
 		ctx: &Ctx,
 		mm: &ModelManager,
 		_filter: impl Into<Option<FilterGroups>>,
-	) -> Result<Vec<Ticket>> {
+	) -> Result<Vec<Task>> {
 		db_list::<Self, _>(ctx, mm).await
 	}
 
@@ -68,9 +68,9 @@ impl TicketBmc {
 		ctx: &Ctx,
 		mm: &ModelManager,
 		id: i64,
-		ticket_fu: TicketForUpdate,
+		task_fu: TaskForUpdate,
 	) -> Result<()> {
-		db_update::<Self, _>(ctx, mm, Some(ctx.user_id()), id, ticket_fu).await
+		db_update::<Self, _>(ctx, mm, Some(ctx.user_id()), id, task_fu).await
 	}
 
 	pub async fn delete(ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<()> {
@@ -90,46 +90,46 @@ mod tests {
 	use tracing::{debug, info};
 
 	#[tokio::test]
-	async fn test_model_ticket_create() -> Result<()> {
+	async fn test_model_task_create() -> Result<()> {
 		// -- Setup & Fixtures
 		init_test_tracing();
 		let mm = test_utils::init_dev_all().await;
 		let root_ctx = Ctx::root_ctx();
-		let title = "TEST TITLE - test_model_ticket_create";
+		let title = "TEST TITLE - test_model_task_create";
 
 		info!("hello");
 
 		// -- Exec - Create
-		let id = TicketBmc::create(
+		let id = TaskBmc::create(
 			&root_ctx,
 			&mm,
-			TicketForCreate { title: title.to_string() },
+			TaskForCreate { title: title.to_string() },
 		)
 		.await?;
 
 		// -- Check - Create
-		let ticket = TicketBmc::get(&root_ctx, &mm, id).await?;
-		assert_eq!(title, ticket.title);
+		let task = TaskBmc::get(&root_ctx, &mm, id).await?;
+		assert_eq!(title, task.title);
 
 		// -- Clean - Delete
-		TicketBmc::delete(&root_ctx, &mm, id).await?;
+		TaskBmc::delete(&root_ctx, &mm, id).await?;
 
 		Ok(())
 	}
 
 	#[tokio::test]
-	async fn test_model_ticket_delete_fail() -> Result<()> {
+	async fn test_model_task_delete_fail() -> Result<()> {
 		// -- Setup & Fixtures
 		let mm = test_utils::init_dev_all().await;
 		let root_ctx = Ctx::root_ctx();
 		let id = 10; // below 1000 so should have no row.
 
 		// -- Exec
-		let res = TicketBmc::delete(&root_ctx, &mm, id).await;
+		let res = TaskBmc::delete(&root_ctx, &mm, id).await;
 
 		// -- Check
 		assert!(
-			matches!(res, Err(model::Error::EntityNotFound { typ: "ticket", id })),
+			matches!(res, Err(model::Error::EntityNotFound { typ: "task", id })),
 			"EntityNotFound not matching"
 		);
 

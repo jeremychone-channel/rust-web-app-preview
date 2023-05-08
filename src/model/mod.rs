@@ -6,7 +6,7 @@
 mod base;
 pub mod error;
 mod store;
-pub mod ticket;
+pub mod task;
 pub mod user;
 
 // -- Re-Exports
