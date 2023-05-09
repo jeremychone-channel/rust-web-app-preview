@@ -1,6 +1,7 @@
 #![allow(unused)] // For early development stages.
 
-// -- Sub-Modules
+// region:    --- Modules
+
 mod conf;
 mod crypt;
 mod ctx;
@@ -12,11 +13,9 @@ mod web;
 // #[cfg(test)] // For now, test_utils::init is getting used on start server.
 pub mod test_utils;
 
-// -- Re-Exports
 pub use self::error::{Error, Result};
 pub use conf::conf;
 
-// -- Imports
 use crate::model::ModelManager;
 use crate::web::mw_req_stamp::mw_req_stamp_resolver;
 use crate::web::routes_static::serve_dir;
@@ -25,6 +24,8 @@ use std::net::SocketAddr;
 use tower_cookies::CookieManagerLayer;
 use tracing::info;
 use tracing_subscriber::EnvFilter;
+
+// endregion: --- Section
 
 #[tokio::main]
 async fn main() -> Result<()> {

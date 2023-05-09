@@ -34,6 +34,7 @@ cargo watch -q -c -w examples/ -x "run --example quick_dev"
 or cargo watch the unit tests.
 
 ```sh
+# Important - set threads to 1 since many test might use DB.
 cargo watch -q -c -x "test -- --test-threads=1"
 ```
 

@@ -1,14 +1,19 @@
-pub use self::error::{Error, Result};
-use time::OffsetDateTime;
-use uuid::Uuid;
+// region:    --- Modules
 
-pub mod error;
+mod error;
 pub mod mw_auth;
 pub mod mw_req_stamp;
 pub mod mw_res_mapper;
 pub mod routes_login;
 pub mod routes_static;
 pub mod rpc;
+
+pub use self::error::{Error, Result};
+
+use time::OffsetDateTime;
+use uuid::Uuid;
+
+// endregion: --- Modules
 
 pub const AUTH_TOKEN: &str = "auth-token";
 

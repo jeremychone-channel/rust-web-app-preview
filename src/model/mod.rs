@@ -1,22 +1,25 @@
-//! Simplistic Model Layer
-//! (with mock-store layer)
+//! Model Layer
+//! Design:
+//! - Model layer normalize application data type structure and aaccess
+//! - All application code data access, must go through the model layer.
+//! - In a web-app settings, `ModelManager` have the internal model states.
+//! - And used to call the entity Backend Model Controllers (aka, `Bmc`). e.g., `TicketBmc`
 
 // region:    --- Modules
-// -- Sub-Modules
+
 mod base;
 pub mod error;
 mod store;
 pub mod task;
 pub mod user;
 
-// -- Re-Exports
 pub use self::error::{Error, Result};
 pub use self::store::init_dev_db::init_dev_db;
 
-// -- Imports
 use crate::conf;
 use crate::model::store::Db;
 use sqlx::postgres::PgPoolOptions;
+
 // endregion: --- Modules
 
 #[derive(Clone)]
