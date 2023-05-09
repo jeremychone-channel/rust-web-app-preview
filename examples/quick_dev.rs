@@ -36,23 +36,23 @@ async fn main() -> Result<()> {
 	req_create_task.await?.print().await?;
 
 	// region:    --- Opional Delete
-	// let req_delete_tasks = hc.do_post(
-	// 	"/api/rpc",
-	// 	json!({
-	// 		"id": 11,
-	// 		"method": "delete_task",
-	// 		"params": {
-	// 			"id": 1001
-	// 		}
-	// 	}),
-	// );
-	// req_delete_tasks.await?.print().await?;
+	let req_delete_tasks = hc.do_post(
+		"/api/rpc",
+		json!({
+			"id": 11,
+			"method": "delete_task",
+			"params": {
+				"id": 1001
+			}
+		}),
+	);
+	req_delete_tasks.await?.print().await?;
 	// endregion: --- Opional Delete
 
 	let req_list_tasks = hc.do_post(
 		"/api/rpc",
 		json!({
-			"id": 11,
+			"id": 22,
 			"method": "list_tasks"
 		}),
 	);

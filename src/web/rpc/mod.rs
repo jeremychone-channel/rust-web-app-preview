@@ -98,6 +98,7 @@ async fn rpc_handler_inner(
 	Ok(Json(body_response))
 }
 
+#[derive(Debug)]
 pub struct RpcCtx {
 	pub id: Option<Value>,
 	pub method: String,

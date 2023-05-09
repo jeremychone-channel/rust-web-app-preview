@@ -61,7 +61,9 @@ where
 		.fetch_one::<E, _>(db)
 		.await
 		.map_err(|ex| match ex {
-			sqlx::Error::RowNotFound => Error::EntityNotFound { typ: MC::TABLE, id },
+			sqlx::Error::RowNotFound => {
+				Error::EntityNotFound { entity: MC::TABLE, id }
+			}
 			_ => Error::Sqlx(ex),
 		})?;
 
@@ -111,7 +113,7 @@ where
 		.await?;
 
 	if count == 0 {
-		Err(Error::EntityNotFound { typ: MC::TABLE, id })
+		Err(Error::EntityNotFound { entity: MC::TABLE, id })
 	} else {
 		Ok(())
 	}
@@ -131,7 +133,7 @@ where
 		.await?;
 
 	if count == 0 {
-		Err(Error::EntityNotFound { typ: MC::TABLE, id })
+		Err(Error::EntityNotFound { entity: MC::TABLE, id })
 	} else {
 		Ok(())
 	}

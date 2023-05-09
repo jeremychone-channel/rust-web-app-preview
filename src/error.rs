@@ -2,6 +2,7 @@ use crate::{model, web};
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use serde::Serialize;
+use serde_with::skip_serializing_none;
 use tracing::debug;
 
 pub type Result<T> = core::result::Result<T, Error>;
@@ -83,11 +84,11 @@ impl Error {
 				(StatusCode::FORBIDDEN, ClientError::NO_AUTH)
 			}
 			Self::Web(web::Error::Model(model::Error::EntityNotFound {
-				typ,
+				entity: typ,
 				id,
 			})) => (
 				StatusCode::BAD_REQUEST,
-				ClientError::EntityNotFound { typ, id: *id },
+				ClientError::EntityNotFound { entity: typ, id: *id },
 			),
 
 			// -- Fallback.
@@ -99,12 +100,13 @@ impl Error {
 	}
 }
 
-#[derive(Debug, strum_macros::AsRefStr)]
+#[derive(Debug, Serialize, strum_macros::AsRefStr)]
+#[serde(tag = "message", content = "detail")]
 #[allow(non_camel_case_types)]
 pub enum ClientError {
 	LOGIN_FAIL,
 	NO_AUTH,
-	EntityNotFound { typ: &'static str, id: i64 },
+	EntityNotFound { entity: &'static str, id: i64 },
 	INVALID_PARAMS,
 	SERVICE_ERROR,
 }

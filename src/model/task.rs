@@ -129,7 +129,10 @@ mod tests {
 
 		// -- Check
 		assert!(
-			matches!(res, Err(model::Error::EntityNotFound { typ: "task", id })),
+			matches!(
+				res,
+				Err(model::Error::EntityNotFound { entity: "task", id })
+			),
 			"EntityNotFound not matching"
 		);
 

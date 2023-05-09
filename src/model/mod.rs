@@ -1,9 +1,9 @@
 //! Model Layer
 //! Design:
-//! - Model layer normalize application data type structure and aaccess
-//! - All application code data access, must go through the model layer.
-//! - In a web-app settings, `ModelManager` have the internal model states.
-//! - And used to call the entity Backend Model Controllers (aka, `Bmc`). e.g., `TicketBmc`
+//! - The Model layer normalizes the application's data type structure and access.
+//! - All application code data access must go through the Model layer.
+//! - In a web-app setting, `ModelManager` holds the internal model states.
+//! - It's used to call the entity Backend Model Controllers (aka, `Bmc`), e.g., `TicketBmc`.
 
 // region:    --- Modules
 
