@@ -36,12 +36,16 @@ async fn api_login_handler(
 		.ok_or(Error::LoginFailUsernameNotFound)?;
 
 	// -- Validate the password.
+	let Some(pwd) = user.pwd else {
+		return Err(Error::LoginFailUserHasNoPwd{ username }) ;
+	};
+
 	let scheme_status = pwd::validate_pwd(
 		&EncryptContent {
 			salt: user.pwd_salt.to_string(),
 			content: pwd_clear.clone(),
 		},
-		&user.pwd,
+		&pwd,
 	)?;
 
 	// -- If pwd scheme outdated, update it.

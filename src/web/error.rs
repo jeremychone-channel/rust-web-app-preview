@@ -16,6 +16,7 @@ pub enum Error {
 	// -- Login
 	LoginFail,
 	LoginFailUsernameNotFound,
+	LoginFailUserHasNoPwd { username: String },
 
 	// -- Auth
 	AuthFailUserNotFound,

@@ -90,6 +90,9 @@ impl Error {
 				StatusCode::BAD_REQUEST,
 				ClientError::EntityNotFound { entity: typ, id: *id },
 			),
+			Self::Web(web::Error::Model(model::Error::UserAlreadyExists {
+				..
+			})) => (StatusCode::BAD_REQUEST, ClientError::USER_ALREADY_EXISTS),
 
 			// -- Fallback.
 			_ => (
@@ -104,6 +107,7 @@ impl Error {
 #[serde(tag = "message", content = "detail")]
 #[allow(non_camel_case_types)]
 pub enum ClientError {
+	USER_ALREADY_EXISTS,
 	LOGIN_FAIL,
 	NO_AUTH,
 	EntityNotFound { entity: &'static str, id: i64 },

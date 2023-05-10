@@ -2,8 +2,8 @@ use crate::crypt::pwd::{self};
 use crate::crypt::EncryptContent;
 use crate::ctx::Ctx;
 use crate::model::base::{db_get, DbBmc};
-use crate::model::ModelManager;
 use crate::model::Result;
+use crate::model::{Error, ModelManager};
 use crate::utils;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
@@ -35,16 +35,10 @@ pub struct UserForAuth {
 	pub id: i64,
 	pub username: String,
 
-	// -- Timestamps
-	pub cid: i64,
-	pub ctime: OffsetDateTime,
-	pub mid: i64,
-	pub mtime: OffsetDateTime,
-
 	// -- pwd and salts
-	pub pwd: String,      // encrypted, #_scheme_id_#....
-	pub pwd_salt: Uuid,   // UUID
-	pub token_salt: Uuid, // UUID
+	pub pwd: Option<String>, // encrypted, #_scheme_id_#....
+	pub pwd_salt: Uuid,      // UUID
+	pub token_salt: Uuid,    // UUID
 }
 
 #[derive(Fields)]
@@ -80,8 +74,10 @@ impl UserBmc {
 
 		let now = utils::now_utc();
 
+		let UserForCreate { username, pwd_clear } = user_fc;
+
 		let user = UserForInsert {
-			username: user_fc.username,
+			username: username.to_string(),
 			cid: ctx.user_id(),
 			ctime: now,
 			mid: ctx.user_id(),
@@ -93,9 +89,20 @@ impl UserBmc {
 			.data(user.fields())
 			.returning(&["id", "pwd_salt"])
 			.fetch_one::<(i64, Uuid), _>(db)
-			.await?;
+			.await
+			.map_err(|sqlx_error| match sqlx_error.as_database_error() {
+				Some(db_error) => {
+					if let Some(code) = db_error.code() {
+						if code == "23505" {
+							return Error::UserAlreadyExists { username };
+						}
+					}
+					Error::Sqlx(sqlx_error)
+				}
+				_ => Error::Sqlx(sqlx_error),
+			})?;
 
-		Self::update_pwd(ctx, mm, id, &user_fc.pwd_clear);
+		Self::update_pwd(ctx, mm, id, &pwd_clear).await?;
 
 		Ok(id)
 	}
@@ -205,8 +212,48 @@ mod tests {
 				salt: user.pwd_salt.to_string(),
 				content: pwd_clear.to_string(),
 			},
-			&user.pwd,
+			&user.pwd.unwrap(),
 		)?;
+
+		Ok(())
+	}
+
+	#[tokio::test]
+	async fn test_model_user_create_demo3_twice_and_fail() -> Result<()> {
+		// -- Setup & Fixtures
+		let mm = test_utils::init_dev_all().await;
+		let ctx = Ctx::root_ctx();
+		let username = "demo3";
+		let pwd_clear = "wecome3";
+
+		// -- Exec
+		let id = UserBmc::create(
+			&ctx,
+			&mm,
+			UserForCreate {
+				username: username.to_string(),
+				pwd_clear: pwd_clear.to_string(),
+			},
+		)
+		.await?;
+
+		let res = UserBmc::create(
+			&ctx,
+			&mm,
+			UserForCreate {
+				username: username.to_string(),
+				pwd_clear: pwd_clear.to_string(),
+			},
+		)
+		.await;
+
+		let expected_error: Result<i64, Error> =
+			Err(Error::UserAlreadyExists { username: username.to_string() });
+
+		assert!(
+			matches!(&res, expected_error),
+			"Error not matching.\nexpected: {expected_error:?}\nfound: {res:?}"
+		);
 
 		Ok(())
 	}
