@@ -10,7 +10,7 @@ use time::OffsetDateTime;
 
 // region:    --- Task Types
 #[serde_as]
-#[derive(Clone, Fields, FromRow, Debug, Deserialize, Serialize)]
+#[derive(Clone, Fields, FromRow, Debug, Serialize)]
 pub struct Task {
 	pub id: i64,
 
@@ -81,8 +81,6 @@ mod tests {
 	use crate::test_utils::init_test_tracing;
 	use crate::{model, test_utils};
 	use anyhow::Result;
-	use std::env;
-	use tracing::{debug, info};
 
 	#[tokio::test]
 	async fn test_model_task_create() -> Result<()> {
@@ -91,8 +89,6 @@ mod tests {
 		let mm = test_utils::init_dev_all().await;
 		let root_ctx = Ctx::root_ctx();
 		let title = "TEST TITLE - test_model_task_create";
-
-		info!("hello");
 
 		// -- Exec - Create
 		let id = TaskBmc::create(
@@ -113,7 +109,7 @@ mod tests {
 	}
 
 	#[tokio::test]
-	async fn test_model_task_delete_fail() -> Result<()> {
+	async fn test_model_task_delete_err() -> Result<()> {
 		// -- Setup & Fixtures
 		let mm = test_utils::init_dev_all().await;
 		let root_ctx = Ctx::root_ctx();

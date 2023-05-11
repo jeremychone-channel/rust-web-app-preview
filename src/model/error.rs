@@ -17,9 +17,8 @@ pub enum Error {
 	// -- Dev
 	DevFailInitDb(String),
 
-	// -- External
-	Io(String),
-
+	// -- Externals
+	Io(#[serde_as(as = "DisplayFromStr")] std::io::Error),
 	Sqlx(#[serde_as(as = "DisplayFromStr")] sqlx::Error),
 }
 
@@ -49,7 +48,7 @@ impl From<sqlx::Error> for Error {
 }
 impl From<std::io::Error> for Error {
 	fn from(val: std::io::Error) -> Self {
-		Error::Io(val.to_string())
+		Error::Io(val)
 	}
 }
 // endregion: --- Froms
