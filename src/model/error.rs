@@ -37,11 +37,6 @@ impl std::error::Error for Error {}
 // endregion: --- Error Boilerplate
 
 // region:    --- Froms
-impl From<mock_store::Error> for Error {
-	fn from(val: mock_store::Error) -> Self {
-		Error::Store(val.to_string())
-	}
-}
 impl From<crate::crypt::Error> for Error {
 	fn from(val: crate::crypt::Error) -> Self {
 		Error::Crypt(val.to_string())

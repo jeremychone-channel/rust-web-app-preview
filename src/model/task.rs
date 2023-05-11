@@ -1,7 +1,6 @@
 use crate::ctx::Ctx;
 use crate::model::base::{db_create, db_delete, db_get, db_list, db_update, DbBmc};
 use crate::model::{ModelManager, Result};
-use modql::filter::FilterGroups;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use sqlb::Fields;
@@ -56,11 +55,7 @@ impl TaskBmc {
 		db_get::<Self, _>(ctx, mm, id).await
 	}
 
-	pub async fn list(
-		ctx: &Ctx,
-		mm: &ModelManager,
-		_filter: impl Into<Option<FilterGroups>>,
-	) -> Result<Vec<Task>> {
+	pub async fn list(ctx: &Ctx, mm: &ModelManager) -> Result<Vec<Task>> {
 		db_list::<Self, _>(ctx, mm).await
 	}
 

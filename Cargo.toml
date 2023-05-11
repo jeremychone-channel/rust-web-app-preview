@@ -28,10 +28,8 @@ sha2 = "0.10"
 uuid = {version = "1", features = ["v4", "fast-rng",]}
 base64-url = "2"
 # -- Data
-sqlx = { version = "0.6", features = [ "runtime-tokio-rustls", "postgres", "uuid" ] }
+sqlx = { version = "0.6", features = [ "runtime-tokio-rustls", "postgres", "uuid", "time" ] }
 sqlb = "0.1"
-mock-store = "0.2"
-modql = "0.2"
 # -- Others
 lazy-regex = "2"
 time = "0.3"

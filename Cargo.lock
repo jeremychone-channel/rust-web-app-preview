@@ -1037,40 +1037,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "mock-store"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "916d6a971a901a5a17010b2368b4c3e8b60a78867a9f58a99487a9c92f4c7882"
-dependencies = [
- "modql",
- "serde",
- "serde_json",
- "tokio",
-]
-
-[[package]]
-name = "modql"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9b058876135070ec17e24f598abb48502d68563728b8c0e1a4d33a84200b1257"
-dependencies = [
- "modql-macros",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "modql-macros"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4eb4067623ad8886ae27a6a1aab23afd71c118e2eac87c24baa01ac2e1257adc"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.15",
-]
-
-[[package]]
 name = "native-tls"
 version = "0.2.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1500,8 +1466,6 @@ dependencies = [
  "hmac",
  "httpc-test",
  "lazy-regex",
- "mock-store",
- "modql",
  "once_cell",
  "rand",
  "serde",
