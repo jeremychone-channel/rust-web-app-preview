@@ -40,6 +40,7 @@ pub struct TaskBmc;
 
 impl DbBmc for TaskBmc {
 	const TABLE: &'static str = "task";
+	const HAS_TIMESTAMPS: bool = true;
 }
 
 impl TaskBmc {
@@ -48,7 +49,7 @@ impl TaskBmc {
 		mm: &ModelManager,
 		task_fc: TaskForCreate,
 	) -> Result<i64> {
-		db_create::<Self, _>(ctx, mm, Some(ctx.user_id()), task_fc).await
+		db_create::<Self, _>(ctx, mm, task_fc).await
 	}
 
 	pub async fn get(ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<Task> {
@@ -65,7 +66,7 @@ impl TaskBmc {
 		id: i64,
 		task_fu: TaskForUpdate,
 	) -> Result<()> {
-		db_update::<Self, _>(ctx, mm, Some(ctx.user_id()), id, task_fu).await
+		db_update::<Self, _>(ctx, mm, id, task_fu).await
 	}
 
 	pub async fn delete(ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<()> {

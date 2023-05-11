@@ -1738,9 +1738,9 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 
 [[package]]
 name = "sqlb"
-version = "0.1.0"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6072ba678f4c529f9c80d453877e906b8d6b034f23230ee3d2f62173d02d4aad"
+checksum = "c3ddd164336fdba64745e470cfab0e54e54a896acca183ac1eeeafe8d712bd69"
 dependencies = [
  "async-trait",
  "sqlb-macros",

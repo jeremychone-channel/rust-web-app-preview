@@ -35,7 +35,7 @@ or cargo watch the unit tests.
 
 ```sh
 # Important - set threads to 1 since many test might use DB.
-cargo watch -q -c -x "test -- --test-threads=1"
+cargo watch -q -c -x "test -- --nocapture --test-threads=1"
 ```
 
 
@@ -46,7 +46,7 @@ cargo watch -q -c -x "test -- --test-threads=1"
 cargo run
 
 # Terminal 2 - For quick dev.
-cargo watch -q -c -w examples/ -x "run --example quick_dev"
+cargo run --example quick_dev
 ```
 
 or unit tests

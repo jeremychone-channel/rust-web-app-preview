@@ -29,8 +29,6 @@ pub struct ModelManager {
 
 impl ModelManager {
 	/// Constructor
-	/// FIXME - Use once_cell or something To make sure it is call only once.
-	///         But should probably failed is call twice.
 	pub async fn new() -> Result<Self> {
 		let db: Db = PgPoolOptions::new()
 			.max_connections(5)

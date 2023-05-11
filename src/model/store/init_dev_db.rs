@@ -99,13 +99,7 @@ async fn pexec(db: &Db, file: &str) -> Result<(), sqlx::Error> {
 
 	// -- SQL Execute each part.
 	for sql in sqls {
-		match sqlx::query(sql).execute(db).await {
-			Ok(_) => (),
-			Err(ex) => {
-				// Note: For now we do not stop on part failure (since for dev only)
-				warn!("WARNING - pexec - Sql file '{}' FAILED cause: {}", file, ex)
-			}
-		}
+		sqlx::query(sql).execute(db).await?;
 	}
 
 	Ok(())

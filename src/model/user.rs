@@ -61,6 +61,7 @@ pub struct UserBmc;
 
 impl DbBmc for UserBmc {
 	const TABLE: &'static str = "user";
+	const HAS_TIMESTAMPS: bool = true;
 }
 
 impl UserBmc {
@@ -88,7 +89,7 @@ impl UserBmc {
 			.table(Self::TABLE)
 			.data(user.fields())
 			.returning(&["id", "pwd_salt"])
-			.fetch_one::<(i64, Uuid), _>(db)
+			.fetch_one::<_, (i64, Uuid)>(db)
 			.await
 			.map_err(|sqlx_error| match sqlx_error.as_database_error() {
 				Some(db_error) => {
@@ -131,7 +132,7 @@ impl UserBmc {
 		let user = sqlb::select()
 			.table(Self::TABLE)
 			.and_where("username", "=", username)
-			.fetch_optional::<UserForAuth, _>(db)
+			.fetch_optional::<_, UserForAuth>(db)
 			.await?;
 
 		Ok(user)

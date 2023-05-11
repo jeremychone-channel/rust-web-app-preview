@@ -1,8 +1,6 @@
 //! Base Bmcs implementations.
 //! For now, focuses on the "Db Bmcs."
 
-// region:    --- Modules
-
 use crate::ctx::Ctx;
 use crate::model::store::Db;
 use crate::model::{Error, ModelManager, Result};
@@ -11,18 +9,12 @@ use sqlb::HasFields;
 use sqlx::postgres::PgRow;
 use sqlx::FromRow;
 
-// endregion: --- Modules
-
 pub trait DbBmc {
 	const TABLE: &'static str;
+	const HAS_TIMESTAMPS: bool;
 }
 
-pub async fn db_create<MC, D>(
-	_ctx: &Ctx,
-	mm: &ModelManager,
-	user_id: Option<i64>,
-	data: D,
-) -> Result<i64>
+pub async fn db_create<MC, D>(ctx: &Ctx, mm: &ModelManager, data: D) -> Result<i64>
 where
 	MC: DbBmc,
 	D: HasFields,
@@ -30,7 +22,9 @@ where
 	let db = mm.db();
 
 	let mut fields = data.fields();
-	if let Some(user_id) = user_id {
+
+	if MC::HAS_TIMESTAMPS {
+		let user_id = ctx.user_id();
 		let now = utils::now_utc();
 		fields.push(("cid", user_id).into());
 		fields.push(("ctime", now).into());
@@ -42,7 +36,7 @@ where
 		.table(MC::TABLE)
 		.data(fields)
 		.returning(&["id"])
-		.fetch_one::<(i64,), _>(db)
+		.fetch_one::<_, (i64,)>(db)
 		.await?;
 
 	Ok(id)
@@ -58,7 +52,7 @@ where
 	let entity = sqlb::select()
 		.table(MC::TABLE)
 		.and_where("id", "=", id)
-		.fetch_one::<E, _>(db)
+		.fetch_one::<_, E>(db)
 		.await
 		.map_err(|ex| match ex {
 			sqlx::Error::RowNotFound => {
@@ -79,16 +73,15 @@ where
 
 	let entity = sqlb::select()
 		.table(MC::TABLE)
-		.fetch_all::<E, _>(db)
+		.fetch_all::<_, E>(db)
 		.await?;
 
 	Ok(entity)
 }
 
 pub async fn db_update<MC, D>(
-	_ctx: &Ctx,
+	ctx: &Ctx,
 	mm: &ModelManager,
-	user_id: Option<i64>,
 	id: i64,
 	data: D,
 ) -> Result<()>
@@ -99,7 +92,9 @@ where
 	let db = mm.db();
 
 	let mut fields = data.fields();
-	if let Some(user_id) = user_id {
+
+	if MC::HAS_TIMESTAMPS {
+		let user_id = ctx.user_id();
 		let now = utils::now_utc();
 		fields.push(("mid", user_id).into());
 		fields.push(("mtime", now).into());
@@ -128,7 +123,6 @@ where
 	let count = sqlb::delete()
 		.table(MC::TABLE)
 		.and_where("id", "=", id)
-		.returning(&["id"])
 		.exec(db)
 		.await?;
 
