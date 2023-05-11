@@ -2,8 +2,7 @@ use crate::crypt::pwd::{self};
 use crate::crypt::EncryptContent;
 use crate::ctx::Ctx;
 use crate::model::base::{db_get, DbBmc};
-use crate::model::Result;
-use crate::model::{Error, ModelManager};
+use crate::model::{Error, ModelManager, Result};
 use crate::utils;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
@@ -29,16 +28,10 @@ pub struct User {
 	pub mtime: OffsetDateTime,
 }
 
-#[serde_as]
-#[derive(Clone, Fields, FromRow, Debug)]
-pub struct UserForAuth {
-	pub id: i64,
+#[derive(Deserialize)]
+pub struct UserForCreate {
 	pub username: String,
-
-	// -- pwd and salts
-	pub pwd: Option<String>, // encrypted, #_scheme_id_#....
-	pub pwd_salt: Uuid,      // UUID
-	pub token_salt: Uuid,    // UUID
+	pub pwd_clear: String,
 }
 
 #[derive(Fields)]
@@ -50,11 +43,18 @@ pub struct UserForInsert {
 	pub mtime: OffsetDateTime,
 }
 
-#[derive(Deserialize)]
-pub struct UserForCreate {
+#[serde_as]
+#[derive(Clone, FromRow, Debug)]
+pub struct UserForAuth {
+	pub id: i64,
 	pub username: String,
-	pub pwd_clear: String,
+
+	// -- pwd and salts
+	pub pwd: Option<String>, // encrypted, #_scheme_id_#....
+	pub pwd_salt: Uuid,      // UUID
+	pub token_salt: Uuid,    // UUID
 }
+
 // endregion: --- User Types
 
 pub struct UserBmc;
@@ -113,7 +113,6 @@ impl UserBmc {
 		db_get::<Self, _>(ctx, mm, id).await
 	}
 
-	#[allow(unused)] // For now, for test only.
 	pub async fn get_for_auth_by_id(
 		ctx: &Ctx,
 		mm: &ModelManager,

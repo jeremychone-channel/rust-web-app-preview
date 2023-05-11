@@ -1,4 +1,4 @@
-#![allow(unused)] // For early development stages.
+// #![allow(unused)] // For early development stages.
 
 // region:    --- Modules
 
@@ -18,7 +18,6 @@ pub use conf::conf;
 
 use crate::model::ModelManager;
 use crate::web::mw_req_stamp::mw_req_stamp_resolver;
-use crate::web::routes_static::serve_dir;
 use axum::{middleware, Router};
 use std::net::SocketAddr;
 use tower_cookies::CookieManagerLayer;

@@ -10,16 +10,17 @@ pub fn now_utc() -> OffsetDateTime {
 }
 
 pub fn format_time(time: OffsetDateTime) -> String {
+	// Because native time format, safe enough to unwrap.
 	time.format(&Rfc3339).unwrap()
 }
 
 pub fn now_utc_plus_sec_str(sec: f64) -> String {
 	let new_time = now_utc() + Duration::seconds_f64(sec);
-	// Because native time format, safe enough to unwrap.
+
 	format_time(new_time)
 }
 
-pub fn parse_iso8601(moment: &str) -> Result<OffsetDateTime> {
+pub fn parse_utc(moment: &str) -> Result<OffsetDateTime> {
 	OffsetDateTime::parse(moment, &Rfc3339)
 		.map_err(|_| Error::DateFailParse(moment.to_string()))
 }

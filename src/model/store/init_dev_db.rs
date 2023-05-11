@@ -7,7 +7,6 @@ use std::fs;
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::Duration;
-use tracing::log::warn;
 use tracing::{error, info};
 use uuid::Uuid;
 

@@ -2,7 +2,6 @@ use crate::{model, web};
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use serde::Serialize;
-use serde_with::skip_serializing_none;
 use tracing::debug;
 
 pub type Result<T> = core::result::Result<T, Error>;

@@ -6,7 +6,7 @@ use crate::Error;
 use axum::http::{Method, Uri};
 use axum::response::{IntoResponse, Response};
 use axum::Json;
-use serde_json::{json, to_value, Value};
+use serde_json::{json, to_value};
 use tracing::{debug, error};
 
 pub async fn main_response_mapper(
@@ -29,7 +29,7 @@ pub async fn main_response_mapper(
 		client_status_error
 			.as_ref()
 			.map(|(status_code, client_error)| {
-				let mut client_error = to_value(client_error).unwrap();
+				let client_error = to_value(client_error).unwrap();
 				let message = client_error.get("message");
 				let detail = client_error.get("detail");
 

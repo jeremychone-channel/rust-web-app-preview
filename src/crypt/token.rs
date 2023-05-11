@@ -1,7 +1,7 @@
 use crate::crypt::EncryptContent;
 use crate::crypt::{Error, Result};
 use crate::utils::{
-	b64u_decode, b64u_encode, now_utc, now_utc_plus_sec_str, parse_iso8601,
+	b64u_decode, b64u_encode, now_utc, now_utc_plus_sec_str, parse_utc,
 };
 use crate::{conf, crypt};
 
@@ -76,7 +76,7 @@ pub fn validate_token_sign_and_exp(origin_token: &Token, salt: &str) -> Result<(
 
 	// -- Validate expiration.
 	let origin_exp =
-		parse_iso8601(&origin_token.exp).map_err(|_| Error::TokenExpNotIso)?;
+		parse_utc(&origin_token.exp).map_err(|_| Error::TokenExpNotIso)?;
 	let now = now_utc();
 
 	if origin_exp < now {

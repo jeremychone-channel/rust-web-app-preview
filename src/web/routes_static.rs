@@ -1,8 +1,7 @@
 use crate::conf;
 use axum::handler::HandlerWithoutStateExt;
 use axum::http::StatusCode;
-use axum::routing::{any_service, get_service, MethodRouter};
-use axum::Router;
+use axum::routing::{any_service, MethodRouter};
 use tower_http::services::ServeDir;
 
 // See: https://github.com/tokio-rs/axum/issues/1931#issuecomment-1506067949
