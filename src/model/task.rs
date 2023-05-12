@@ -79,15 +79,14 @@ impl TaskBmc {
 mod tests {
 	#![allow(unused)]
 	use super::*;
-	use crate::test_utils::init_test_tracing;
-	use crate::{model, test_utils};
+	use crate::_dev_utils;
+	use crate::model;
 	use anyhow::Result;
 
 	#[tokio::test]
 	async fn test_create() -> Result<()> {
 		// -- Setup & Fixtures
-		init_test_tracing();
-		let mm = test_utils::init_dev_all().await;
+		let mm = _dev_utils::init_dev_all().await;
 		let root_ctx = Ctx::root_ctx();
 		let title = "TEST TITLE - test_model_task_create";
 
@@ -112,7 +111,7 @@ mod tests {
 	#[tokio::test]
 	async fn test_delete_err() -> Result<()> {
 		// -- Setup & Fixtures
-		let mm = test_utils::init_dev_all().await;
+		let mm = _dev_utils::init_dev_all().await;
 		let root_ctx = Ctx::root_ctx();
 		let id = 10; // below 1000 so should have no row.
 

@@ -14,7 +14,6 @@ pub mod task;
 pub mod user;
 
 pub use self::error::{Error, Result};
-pub use self::store::init_dev_db::init_dev_db;
 
 use crate::conf;
 use crate::model::store::Db;

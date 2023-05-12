@@ -168,12 +168,12 @@ impl UserBmc {
 mod tests {
 	#![allow(unused)]
 	use super::*;
-	use crate::test_utils;
+	use crate::_dev_utils;
 	use anyhow::{Context, Result};
 
 	#[tokio::test]
 	async fn test_get_demo1() -> Result<()> {
-		let mm = test_utils::init_dev_all().await;
+		let mm = _dev_utils::init_dev_all().await;
 
 		let user =
 			UserBmc::first_for_auth_by_username(&Ctx::root_ctx(), &mm, "demo1")
@@ -187,7 +187,7 @@ mod tests {
 	#[tokio::test]
 	async fn test_create_demo2() -> Result<()> {
 		// -- Setup & Fixtures
-		let mm = test_utils::init_dev_all().await;
+		let mm = _dev_utils::init_dev_all().await;
 		let ctx = Ctx::root_ctx();
 		let username = "demo2";
 		let pwd_clear = "wecome2";
@@ -222,7 +222,7 @@ mod tests {
 	#[tokio::test]
 	async fn test_create_demo3_twice_and_err() -> Result<()> {
 		// -- Setup & Fixtures
-		let mm = test_utils::init_dev_all().await;
+		let mm = _dev_utils::init_dev_all().await;
 		let ctx = Ctx::root_ctx();
 		let username = "demo3";
 		let pwd_clear = "wecome3";

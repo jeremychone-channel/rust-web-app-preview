@@ -11,7 +11,7 @@ mod model;
 mod utils;
 mod web;
 // #[cfg(test)] // For now, test_utils::init is getting used on start server.
-pub mod test_utils;
+pub mod _dev_utils;
 
 pub use self::error::{Error, Result};
 pub use conf::conf;
@@ -35,7 +35,7 @@ async fn main() -> Result<()> {
 		.init();
 
 	// -- FOR DEV ONLY
-	test_utils::init_dev_all().await;
+	_dev_utils::init_dev_all().await;
 
 	// -- Initialize ModelController
 	let mm = ModelManager::new().await?;

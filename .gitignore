@@ -2,18 +2,10 @@
 .*
 !.gitignore
 
-# Allows cargo config (for cargo envs)
-!.cargo/
-# Allows .env (for early developmment) 
-!.env
-
-# By default
-_*
-
 # -- Rust
 target/
-# '_' in src dir, ok.
-!src/**/_*
+# Allow (.e.g., .cargo/config.toml)
+!.cargo/
 
 
 # -- Safety net

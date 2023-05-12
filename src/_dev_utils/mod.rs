@@ -1,8 +1,12 @@
-use crate::model::{init_dev_db, ModelManager};
+// region:    --- Modules
+mod dev_db;
+
+use crate::model::ModelManager;
 use std::sync::Once;
 use tokio::sync::OnceCell;
 use tracing::info;
 use tracing_subscriber::EnvFilter;
+// endregion: --- Modules
 
 // Initializer for local development
 // (for early development, called from `main()`)
@@ -13,7 +17,7 @@ pub async fn init_dev_all() -> ModelManager {
 		.get_or_init(|| async {
 			info!("{:<12} - init_dev()", "FOR-DEV-ONLY");
 
-			init_dev_db().await.unwrap();
+			dev_db::init_dev_db().await.unwrap();
 
 			ModelManager::new().await.unwrap()
 		})

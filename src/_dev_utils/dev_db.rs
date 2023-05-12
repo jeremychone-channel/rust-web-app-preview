@@ -1,8 +1,8 @@
 use crate::crypt::pwd::{self};
 use crate::crypt::EncryptContent;
 use crate::model;
-use crate::model::store::Db;
 use sqlx::postgres::PgPoolOptions;
+use sqlx::{Pool, Postgres};
 use std::fs;
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -10,7 +10,7 @@ use std::time::Duration;
 use tracing::{error, info};
 use uuid::Uuid;
 
-// TODO: Probably need to move this to crate::test_utils
+pub type Db = Pool<Postgres>;
 
 // NOTE: As this module is supposed to be ran only on local development
 //       we hardcode the postgres "root" url/pwd and the app_db names and pwd
