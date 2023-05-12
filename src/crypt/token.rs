@@ -87,7 +87,7 @@ pub fn validate_token_sign_and_exp(origin_token: &Token, salt: &str) -> Result<(
 }
 
 fn sign_into_b64u(user: &str, exp: &str, salt: &str) -> Result<String> {
-	let key = &conf().KEY_TOKEN;
+	let key = &conf().TOKEN_KEY;
 	let content = format!("{}.{}", b64u_encode(user), b64u_encode(exp));
 	let signature = crypt::encrypt_into_b64u(
 		key,

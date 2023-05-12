@@ -31,14 +31,14 @@ fn extract_scheme(enc_content: &str) -> Result<String> {
 }
 
 fn encrypt_scheme_01(enc_pwd_args: &EncryptContent) -> Result<String> {
-	let key = &conf().KEY_PWD;
+	let key = &conf().PWD_KEY;
 
 	encrypt_into_b64u(key, enc_pwd_args)
 }
 
 // In this example, same a scheme_01 (showing that it works)
 fn encrypt_scheme_02(enc_pwd_args: &EncryptContent) -> Result<String> {
-	let key = &conf().KEY_PWD;
+	let key = &conf().PWD_KEY;
 
 	encrypt_into_b64u(key, enc_pwd_args)
 }

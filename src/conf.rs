@@ -15,8 +15,9 @@ pub fn conf() -> &'static Conf {
 #[allow(non_snake_case)]
 pub struct Conf {
 	// -- Crypt
-	pub KEY_PWD: Vec<u8>,
-	pub KEY_TOKEN: Vec<u8>,
+	pub PWD_KEY: Vec<u8>,
+
+	pub TOKEN_KEY: Vec<u8>,
 	pub TOKEN_DURATION_SEC: f64,
 
 	// -- Db
@@ -30,8 +31,8 @@ impl Conf {
 	fn load_from_env() -> Result<Conf> {
 		Ok(Conf {
 			// -- Crypt
-			KEY_PWD: get_env_b64u_as_u8s("SERVICE_KEY_PWD")?,
-			KEY_TOKEN: get_env_b64u_as_u8s("SERVICE_KEY_TOKEN")?,
+			PWD_KEY: get_env_b64u_as_u8s("SERVICE_PWD_KEY")?,
+			TOKEN_KEY: get_env_b64u_as_u8s("SERVICE_TOKEN_KEY")?,
 			TOKEN_DURATION_SEC: 1800.,
 
 			// -- Db
