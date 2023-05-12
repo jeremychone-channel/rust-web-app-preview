@@ -10,41 +10,6 @@ pub fn encrypt_pwd(args: &EncryptContent) -> Result<String> {
 	encrypt_for_scheme(DEFAULT_SCHEME, args) // "" for default scheme
 }
 
-fn encrypt_for_scheme(scheme: &str, args: &EncryptContent) -> Result<String> {
-	let pwd = match scheme {
-		"01" => encrypt_scheme_01(args),
-		DEFAULT_SCHEME => encrypt_scheme_02(args),
-		_ => Err(Error::SchemeUnknown(scheme.to_string())),
-	};
-
-	Ok(format!("#{scheme}#{}", pwd?))
-}
-
-// region:    --- Scheme Infra
-fn extract_scheme(enc_content: &str) -> Result<String> {
-	regex_captures!(
-		r#"^#(\w+)#.*"#, // a literal regex
-		enc_content
-	)
-	.map(|(_whole, scheme)| scheme.to_string())
-	.ok_or(Error::SchemeNotFoundInContent)
-}
-
-fn encrypt_scheme_01(enc_pwd_args: &EncryptContent) -> Result<String> {
-	let key = &conf().PWD_KEY;
-
-	encrypt_into_b64u(key, enc_pwd_args)
-}
-
-// In this example, same a scheme_01 (showing that it works)
-fn encrypt_scheme_02(enc_pwd_args: &EncryptContent) -> Result<String> {
-	let key = &conf().PWD_KEY;
-
-	encrypt_into_b64u(key, enc_pwd_args)
-}
-// endregion: --- Scheme Infra
-
-// region:    --- Validation
 pub enum SchemeStatus {
 	Ok,       // The pwd use the latest scheme. All good.
 	Outdated, // The pwd use a old scheme. Would need to be re-encrypted.
@@ -64,7 +29,40 @@ pub fn validate_pwd(args: &EncryptContent, pwd_ref: &str) -> Result<SchemeStatus
 		Err(Error::PwdNotMatching)
 	}
 }
-// endregion: --- Validation
+
+// region:    --- Scheme Infra
+fn encrypt_for_scheme(scheme: &str, args: &EncryptContent) -> Result<String> {
+	let pwd = match scheme {
+		"01" => encrypt_scheme_01(args),
+		DEFAULT_SCHEME => encrypt_scheme_02(args),
+		_ => Err(Error::SchemeUnknown(scheme.to_string())),
+	};
+
+	Ok(format!("#{scheme}#{}", pwd?))
+}
+
+fn extract_scheme(enc_content: &str) -> Result<String> {
+	regex_captures!(
+		r#"^#(\w+)#.*"#, // a literal regex
+		enc_content
+	)
+	.map(|(_whole, scheme)| scheme.to_string())
+	.ok_or(Error::SchemeNotFoundInContent)
+}
+
+fn encrypt_scheme_01(enc_content: &EncryptContent) -> Result<String> {
+	let key = &conf().PWD_KEY;
+
+	encrypt_into_b64u(key, enc_content)
+}
+
+// In this example, same a scheme_01 (showing that it works)
+fn encrypt_scheme_02(enc_pwd_args: &EncryptContent) -> Result<String> {
+	let key = &conf().PWD_KEY;
+
+	encrypt_into_b64u(key, enc_pwd_args)
+}
+// endregion: --- Scheme Infra
 
 // region:    --- Tests
 #[cfg(test)]
