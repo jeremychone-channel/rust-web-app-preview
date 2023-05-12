@@ -14,6 +14,8 @@ use time::OffsetDateTime;
 pub struct Task {
 	pub id: i64,
 
+	pub title: String,
+
 	// -- Timestamps
 	pub cid: i64,
 	#[serde_as(as = "Rfc3339")]
@@ -21,8 +23,6 @@ pub struct Task {
 	pub mid: i64,
 	#[serde_as(as = "Rfc3339")]
 	pub mtime: OffsetDateTime,
-
-	pub title: String,
 }
 
 #[derive(Deserialize, Fields)]
@@ -84,7 +84,7 @@ mod tests {
 	use anyhow::Result;
 
 	#[tokio::test]
-	async fn test_model_task_create() -> Result<()> {
+	async fn test_create() -> Result<()> {
 		// -- Setup & Fixtures
 		init_test_tracing();
 		let mm = test_utils::init_dev_all().await;
@@ -110,7 +110,7 @@ mod tests {
 	}
 
 	#[tokio::test]
-	async fn test_model_task_delete_err() -> Result<()> {
+	async fn test_delete_err() -> Result<()> {
 		// -- Setup & Fixtures
 		let mm = test_utils::init_dev_all().await;
 		let root_ctx = Ctx::root_ctx();

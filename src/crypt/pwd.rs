@@ -77,7 +77,7 @@ mod tests {
 	use tracing::debug;
 
 	#[test]
-	fn test_pwd_encrypt() -> Result<()> {
+	fn test_encrypt() -> Result<()> {
 		let salt = "some-salt".to_string();
 		let pwd_clear = "welcome".to_string();
 		let pwd_enc = encrypt_pwd(&EncryptContent { salt, content: pwd_clear })?;
@@ -87,7 +87,7 @@ mod tests {
 	}
 
 	#[test]
-	fn test_pwd_validate() -> Result<()> {
+	fn test_validate() -> Result<()> {
 		let salt = "some-salt";
 		let pwd_clear = "welcome";
 
@@ -108,7 +108,7 @@ mod tests {
 	}
 
 	#[test]
-	fn test_pwd_extract_scheme() -> Result<()> {
+	fn test_extract_scheme() -> Result<()> {
 		let s = "#01#G1Awj9k19UY2D04EQ9DCxpSIxMApGgI0Ogvg+Xi/QXoXEO1b5hAXmusXmT2wo/L8VWenfZShPT42gk7k3BZSwA==";
 		assert_eq!("01", extract_scheme(s)?);
 		Ok(())

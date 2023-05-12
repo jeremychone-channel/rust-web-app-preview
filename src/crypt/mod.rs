@@ -19,8 +19,11 @@ pub struct EncryptContent {
 	pub salt: String,
 }
 
-pub fn encrypt_into_b64u(key: &[u8], enc_args: &EncryptContent) -> Result<String> {
-	let EncryptContent { content, salt } = enc_args;
+pub fn encrypt_into_b64u(
+	key: &[u8],
+	enc_content: &EncryptContent,
+) -> Result<String> {
+	let EncryptContent { content, salt } = enc_content;
 
 	// Create a HMAC-SHA-512
 	let mut hmac_sha512 =

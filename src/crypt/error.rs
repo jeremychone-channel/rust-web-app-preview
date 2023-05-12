@@ -4,15 +4,17 @@ pub type Result<T> = core::result::Result<T, Error>;
 
 #[derive(Debug, Serialize)]
 pub enum Error {
+	// -- Key
+	KeyFailHmac,
+	KeyFailB64UDecode,
+	KeyFailHmacToString,
+
+	// -- Pwd
+	PwdNotMatching,
 	SchemeUnknown(String),
 	SchemeNotFoundInContent,
 
-	KeyFailB64UDecode,
-	KeyFailHmac,
-	KeyFailHmacToString,
-
-	PwdNotMatching,
-
+	// -- Token
 	TokenInvalidFormat,
 	TokenSignatureNotMatching,
 	TokenExpNotIso,

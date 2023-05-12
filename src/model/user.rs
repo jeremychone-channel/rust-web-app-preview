@@ -121,7 +121,7 @@ impl UserBmc {
 		db_get::<Self, _>(ctx, mm, id).await
 	}
 
-	pub async fn get_for_auth_by_username(
+	pub async fn first_for_auth_by_username(
 		_ctx: &Ctx,
 		mm: &ModelManager,
 		username: &str,
@@ -172,19 +172,20 @@ mod tests {
 	use anyhow::{Context, Result};
 
 	#[tokio::test]
-	async fn test_model_user_get_demo1() -> Result<()> {
+	async fn test_get_demo1() -> Result<()> {
 		let mm = test_utils::init_dev_all().await;
 
-		let user = UserBmc::get_for_auth_by_username(&Ctx::root_ctx(), &mm, "demo1")
-			.await?
-			.context("Should have user 'demo1'")?;
+		let user =
+			UserBmc::first_for_auth_by_username(&Ctx::root_ctx(), &mm, "demo1")
+				.await?
+				.context("Should have user 'demo1'")?;
 
 		assert_eq!("demo1", user.username);
 		Ok(())
 	}
 
 	#[tokio::test]
-	async fn test_model_user_create_demo2() -> Result<()> {
+	async fn test_create_demo2() -> Result<()> {
 		// -- Setup & Fixtures
 		let mm = test_utils::init_dev_all().await;
 		let ctx = Ctx::root_ctx();
@@ -219,7 +220,7 @@ mod tests {
 	}
 
 	#[tokio::test]
-	async fn test_model_user_create_demo3_twice_and_fail() -> Result<()> {
+	async fn test_create_demo3_twice_and_err() -> Result<()> {
 		// -- Setup & Fixtures
 		let mm = test_utils::init_dev_all().await;
 		let ctx = Ctx::root_ctx();

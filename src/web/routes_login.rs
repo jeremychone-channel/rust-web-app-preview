@@ -31,7 +31,7 @@ async fn api_login_handler(
 	let LoginPayload { username, pwd: pwd_clear } = payload;
 
 	// -- Get the user.
-	let user = UserBmc::get_for_auth_by_username(&Ctx::root_ctx(), &mm, &username)
+	let user = UserBmc::first_for_auth_by_username(&Ctx::root_ctx(), &mm, &username)
 		.await?
 		.ok_or(Error::LoginFailUsernameNotFound)?;
 
