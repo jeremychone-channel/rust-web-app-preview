@@ -1,23 +1,22 @@
 # Cargo config file. 
 # See: https://doc.rust-lang.org/cargo/reference/config.html
 
-# Environments variables set by `cargo ...` commands
+# Environments variables set for all `cargo ...` commands
 [env]
 
 # Scope down tracing, to filter out external lib tracing.
-RUST_LOG="rust_axum_base=debug,quick_dev=debug"
+RUST_LOG="rust_axum_base=debug"
 
 # -- Service Environment Variables
 
 # IMPORTANT: 
-# For cargo commands only. 
-# Will be moved to kubernetes or alike env later. 
+#   For cargo commands only. 
+#   Will be moved to kubernetes or alike env later. 
 
+## -- Secrets
 # Keys and passwords below are for localhost dev ONLY.
 # e.g., "welcome" type of passwords.
 # i.e., Encryption not needed.
-
-## -- Secrets
 SERVICE_DB_URL="postgres://app_user:dev_only_pwd@localhost/app_db"
 
 SERVICE_PWD_KEY="U96vOyRaI4tjumjHRk0FK2D1N1UAg2jiVZ66y-3Q0k_BfgY3Gmvft0A2JDzb9ZgT2QzGPgBUJnGtc_1MBeUS5w"
@@ -26,5 +25,5 @@ SERVICE_TOKEN_KEY="CUF2rzJgVUSMYKls9ysmUGbZlha7H-HvqjHroY_wYPuUZsXqz7wpkGn3XVubV
 
 ## -- ConfigMap
 # This will be relative to Cargo.toml
-# In prod dockers, probalby use absolute path.
+# In prod dockers, probably use absolute path.
 SERVICE_WEB_FOLDER="web-folder/" 

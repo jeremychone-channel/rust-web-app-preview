@@ -25,7 +25,7 @@ ALTER DATABASE postgres SET log_statement = 'all';
 
 ```sh
 # Terminal 1 - For server run.
-cargo watch -q -c -w src/ -x "run"
+cargo watch -q -c -w src/ -w .cargo/ -x "run"
 
 # Terminal 2 - For quick dev.
 cargo watch -q -c -w examples/ -x "run --example quick_dev"

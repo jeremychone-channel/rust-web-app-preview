@@ -48,7 +48,7 @@ pub async fn main_response_mapper(
 
 				});
 
-				debug!("client_error_body:\n{client_error_body}");
+				debug!("CLIENT ERROR BODY:\n{client_error_body}");
 
 				// Build the new response from the client_error_body.
 				(*status_code, Json(client_error_body)).into_response()
