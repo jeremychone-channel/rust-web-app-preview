@@ -7,10 +7,12 @@ pub type Result<T> = core::result::Result<T, Error>;
 
 #[derive(Debug, Serialize)]
 pub enum Error {
+	// -- RPC
 	RpcMethodUnkown(String),
 	RpcMissingParams { rpc_method: String },
 	RpcFailJsonParams { rpc_method: String },
 
+	// -- Middelware/Extractor
 	ReqStampNotInResponseExt,
 
 	// -- Login
@@ -20,7 +22,6 @@ pub enum Error {
 
 	// -- Auth
 	AuthFailUserNotFound,
-
 	CtxAuth(crate::web::mw_auth::CtxAuthError),
 
 	// -- Sub Modules
@@ -30,19 +31,6 @@ pub enum Error {
 	// -- External Modules
 	SerdeJson(String),
 }
-
-// region:    --- Error Boilerplate
-impl core::fmt::Display for Error {
-	fn fmt(
-		&self,
-		fmt: &mut core::fmt::Formatter,
-	) -> core::result::Result<(), core::fmt::Error> {
-		write!(fmt, "{self:?}")
-	}
-}
-
-impl std::error::Error for Error {}
-// endregion: --- Error Boilerplate
 
 // region:    --- Error Froms
 impl From<crate::model::Error> for Error {
@@ -82,3 +70,16 @@ impl IntoResponse for Error {
 	}
 }
 // endregion: --- Axum IntoResponse
+
+// region:    --- Error Boilerplate
+impl core::fmt::Display for Error {
+	fn fmt(
+		&self,
+		fmt: &mut core::fmt::Formatter,
+	) -> core::result::Result<(), core::fmt::Error> {
+		write!(fmt, "{self:?}")
+	}
+}
+
+impl std::error::Error for Error {}
+// endregion: --- Error Boilerplate
