@@ -11,8 +11,7 @@ pub enum Error {
 	DbFailToCreatePool(String),
 
 	// -- Sub-Modules
-	Crypt(String),
-	Store(String),
+	Crypt(crate::crypt::Error),
 
 	// -- Dev
 	DevFailInitDb(String),
@@ -38,7 +37,7 @@ impl std::error::Error for Error {}
 // region:    --- Froms
 impl From<crate::crypt::Error> for Error {
 	fn from(val: crate::crypt::Error) -> Self {
-		Error::Crypt(val.to_string())
+		Error::Crypt(val)
 	}
 }
 impl From<sqlx::Error> for Error {

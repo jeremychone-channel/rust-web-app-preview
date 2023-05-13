@@ -1,8 +1,6 @@
 // region:    --- Modules
 
-mod error;
-
-pub use self::error::{Error, Result};
+pub use crate::{Error, Result};
 
 // endregion: --- Modules
 

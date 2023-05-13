@@ -5,7 +5,7 @@ use tracing::debug;
 
 pub type Result<T> = core::result::Result<T, Error>;
 
-#[derive(Debug, Serialize, strum_macros::AsRefStr)]
+#[derive(Debug, Serialize)]
 pub enum Error {
 	RpcMethodUnkown(String),
 	RpcMissingParams { rpc_method: String },
@@ -26,7 +26,6 @@ pub enum Error {
 	// -- Sub Modules
 	Crypt(crate::crypt::Error),
 	Model(crate::model::Error),
-	Ctx(crate::ctx::Error),
 
 	// -- External Modules
 	SerdeJson(String),
@@ -61,12 +60,6 @@ impl From<serde_json::Error> for Error {
 impl From<crate::crypt::Error> for Error {
 	fn from(val: crate::crypt::Error) -> Self {
 		Error::Crypt(val)
-	}
-}
-
-impl From<crate::ctx::Error> for Error {
-	fn from(val: crate::ctx::Error) -> Self {
-		Self::Ctx(val)
 	}
 }
 

@@ -1,8 +1,6 @@
-use crate::{model, web};
+use crate::{crypt, model, web};
 use axum::http::StatusCode;
-use axum::response::{IntoResponse, Response};
 use serde::Serialize;
-use tracing::debug;
 
 pub type Result<T> = core::result::Result<T, Error>;
 
@@ -12,21 +10,19 @@ pub enum Error {
 	// -- Conf
 	ConfMissingEnv(&'static str),
 	ConfWrongFormat(&'static str),
+	FailToLoadConf(&'static str),
 
 	// -- Sub-Modules
 	Web(web::Error),
-	Crypt(String),
-	Ctx(crate::ctx::Error),
-
-	// -- Model errors.
+	Crypt(crypt::Error),
 	Model(model::Error),
 
 	// -- Utils
 	FailToB64UDecode,
 	DateFailParse(String),
 
-	// -- Conf
-	FailToLoadConf(&'static str),
+	// -- Others
+	CtxCannotNewRootCtx,
 }
 
 // region:    --- Error Boilerplate
@@ -45,7 +41,7 @@ impl std::error::Error for Error {}
 // region:    --- Error Froms
 impl From<crate::crypt::Error> for Error {
 	fn from(val: crate::crypt::Error) -> Self {
-		Error::Crypt(val.to_string())
+		Error::Crypt(val)
 	}
 }
 
@@ -55,22 +51,6 @@ impl From<crate::model::Error> for Error {
 	}
 }
 // endregion: --- Error Froms
-
-// region:    --- Axum IntoResponse
-impl IntoResponse for Error {
-	fn into_response(self) -> Response {
-		debug!("{:<12} - {self:?}", "INTO_RES");
-
-		// Create a placeholder Axum reponse.
-		let mut response = StatusCode::INTERNAL_SERVER_ERROR.into_response();
-
-		// Insert the Error into the reponse.
-		response.extensions_mut().insert(self);
-
-		response
-	}
-}
-// endregion: --- Axum IntoResponse
 
 impl Error {
 	pub fn client_status_and_error(&self) -> (StatusCode, ClientError) {
