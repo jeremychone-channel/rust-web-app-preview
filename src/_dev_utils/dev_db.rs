@@ -1,6 +1,5 @@
 use crate::crypt::pwd::{self};
 use crate::crypt::EncryptContent;
-use crate::model;
 use sqlx::postgres::PgPoolOptions;
 use sqlx::{Pool, Postgres};
 use std::fs;
@@ -12,8 +11,7 @@ use uuid::Uuid;
 
 pub type Db = Pool<Postgres>;
 
-// NOTE: As this module is supposed to be ran only on local development
-//       we hardcode the postgres "root" url/pwd and the app_db names and pwd
+// NOTE: Harcode to prevent deployed system db update.
 const PG_DEV_POSTGRES_URL: &str = "postgres://postgres:welcome@localhost/postgres";
 const PG_DEV_APP_URL: &str = "postgres://app_user:dev_only_pwd@localhost/app_db";
 
@@ -23,7 +21,7 @@ const SQL_RECREATE: &str = "sql/initial/00-recreate-db.sql";
 
 // type Db = Pool<Postgres>;
 
-pub async fn init_dev_db() -> Result<(), model::Error> {
+pub async fn init_dev_db() -> Result<(), Box<dyn std::error::Error>> {
 	info!("{:<12} - init_dev_db()", "FOR-DEV-ONLY");
 
 	// Prevent to call this function more than one time to ensure
