@@ -1,3 +1,4 @@
+use crate::{crypt, model, web};
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use serde::Serialize;
@@ -22,19 +23,19 @@ pub enum Error {
 
 	// -- Auth
 	AuthFailUserNotFound,
-	CtxAuth(crate::web::mw_auth::CtxAuthError),
+	CtxAuth(web::mw_auth::CtxAuthError),
 
 	// -- Sub Modules
-	Crypt(crate::crypt::Error),
-	Model(crate::model::Error),
+	Crypt(crypt::Error),
+	Model(model::Error),
 
 	// -- External Modules
 	SerdeJson(String),
 }
 
 // region:    --- Error Froms
-impl From<crate::model::Error> for Error {
-	fn from(val: crate::model::Error) -> Self {
+impl From<model::Error> for Error {
+	fn from(val: model::Error) -> Self {
 		Error::Model(val)
 	}
 }
@@ -45,8 +46,8 @@ impl From<serde_json::Error> for Error {
 	}
 }
 
-impl From<crate::crypt::Error> for Error {
-	fn from(val: crate::crypt::Error) -> Self {
+impl From<crypt::Error> for Error {
+	fn from(val: crypt::Error) -> Self {
 		Error::Crypt(val)
 	}
 }

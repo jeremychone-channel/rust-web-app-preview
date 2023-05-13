@@ -32,14 +32,14 @@ impl std::error::Error for Error {}
 // endregion: --- Error Boilerplate
 
 // region:    --- Error Froms
-impl From<crate::crypt::Error> for Error {
-	fn from(val: crate::crypt::Error) -> Self {
+impl From<crypt::Error> for Error {
+	fn from(val: crypt::Error) -> Self {
 		Error::Crypt(val)
 	}
 }
 
-impl From<crate::model::Error> for Error {
-	fn from(val: crate::model::Error) -> Self {
+impl From<model::Error> for Error {
+	fn from(val: model::Error) -> Self {
 		Error::Model(val)
 	}
 }
