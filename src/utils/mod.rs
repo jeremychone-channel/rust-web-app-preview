@@ -1,14 +1,20 @@
-use crate::{Error, Result};
+// region:    --- Modules
+
+mod error;
+
+pub use self::error::{Error, Result};
+
 use time::format_description::well_known::Rfc3339;
 use time::{Duration, OffsetDateTime};
 
-// TODO: Need to validate if the .unwrap below are 100% safe.
+// endregion: --- Modules
 
 // region:    --- Time
 pub fn now_utc() -> OffsetDateTime {
 	OffsetDateTime::now_utc()
 }
 
+// TODO: Need to validate if the .unwrap below are 100% safe.
 pub fn format_time(time: OffsetDateTime) -> String {
 	// Because native time format, safe enough to unwrap.
 	time.format(&Rfc3339).unwrap()

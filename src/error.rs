@@ -12,14 +12,10 @@ pub enum Error {
 	ConfWrongFormat(&'static str),
 	FailToLoadConf(&'static str),
 
-	// -- Sub-Modules
+	// -- Modules
 	Web(web::Error),
 	Crypt(crypt::Error),
 	Model(model::Error),
-
-	// -- Utils
-	FailToB64UDecode,
-	DateFailParse(String),
 }
 
 // region:    --- Error Boilerplate
