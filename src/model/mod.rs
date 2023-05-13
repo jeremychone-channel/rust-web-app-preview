@@ -15,9 +15,7 @@ pub mod user;
 
 pub use self::error::{Error, Result};
 
-use crate::conf;
-use crate::model::store::Db;
-use sqlx::postgres::PgPoolOptions;
+use crate::model::store::{new_db_pool, Db};
 
 // endregion: --- Modules
 
@@ -29,11 +27,7 @@ pub struct ModelManager {
 impl ModelManager {
 	/// Constructor
 	pub async fn new() -> Result<Self> {
-		let db: Db = PgPoolOptions::new()
-			.max_connections(5)
-			.connect(&conf().DB_URL)
-			.await
-			.map_err(|ex| Error::DbFailToCreatePool(ex.to_string()))?;
+		let db: Db = new_db_pool().await?;
 
 		Ok(Self { db })
 	}
