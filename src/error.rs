@@ -20,9 +20,6 @@ pub enum Error {
 	// -- Utils
 	FailToB64UDecode,
 	DateFailParse(String),
-
-	// -- Others
-	CtxCannotNewRootCtx,
 }
 
 // region:    --- Error Boilerplate
