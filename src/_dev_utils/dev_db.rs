@@ -6,7 +6,7 @@ use std::fs;
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::Duration;
-use tracing::{error, info};
+use tracing::info;
 use uuid::Uuid;
 
 pub type Db = Pool<Postgres>;
@@ -16,8 +16,8 @@ const PG_DEV_POSTGRES_URL: &str = "postgres://postgres:welcome@localhost/postgre
 const PG_DEV_APP_URL: &str = "postgres://app_user:dev_only_pwd@localhost/app_db";
 
 // sql files
-const SQL_DIR: &str = "sql/initial";
-const SQL_RECREATE: &str = "sql/initial/00-recreate-db.sql";
+const SQL_RECREATE: &str = "sql/dev_initial/00-recreate-db.sql";
+const SQL_DIR: &str = "sql/dev_initial";
 
 // type Db = Pool<Postgres>;
 
@@ -86,10 +86,7 @@ async fn pexec(db: &Db, file: &str) -> Result<(), sqlx::Error> {
 	info!("{:<12} - pexec: {file}", "FOR-DEV-ONLY");
 
 	// -- Read the file.
-	let content = fs::read_to_string(file).map_err(|ex| {
-		error!("ERROR reading {} (cause: {:?})", file, ex);
-		ex
-	})?;
+	let content = fs::read_to_string(file)?;
 
 	// TODO: Make the split more sql proof.
 	let sqls: Vec<&str> = content.split(';').collect();

@@ -15,7 +15,6 @@ pub enum Error {
 	Store(store::Error),
 
 	// -- Externals
-	Io(#[serde_as(as = "DisplayFromStr")] std::io::Error),
 	Sqlx(#[serde_as(as = "DisplayFromStr")] sqlx::Error),
 }
 
@@ -33,11 +32,6 @@ impl From<crate::crypt::Error> for Error {
 impl From<sqlx::Error> for Error {
 	fn from(val: sqlx::Error) -> Self {
 		Error::Sqlx(val)
-	}
-}
-impl From<std::io::Error> for Error {
-	fn from(val: std::io::Error) -> Self {
-		Error::Io(val)
 	}
 }
 // endregion: --- Froms
