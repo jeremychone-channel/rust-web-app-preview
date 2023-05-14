@@ -13,7 +13,7 @@ pub trait DbBmc {
 	const HAS_TIMESTAMPS: bool;
 }
 
-pub async fn db_create<MC, D>(ctx: &Ctx, mm: &ModelManager, data: D) -> Result<i64>
+pub async fn create<MC, D>(ctx: &Ctx, mm: &ModelManager, data: D) -> Result<i64>
 where
 	MC: DbBmc,
 	D: HasFields,
@@ -41,7 +41,7 @@ where
 	Ok(id)
 }
 
-pub async fn db_get<MC, E>(_ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<E>
+pub async fn get<MC, E>(_ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<E>
 where
 	MC: DbBmc,
 	E: for<'r> FromRow<'r, PgRow> + Unpin + Send,
@@ -63,7 +63,7 @@ where
 	Ok(entity)
 }
 
-pub async fn db_list<MC, E>(_ctx: &Ctx, mm: &ModelManager) -> Result<Vec<E>>
+pub async fn list<MC, E>(_ctx: &Ctx, mm: &ModelManager) -> Result<Vec<E>>
 where
 	MC: DbBmc,
 	E: for<'r> FromRow<'r, PgRow> + Unpin + Send,
@@ -78,7 +78,7 @@ where
 	Ok(entity)
 }
 
-pub async fn db_update<MC, D>(
+pub async fn update<MC, D>(
 	ctx: &Ctx,
 	mm: &ModelManager,
 	id: i64,
@@ -113,7 +113,7 @@ where
 	}
 }
 
-pub async fn db_delete<MC>(_ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<()>
+pub async fn delete<MC>(_ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<()>
 where
 	MC: DbBmc,
 {

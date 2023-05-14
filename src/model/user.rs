@@ -1,7 +1,7 @@
 use crate::crypt::pwd::{self};
 use crate::crypt::EncryptContent;
 use crate::ctx::Ctx;
-use crate::model::base::{db_get, DbBmc};
+use crate::model::base::{get, DbBmc};
 use crate::model::{Error, ModelManager, Result};
 use crate::utils;
 use serde::{Deserialize, Serialize};
@@ -110,7 +110,7 @@ impl UserBmc {
 
 	#[allow(unused)]
 	pub async fn get(ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<User> {
-		db_get::<Self, _>(ctx, mm, id).await
+		get::<Self, _>(ctx, mm, id).await
 	}
 
 	pub async fn get_for_auth_by_id(
@@ -118,7 +118,7 @@ impl UserBmc {
 		mm: &ModelManager,
 		id: i64,
 	) -> Result<UserForAuth> {
-		db_get::<Self, _>(ctx, mm, id).await
+		get::<Self, _>(ctx, mm, id).await
 	}
 
 	pub async fn first_for_auth_by_username(

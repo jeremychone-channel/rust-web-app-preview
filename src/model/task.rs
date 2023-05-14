@@ -1,5 +1,5 @@
 use crate::ctx::Ctx;
-use crate::model::base::{db_create, db_delete, db_get, db_list, db_update, DbBmc};
+use crate::model::base::{create, delete, get, list, update, DbBmc};
 use crate::model::{ModelManager, Result};
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
@@ -49,15 +49,15 @@ impl TaskBmc {
 		mm: &ModelManager,
 		task_fc: TaskForCreate,
 	) -> Result<i64> {
-		db_create::<Self, _>(ctx, mm, task_fc).await
+		create::<Self, _>(ctx, mm, task_fc).await
 	}
 
 	pub async fn get(ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<Task> {
-		db_get::<Self, _>(ctx, mm, id).await
+		get::<Self, _>(ctx, mm, id).await
 	}
 
 	pub async fn list(ctx: &Ctx, mm: &ModelManager) -> Result<Vec<Task>> {
-		db_list::<Self, _>(ctx, mm).await
+		list::<Self, _>(ctx, mm).await
 	}
 
 	pub async fn update(
@@ -66,11 +66,11 @@ impl TaskBmc {
 		id: i64,
 		task_fu: TaskForUpdate,
 	) -> Result<()> {
-		db_update::<Self, _>(ctx, mm, id, task_fu).await
+		update::<Self, _>(ctx, mm, id, task_fu).await
 	}
 
 	pub async fn delete(ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<()> {
-		db_delete::<Self>(ctx, mm, id).await
+		delete::<Self>(ctx, mm, id).await
 	}
 }
 
