@@ -25,6 +25,6 @@ SERVICE_PWD_KEY="U96vOyRaI4tjumjHRk0FK2D1N1UAg2jiVZ66y-3Q0k_BfgY3Gmvft0A2JDzb9Zg
 SERVICE_TOKEN_KEY="CUF2rzJgVUSMYKls9ysmUGbZlha7H-HvqjHroY_wYPuUZsXqz7wpkGn3XVubVY8wfhLH7H8_0ksxOMkJiSiCWQ"
 
 ## -- ConfigMap
-# This will be relative to Cargo.toml
+# This will be relative to Cargo.toml.
 # In prod dockers, probably use absolute path.
 SERVICE_WEB_FOLDER="web-folder/" 

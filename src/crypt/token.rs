@@ -3,7 +3,7 @@ use crate::crypt::{Error, Result};
 use crate::utils::{
 	b64u_decode, b64u_encode, now_utc, now_utc_plus_sec_str, parse_utc,
 };
-use crate::{conf, crypt};
+use crate::{config, crypt};
 
 /// The release of a parse token.
 /// All properties have be b64u decoded.
@@ -53,7 +53,7 @@ impl std::fmt::Display for Token {
 /// - `signature` is the token signature of the two first parts (base64url encoded) in base64url
 ///
 pub fn generate_token(user: &str, salt: &str) -> Result<Token> {
-	let duration_sec = conf().TOKEN_DURATION_SEC;
+	let duration_sec = config().TOKEN_DURATION_SEC;
 
 	// -- Compute the two first components.
 	let user = user.to_string();
@@ -87,7 +87,7 @@ pub fn validate_token_sign_and_exp(origin_token: &Token, salt: &str) -> Result<(
 }
 
 fn sign_into_b64u(user: &str, exp: &str, salt: &str) -> Result<String> {
-	let key = &conf().TOKEN_KEY;
+	let key = &config().TOKEN_KEY;
 	let content = format!("{}.{}", b64u_encode(user), b64u_encode(exp));
 	let signature = crypt::encrypt_into_b64u(
 		key,

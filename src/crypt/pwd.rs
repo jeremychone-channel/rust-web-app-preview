@@ -1,5 +1,5 @@
 use super::{Error, Result};
-use crate::conf;
+use crate::config;
 use crate::crypt::{encrypt_into_b64u, EncryptContent};
 use lazy_regex::regex_captures;
 
@@ -51,14 +51,14 @@ fn extract_scheme(enc_content: &str) -> Result<String> {
 }
 
 fn encrypt_scheme_01(enc_content: &EncryptContent) -> Result<String> {
-	let key = &conf().PWD_KEY;
+	let key = &config().PWD_KEY;
 
 	encrypt_into_b64u(key, enc_content)
 }
 
 // In this example, same a scheme_01 (showing that it works)
 fn encrypt_scheme_02(enc_pwd_args: &EncryptContent) -> Result<String> {
-	let key = &conf().PWD_KEY;
+	let key = &config().PWD_KEY;
 
 	encrypt_into_b64u(key, enc_pwd_args)
 }

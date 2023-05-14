@@ -2,7 +2,7 @@
 
 // region:    --- Modules
 
-mod conf;
+mod config;
 mod crypt;
 mod ctx;
 mod error;
@@ -14,7 +14,7 @@ mod web;
 pub mod _dev_utils;
 
 pub use self::error::{Error, Result};
-pub use conf::conf;
+pub use config::config;
 
 use crate::model::ModelManager;
 use crate::web::mw_req_stamp::mw_req_stamp_resolver;
