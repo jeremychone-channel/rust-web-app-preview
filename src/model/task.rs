@@ -87,23 +87,23 @@ mod tests {
 	async fn test_create() -> Result<()> {
 		// -- Setup & Fixtures
 		let mm = _dev_utils::init_test().await;
-		let root_ctx = Ctx::root_ctx();
-		let title = "TEST TITLE - test_model_task_create";
+		let ctx = Ctx::root_ctx();
+		let fx_title = "TEST TITLE - test_model_task_create";
 
 		// -- Exec - Create
 		let id = TaskBmc::create(
-			&root_ctx,
+			&ctx,
 			&mm,
-			TaskForCreate { title: title.to_string() },
+			TaskForCreate { title: fx_title.to_string() },
 		)
 		.await?;
 
 		// -- Check - Create
-		let task = TaskBmc::get(&root_ctx, &mm, id).await?;
-		assert_eq!(task.title, title);
+		let task = TaskBmc::get(&ctx, &mm, id).await?;
+		assert_eq!(task.title, fx_title);
 
 		// -- Clean - Delete
-		TaskBmc::delete(&root_ctx, &mm, id).await?;
+		TaskBmc::delete(&ctx, &mm, id).await?;
 
 		Ok(())
 	}
@@ -112,15 +112,18 @@ mod tests {
 	async fn test_delete_err() -> Result<()> {
 		// -- Setup & Fixtures
 		let mm = _dev_utils::init_test().await;
-		let root_ctx = Ctx::root_ctx();
-		let id = 10; // below 1000 so should have no row.
+		let ctx = Ctx::root_ctx();
+		let fx_id = 10; // below 1000 so should have no row.
 
 		// -- Exec
-		let res = TaskBmc::delete(&root_ctx, &mm, id).await;
+		let res = TaskBmc::delete(&ctx, &mm, fx_id).await;
 
 		// -- Check
 		assert!(
-			matches!(res, Err(model::Error::EntityNotFound { table: "task", id })),
+			matches!(
+				res,
+				Err(model::Error::EntityNotFound { table: "task", id: fx_id })
+			),
 			"EntityNotFound not matching"
 		);
 

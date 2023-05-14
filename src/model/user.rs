@@ -189,29 +189,29 @@ mod tests {
 		// -- Setup & Fixtures
 		let mm = _dev_utils::init_test().await;
 		let ctx = Ctx::root_ctx();
-		let username = "demo2";
-		let pwd_clear = "wecome2";
+		let fx_username = "demo2";
+		let fx_pwd_clear = "wecome2";
 
 		// -- Exec
 		let id = UserBmc::create(
 			&ctx,
 			&mm,
 			UserForCreate {
-				username: username.to_string(),
-				pwd_clear: pwd_clear.to_string(),
+				username: fx_username.to_string(),
+				pwd_clear: fx_pwd_clear.to_string(),
 			},
 		)
 		.await?;
 
 		// -- Check - username
 		let user = UserBmc::get_for_auth_by_id(&ctx, &mm, id).await?;
-		assert_eq!(user.username, "demo2");
+		assert_eq!(user.username, fx_username);
 
 		// -- Check - pwd
 		pwd::validate_pwd(
 			&EncryptContent {
 				salt: user.pwd_salt.to_string(),
-				content: pwd_clear.to_string(),
+				content: fx_pwd_clear.to_string(),
 			},
 			&user.pwd.unwrap(),
 		)?;
@@ -224,16 +224,16 @@ mod tests {
 		// -- Setup & Fixtures
 		let mm = _dev_utils::init_test().await;
 		let ctx = Ctx::root_ctx();
-		let username = "demo3";
-		let pwd_clear = "wecome3";
+		let fx_username = "demo3";
+		let fx_pwd_clear = "wecome3";
 
 		// -- Exec
 		let id = UserBmc::create(
 			&ctx,
 			&mm,
 			UserForCreate {
-				username: username.to_string(),
-				pwd_clear: pwd_clear.to_string(),
+				username: fx_username.to_string(),
+				pwd_clear: fx_pwd_clear.to_string(),
 			},
 		)
 		.await?;
@@ -242,14 +242,14 @@ mod tests {
 			&ctx,
 			&mm,
 			UserForCreate {
-				username: username.to_string(),
-				pwd_clear: pwd_clear.to_string(),
+				username: fx_username.to_string(),
+				pwd_clear: fx_pwd_clear.to_string(),
 			},
 		)
 		.await;
 
 		let expected_error: Result<i64, Error> =
-			Err(Error::UserAlreadyExists { username: username.to_string() });
+			Err(Error::UserAlreadyExists { username: fx_username.to_string() });
 
 		assert!(
 			matches!(&res, expected_error),
