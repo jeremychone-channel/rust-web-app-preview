@@ -20,8 +20,8 @@ pub async fn main_response_mapper(
 	let rpc_ctx = res.extensions().get::<RpcCtx>();
 
 	// -- Get the eventual response error.
-	let service_error = res.extensions().get::<web::Error>();
-	let client_status_error = service_error.map(|se| se.client_status_and_error());
+	let web_error = res.extensions().get::<web::Error>();
+	let client_status_error = web_error.map(|se| se.client_status_and_error());
 
 	// -- If client error, build the new reponse.
 	let error_response =
@@ -61,7 +61,7 @@ pub async fn main_response_mapper(
 		uri,
 		rpc_ctx,
 		ctx,
-		service_error,
+		web_error,
 		client_error,
 	)
 	.await

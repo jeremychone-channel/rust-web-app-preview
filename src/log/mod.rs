@@ -17,12 +17,12 @@ pub async fn log_request(
 	uri: Uri,
 	rpc_ctx: Option<&RpcCtx>,
 	ctx: Option<Ctx>,
-	service_error: Option<&web::Error>,
+	web_error: Option<&web::Error>,
 	client_error: Option<ClientError>,
 ) -> Result<()> {
 	let ReqStamp { uuid, time_in } = req_stamp;
-	let error_type = service_error.map(|se| se.as_ref().to_string());
-	let error_data = serde_json::to_value(service_error)
+	let error_type = web_error.map(|se| se.as_ref().to_string());
+	let error_data = serde_json::to_value(web_error)
 		.ok()
 		.and_then(|mut v| v.get_mut("data").map(|v| v.take()));
 
