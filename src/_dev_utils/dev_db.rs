@@ -31,20 +31,20 @@ pub async fn init_dev_db() -> Result<(), Box<dyn std::error::Error>> {
 		panic!("Cannot call model::store::init_dev_db twice.");
 	}
 
-	// -- Create the db with PG_ROOT (dev only).
+	// -- Create the db with PG_ROOT.
 	{
 		let root_db: Db = new_db_pool(PG_DEV_POSTGRES_URL, 1).await?;
 		pexec(&root_db, SQL_RECREATE).await?;
 	}
 
-	// -- Run the app sql files.
-	let app_db = new_db_pool(PG_DEV_APP_URL, 1).await?;
+	// -- Get sql files.
 	let mut paths: Vec<PathBuf> = fs::read_dir(SQL_DIR)?
 		.filter_map(|e| e.ok().map(|e| e.path()))
 		.collect();
 	paths.sort();
 
-	// -- Execute each file.
+	// -- SQL Execute each file.
+	let app_db = new_db_pool(PG_DEV_APP_URL, 1).await?;
 	for path in paths {
 		if let Some(path) = path.to_str() {
 			// Only take .sql and skip the SQL_RECREATE
