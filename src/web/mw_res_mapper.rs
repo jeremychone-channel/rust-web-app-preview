@@ -1,8 +1,7 @@
 use crate::ctx::Ctx;
 use crate::log::log_request;
 use crate::web::rpc::RpcCtx;
-use crate::web::ReqStamp;
-use crate::Error;
+use crate::web::{self, ReqStamp};
 use axum::http::{Method, Uri};
 use axum::response::{IntoResponse, Response};
 use axum::Json;
@@ -21,7 +20,7 @@ pub async fn main_response_mapper(
 	let rpc_ctx = res.extensions().get::<RpcCtx>();
 
 	// -- Get the eventual response error.
-	let service_error = res.extensions().get::<Error>();
+	let service_error = res.extensions().get::<web::Error>();
 	let client_status_error = service_error.map(|se| se.client_status_and_error());
 
 	// -- If client error, build the new reponse.

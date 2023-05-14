@@ -6,7 +6,8 @@ use tracing::debug;
 
 pub type Result<T> = core::result::Result<T, Error>;
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, strum_macros::AsRefStr)]
+#[serde(tag = "type", content = "data")]
 pub enum Error {
 	// -- RPC
 	RpcMethodUnkown(String),
@@ -17,12 +18,10 @@ pub enum Error {
 	ReqStampNotInResponseExt,
 
 	// -- Login
-	LoginFail,
 	LoginFailUsernameNotFound,
 	LoginFailUserHasNoPwd { username: String },
 
 	// -- Auth
-	AuthFailUserNotFound,
 	CtxAuth(web::mw_auth::CtxAuthError),
 
 	// -- Sub Modules
@@ -63,9 +62,7 @@ impl IntoResponse for Error {
 		let mut response = StatusCode::INTERNAL_SERVER_ERROR.into_response();
 
 		// Insert the Error into the reponse.
-		response
-			.extensions_mut()
-			.insert(crate::Error::Web(self));
+		response.extensions_mut().insert(self);
 
 		response
 	}
@@ -84,3 +81,47 @@ impl core::fmt::Display for Error {
 
 impl std::error::Error for Error {}
 // endregion: --- Error Boilerplate
+
+impl Error {
+	/// Error to ClientError and HTTP Status code
+	pub fn client_status_and_error(&self) -> (StatusCode, ClientError) {
+		use web::Error::*;
+
+		match self {
+			// -- Login/Auth
+			LoginFailUsernameNotFound | LoginFailUserHasNoPwd { .. } => {
+				(StatusCode::FORBIDDEN, ClientError::LOGIN_FAIL)
+			}
+			CtxAuth(_) => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
+
+			// -- Model
+			Model(model::Error::EntityNotFound { table, id }) => (
+				StatusCode::BAD_REQUEST,
+				ClientError::EntityNotFound { entity: table, id: *id },
+			),
+			Model(model::Error::UserAlreadyExists { .. }) => {
+				(StatusCode::BAD_REQUEST, ClientError::USER_ALREADY_EXISTS)
+			}
+
+			// -- Fallback
+			_ => (
+				StatusCode::INTERNAL_SERVER_ERROR,
+				ClientError::SERVICE_ERROR,
+			),
+		}
+	}
+}
+
+/// This is the ClientError used to be serialized in the
+/// json-rpc error body.
+/// Only used in the mw_res_mapper
+#[derive(Debug, Serialize, strum_macros::AsRefStr)]
+#[serde(tag = "message", content = "detail")]
+#[allow(non_camel_case_types)]
+pub enum ClientError {
+	USER_ALREADY_EXISTS,
+	LOGIN_FAIL,
+	NO_AUTH,
+	EntityNotFound { entity: &'static str, id: i64 },
+	SERVICE_ERROR,
+}

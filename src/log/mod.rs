@@ -1,9 +1,9 @@
 use crate::ctx::Ctx;
-use crate::error::ClientError;
 use crate::utils::{format_time, now_utc};
 use crate::web::rpc::RpcCtx;
-use crate::web::ReqStamp;
-use crate::{Error, Result};
+use crate::web::ClientError;
+use crate::web::{self, ReqStamp};
+use crate::Result;
 use axum::http::{Method, Uri};
 use serde::Serialize;
 use serde_json::{json, Value};
@@ -17,7 +17,7 @@ pub async fn log_request(
 	uri: Uri,
 	rpc_ctx: Option<&RpcCtx>,
 	ctx: Option<Ctx>,
-	service_error: Option<&Error>,
+	service_error: Option<&web::Error>,
 	client_error: Option<ClientError>,
 ) -> Result<()> {
 	let ReqStamp { uuid, time_in } = req_stamp;

@@ -1,11 +1,8 @@
-use crate::{crypt, model, web};
-use axum::http::StatusCode;
-use serde::Serialize;
+use crate::{crypt, model};
 
 pub type Result<T> = core::result::Result<T, Error>;
 
-#[derive(Debug, Serialize, strum_macros::AsRefStr)]
-#[serde(tag = "type", content = "data")]
+#[derive(Debug)]
 pub enum Error {
 	// -- Conf
 	ConfMissingEnv(&'static str),
@@ -13,10 +10,22 @@ pub enum Error {
 	FailToLoadConf(&'static str),
 
 	// -- Modules
-	Web(web::Error),
 	Crypt(crypt::Error),
 	Model(model::Error),
 }
+// region:    --- Froms
+impl From<crypt::Error> for Error {
+	fn from(val: crypt::Error) -> Self {
+		Error::Crypt(val)
+	}
+}
+
+impl From<model::Error> for Error {
+	fn from(val: model::Error) -> Self {
+		Error::Model(val)
+	}
+}
+// endregion: --- Froms
 
 // region:    --- Error Boilerplate
 impl std::fmt::Display for Error {
@@ -30,59 +39,3 @@ impl std::fmt::Display for Error {
 
 impl std::error::Error for Error {}
 // endregion: --- Error Boilerplate
-
-// region:    --- Error Froms
-impl From<crypt::Error> for Error {
-	fn from(val: crypt::Error) -> Self {
-		Error::Crypt(val)
-	}
-}
-
-impl From<model::Error> for Error {
-	fn from(val: model::Error) -> Self {
-		Error::Model(val)
-	}
-}
-// endregion: --- Error Froms
-
-impl Error {
-	pub fn client_status_and_error(&self) -> (StatusCode, ClientError) {
-		match self {
-			// -- Web
-			Self::Web(web::Error::LoginFail) => {
-				(StatusCode::FORBIDDEN, ClientError::LOGIN_FAIL)
-			}
-			Self::Web(web::Error::CtxAuth(_)) => {
-				(StatusCode::FORBIDDEN, ClientError::NO_AUTH)
-			}
-			Self::Web(web::Error::Model(model::Error::EntityNotFound {
-				table,
-				id,
-			})) => (
-				StatusCode::BAD_REQUEST,
-				ClientError::EntityNotFound { entity: table, id: *id },
-			),
-			Self::Web(web::Error::Model(model::Error::UserAlreadyExists {
-				..
-			})) => (StatusCode::BAD_REQUEST, ClientError::USER_ALREADY_EXISTS),
-
-			// -- Fallback.
-			_ => (
-				StatusCode::INTERNAL_SERVER_ERROR,
-				ClientError::SERVICE_ERROR,
-			),
-		}
-	}
-}
-
-#[derive(Debug, Serialize, strum_macros::AsRefStr)]
-#[serde(tag = "message", content = "detail")]
-#[allow(non_camel_case_types)]
-pub enum ClientError {
-	USER_ALREADY_EXISTS,
-	LOGIN_FAIL,
-	NO_AUTH,
-	EntityNotFound { entity: &'static str, id: i64 },
-	INVALID_PARAMS,
-	SERVICE_ERROR,
-}
