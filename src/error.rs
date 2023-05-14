@@ -56,11 +56,11 @@ impl Error {
 				(StatusCode::FORBIDDEN, ClientError::NO_AUTH)
 			}
 			Self::Web(web::Error::Model(model::Error::EntityNotFound {
-				entity: typ,
+				table,
 				id,
 			})) => (
 				StatusCode::BAD_REQUEST,
-				ClientError::EntityNotFound { entity: typ, id: *id },
+				ClientError::EntityNotFound { entity: table, id: *id },
 			),
 			Self::Web(web::Error::Model(model::Error::UserAlreadyExists {
 				..

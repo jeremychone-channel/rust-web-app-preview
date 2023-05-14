@@ -10,8 +10,9 @@ RUST_LOG="rust_axum_base=debug"
 # -- Service Environment Variables
 
 # IMPORTANT: 
-#   For cargo commands only. 
-#   Will be moved to kubernetes or alike env later. 
+#   For cargo commands only.
+#   For deployed env, should be managed by container 
+#   (e.g., Kubernetes).
 
 ## -- Secrets
 # Keys and passwords below are for localhost dev ONLY.
