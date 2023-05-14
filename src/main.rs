@@ -24,7 +24,7 @@ use tower_cookies::CookieManagerLayer;
 use tracing::info;
 use tracing_subscriber::EnvFilter;
 
-// endregion: --- Section
+// endregion: --- Modules
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -36,7 +36,7 @@ async fn main() -> Result<()> {
 
 	// -- FOR DEV ONLY
 	// false: to not init tracing, as it is enabled in main above.
-	_dev_utils::init_dev(false).await;
+	_dev_utils::init_dev().await;
 
 	// -- Initialize ModelController
 	let mm = ModelManager::new().await?;

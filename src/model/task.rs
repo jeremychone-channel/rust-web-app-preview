@@ -86,7 +86,7 @@ mod tests {
 	#[tokio::test]
 	async fn test_create() -> Result<()> {
 		// -- Setup & Fixtures
-		let mm = _dev_utils::init_dev(false).await;
+		let mm = _dev_utils::init_test().await;
 		let root_ctx = Ctx::root_ctx();
 		let title = "TEST TITLE - test_model_task_create";
 
@@ -111,7 +111,7 @@ mod tests {
 	#[tokio::test]
 	async fn test_delete_err() -> Result<()> {
 		// -- Setup & Fixtures
-		let mm = _dev_utils::init_dev(false).await;
+		let mm = _dev_utils::init_test().await;
 		let root_ctx = Ctx::root_ctx();
 		let id = 10; // below 1000 so should have no row.
 
