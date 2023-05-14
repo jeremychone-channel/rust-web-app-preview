@@ -10,7 +10,7 @@ mod log;
 mod model;
 mod utils;
 mod web;
-// #[cfg(test)] // For now, test_utils::init is getting used on start server.
+// #[cfg(test)] // Commented for early development.
 pub mod _dev_utils;
 
 pub use self::error::{Error, Result};
@@ -35,7 +35,8 @@ async fn main() -> Result<()> {
 		.init();
 
 	// -- FOR DEV ONLY
-	_dev_utils::init_dev_all().await;
+	// false: to not init tracing, as it is enabled in main above.
+	_dev_utils::init_dev(false).await;
 
 	// -- Initialize ModelController
 	let mm = ModelManager::new().await?;

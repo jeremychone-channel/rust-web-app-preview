@@ -10,9 +10,13 @@ use tracing_subscriber::EnvFilter;
 
 // Initializer for local development
 // (for early development, called from `main()`)
-pub async fn init_dev_all() -> ModelManager {
-	static INIT: OnceCell<ModelManager> = OnceCell::const_new();
+pub async fn init_dev(init_tracing: bool) -> ModelManager {
+	if init_tracing {
+		static INIT_TRACING: Once = Once::new();
+		INIT_TRACING.call_once(init_dev_tracing);
+	}
 
+	static INIT: OnceCell<ModelManager> = OnceCell::const_new();
 	let mm = INIT
 		.get_or_init(|| async {
 			info!("{:<12} - init_dev_all()", "FOR-DEV-ONLY");
@@ -26,19 +30,7 @@ pub async fn init_dev_all() -> ModelManager {
 	mm.clone()
 }
 
-// For unit tests.
-pub async fn init_test_all() -> ModelManager {
-	let mm = init_dev_all().await;
-
-	static INIT_TRACING: Once = Once::new();
-
-	INIT_TRACING.call_once(init_test_tracing);
-
-	mm
-}
-
-// In case unit tests does not need a DB but wants tracing.
-pub fn init_test_tracing() {
+fn init_dev_tracing() {
 	tracing_subscriber::fmt()
 		.without_time()
 		.with_target(false)

@@ -19,8 +19,6 @@ const PG_DEV_APP_URL: &str = "postgres://app_user:dev_only_pwd@localhost/app_db"
 const SQL_RECREATE: &str = "sql/dev_initial/00-recreate-db.sql";
 const SQL_DIR: &str = "sql/dev_initial";
 
-// type Db = Pool<Postgres>;
-
 pub async fn init_dev_db() -> Result<(), Box<dyn std::error::Error>> {
 	info!("{:<12} - init_dev_db()", "FOR-DEV-ONLY");
 
