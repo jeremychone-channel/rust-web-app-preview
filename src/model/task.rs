@@ -100,7 +100,7 @@ mod tests {
 
 		// -- Check - Create
 		let task = TaskBmc::get(&root_ctx, &mm, id).await?;
-		assert_eq!(title, task.title);
+		assert_eq!(task.title, title);
 
 		// -- Clean - Delete
 		TaskBmc::delete(&root_ctx, &mm, id).await?;

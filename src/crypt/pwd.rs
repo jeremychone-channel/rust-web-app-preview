@@ -107,7 +107,7 @@ mod tests {
 	#[test]
 	fn test_extract_scheme() -> Result<()> {
 		let s = "#01#G1Awj9k19UY2D04EQ9DCxpSIxMApGgI0Ogvg+Xi/QXoXEO1b5hAXmusXmT2wo/L8VWenfZShPT42gk7k3BZSwA==";
-		assert_eq!("01", extract_scheme(s)?);
+		assert_eq!(extract_scheme(s)?, "01");
 		Ok(())
 	}
 }

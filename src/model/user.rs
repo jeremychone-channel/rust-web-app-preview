@@ -180,7 +180,7 @@ mod tests {
 				.await?
 				.context("Should have user 'demo1'")?;
 
-		assert_eq!("demo1", user.username);
+		assert_eq!(user.username, "demo1");
 		Ok(())
 	}
 
@@ -205,7 +205,7 @@ mod tests {
 
 		// -- Check - username
 		let user = UserBmc::get_for_auth_by_id(&ctx, &mm, id).await?;
-		assert_eq!("demo2", user.username);
+		assert_eq!(user.username, "demo2");
 
 		// -- Check - pwd
 		pwd::validate_pwd(
