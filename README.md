@@ -31,11 +31,14 @@ cargo watch -q -c -w src/ -w .cargo/ -x "run"
 cargo watch -q -c -w examples/ -x "run --example quick_dev"
 ```
 
-or cargo watch the unit tests.
+Unit test REPL
 
 ```sh
-# Important - set threads to 1 since many test might use DB.
+# Note - set threads to 1 since many test might use DB.
 cargo watch -q -c -x "test -- --nocapture --test-threads=1"
+
+# Specific test filter.
+cargo watch -q -c -x "test model::task::tests::test_create -- --nocapture --test-threads=1"
 ```
 
 
