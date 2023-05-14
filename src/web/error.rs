@@ -50,7 +50,6 @@ impl From<crypt::Error> for Error {
 		Error::Crypt(val)
 	}
 }
-
 // endregion: --- Error Froms
 
 // region:    --- Axum IntoResponse

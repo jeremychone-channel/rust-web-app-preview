@@ -24,11 +24,13 @@ impl From<store::Error> for Error {
 		Self::Store(val)
 	}
 }
-impl From<crate::crypt::Error> for Error {
-	fn from(val: crate::crypt::Error) -> Self {
+
+impl From<crypt::Error> for Error {
+	fn from(val: crypt::Error) -> Self {
 		Error::Crypt(val)
 	}
 }
+
 impl From<sqlx::Error> for Error {
 	fn from(val: sqlx::Error) -> Self {
 		Error::Sqlx(val)
