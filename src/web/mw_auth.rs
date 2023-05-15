@@ -1,6 +1,6 @@
 use crate::crypt::token::{generate_token, validate_token_sign_and_exp, Token};
 use crate::ctx::Ctx;
-use crate::model::user::UserBmc;
+use crate::model::user::{UserBmc, UserForAuth};
 use crate::model::ModelManager;
 use crate::web;
 use crate::web::AUTH_TOKEN;
@@ -47,9 +47,13 @@ pub async fn mw_ctx_resolver<B>(
 	// Get the user from the db.
 	let result_user = match &token {
 		Ok(token) => {
-			UserBmc::first_for_auth_by_username(&Ctx::root_ctx(), &mm, &token.user)
-				.await? // If cannot access the DB, critical enough to return Error. TODO: To reassess.
-				.ok_or(CtxAuthError::FailFoundUser(token.user.to_string()))
+			UserBmc::first_by_username::<UserForAuth>(
+				&Ctx::root_ctx(),
+				&mm,
+				&token.user,
+			)
+			.await? // If cannot access the DB, critical enough to return Error. TODO: To reassess.
+			.ok_or(CtxAuthError::FailFoundUser(token.user.to_string()))
 		}
 		Err(ex) => CtxAuthResult::Err(ex.clone()),
 	};

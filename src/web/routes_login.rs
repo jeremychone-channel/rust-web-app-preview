@@ -2,7 +2,7 @@ use crate::crypt::pwd::{self, SchemeStatus};
 use crate::crypt::token::generate_token;
 use crate::crypt::EncryptContent;
 use crate::ctx::Ctx;
-use crate::model::user::UserBmc;
+use crate::model::user::{UserBmc, UserForLogin};
 use crate::model::ModelManager;
 use crate::web;
 use crate::web::{Error, Result};
@@ -31,9 +31,10 @@ async fn api_login_handler(
 	let LoginPayload { username, pwd: pwd_clear } = payload;
 
 	// -- Get the user.
-	let user = UserBmc::first_for_auth_by_username(&Ctx::root_ctx(), &mm, &username)
-		.await?
-		.ok_or(Error::LoginFailUsernameNotFound)?;
+	let user =
+		UserBmc::first_by_username::<UserForLogin>(&Ctx::root_ctx(), &mm, &username)
+			.await?
+			.ok_or(Error::LoginFailUsernameNotFound)?;
 
 	// -- Validate the password.
 	let Some(pwd) = user.pwd else {

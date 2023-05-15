@@ -7,6 +7,7 @@ use crate::utils;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use sqlb::Fields;
+use sqlx::postgres::PgRow;
 use sqlx::FromRow;
 use time::format_description::well_known::Rfc3339;
 use time::OffsetDateTime;
@@ -40,15 +41,31 @@ pub struct UserForInsert {
 }
 
 #[derive(Clone, FromRow, Debug)]
+pub struct UserForLogin {
+	pub id: i64,
+	pub username: String,
+
+	// -- pwd and token salts
+	pub pwd: Option<String>, // encrypted, #_scheme_id_#....
+	pub pwd_salt: Uuid,      // UUID
+	pub token_salt: Uuid,    // UUID
+}
+
+#[derive(Clone, FromRow, Debug)]
 pub struct UserForAuth {
 	pub id: i64,
 	pub username: String,
 
 	// -- pwd and salts
-	pub pwd: Option<String>, // encrypted, #_scheme_id_#....
-	pub pwd_salt: Uuid,      // UUID
-	pub token_salt: Uuid,    // UUID
+	pub token_salt: Uuid, // UUID
 }
+
+/// Marker trait
+pub trait UserBy: for<'r> FromRow<'r, PgRow> + Unpin + Send {}
+
+impl UserBy for User {}
+impl UserBy for UserForLogin {}
+impl UserBy for UserForAuth {}
 
 // endregion: --- User Types
 
@@ -99,30 +116,27 @@ impl UserBmc {
 		Ok(user_id)
 	}
 
-	#[allow(unused)]
-	pub async fn get(ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<User> {
+	pub async fn get<E>(ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<E>
+	where
+		E: UserBy,
+	{
 		get::<Self, _>(ctx, mm, id).await
 	}
 
-	pub async fn get_for_auth_by_id(
-		ctx: &Ctx,
-		mm: &ModelManager,
-		id: i64,
-	) -> Result<UserForAuth> {
-		get::<Self, _>(ctx, mm, id).await
-	}
-
-	pub async fn first_for_auth_by_username(
+	pub async fn first_by_username<E>(
 		_ctx: &Ctx,
 		mm: &ModelManager,
 		username: &str,
-	) -> Result<Option<UserForAuth>> {
+	) -> Result<Option<E>>
+	where
+		E: UserBy,
+	{
 		let db = mm.db();
 
 		let user = sqlb::select()
 			.table(Self::TABLE)
 			.and_where("username", "=", username)
-			.fetch_optional::<_, UserForAuth>(db)
+			.fetch_optional::<_, E>(db)
 			.await?;
 
 		Ok(user)
@@ -136,7 +150,7 @@ impl UserBmc {
 	) -> Result<()> {
 		let db = mm.db();
 
-		let user = Self::get_for_auth_by_id(ctx, mm, id).await?;
+		let user: UserForLogin = Self::get(ctx, mm, id).await?;
 
 		let pwd = pwd::encrypt_pwd(&EncryptContent {
 			salt: user.pwd_salt.to_string(),
@@ -166,10 +180,9 @@ mod tests {
 	async fn test_get_demo1() -> Result<()> {
 		let mm = _dev_utils::init_test().await;
 
-		let user =
-			UserBmc::first_for_auth_by_username(&Ctx::root_ctx(), &mm, "demo1")
-				.await?
-				.context("Should have user 'demo1'")?;
+		let user: User = UserBmc::first_by_username(&Ctx::root_ctx(), &mm, "demo1")
+			.await?
+			.context("Should have user 'demo1'")?;
 
 		assert_eq!(user.username, "demo1");
 		Ok(())
@@ -195,7 +208,7 @@ mod tests {
 		.await?;
 
 		// -- Check - username
-		let user = UserBmc::get_for_auth_by_id(&ctx, &mm, id).await?;
+		let user: UserForLogin = UserBmc::get(&ctx, &mm, id).await?;
 		assert_eq!(user.username, fx_username);
 
 		// -- Check - pwd
