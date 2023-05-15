@@ -61,4 +61,4 @@ cargo test -- --test-threads=1
 
 
 <br /><br />
-_[This repo](https://github.com/jeremychone-channel/rust-axum-base-preview)_
+_[This repo](https://github.com/jeremychone-channel/rust-web-app-preview)_
