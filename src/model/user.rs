@@ -3,7 +3,6 @@ use crate::crypt::EncryptContent;
 use crate::ctx::Ctx;
 use crate::model::base::{self, get, DbBmc};
 use crate::model::{Error, ModelManager, Result};
-use crate::utils;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use sqlb::Fields;
@@ -29,17 +28,6 @@ pub struct User {
 	pub mtime: OffsetDateTime,
 }
 
-#[derive(Deserialize)]
-pub struct UserForCreate {
-	pub username: String,
-	pub pwd_clear: String,
-}
-
-#[derive(Fields)]
-pub struct UserForInsert {
-	pub username: String,
-}
-
 #[derive(Clone, FromRow, Debug)]
 pub struct UserForLogin {
 	pub id: i64,
@@ -58,6 +46,17 @@ pub struct UserForAuth {
 
 	// -- pwd and salts
 	pub token_salt: Uuid,
+}
+
+#[derive(Deserialize)]
+pub struct UserForCreate {
+	pub username: String,
+	pub pwd_clear: String,
+}
+
+#[derive(Fields)]
+pub struct UserForInsert {
+	pub username: String,
 }
 
 /// Marker trait
