@@ -47,8 +47,8 @@ pub struct UserForLogin {
 
 	// -- pwd and token salts
 	pub pwd: Option<String>, // encrypted, #_scheme_id_#....
-	pub pwd_salt: Uuid,      // UUID
-	pub token_salt: Uuid,    // UUID
+	pub pwd_salt: Uuid,
+	pub token_salt: Uuid,
 }
 
 #[derive(Clone, FromRow, Debug)]
@@ -57,7 +57,7 @@ pub struct UserForAuth {
 	pub username: String,
 
 	// -- pwd and salts
-	pub token_salt: Uuid, // UUID
+	pub token_salt: Uuid,
 }
 
 /// Marker trait
@@ -83,10 +83,6 @@ impl UserBmc {
 		mm: &ModelManager,
 		user_fc: UserForCreate,
 	) -> Result<i64> {
-		let db = mm.db();
-
-		let now = utils::now_utc();
-
 		let UserForCreate { username, pwd_clear } = user_fc;
 
 		let user_fi = UserForInsert { username: username.to_string() };
