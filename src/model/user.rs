@@ -39,7 +39,6 @@ pub struct UserForInsert {
 	pub username: String,
 }
 
-#[serde_as]
 #[derive(Clone, FromRow, Debug)]
 pub struct UserForAuth {
 	pub id: i64,
