@@ -7,7 +7,7 @@ pub const DEFAULT_SCHEME: &str = "02";
 
 /// Encrypt the password with the default scheme.
 pub fn encrypt_pwd(args: &EncryptContent) -> Result<String> {
-	encrypt_for_scheme(DEFAULT_SCHEME, args) // "" for default scheme
+	encrypt_for_scheme(DEFAULT_SCHEME, args)
 }
 
 pub enum SchemeStatus {
