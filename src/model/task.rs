@@ -80,50 +80,62 @@ mod tests {
 	#![allow(unused)]
 	use super::*;
 	use crate::_dev_utils;
-	use crate::model;
+	use crate::model::Error;
 	use anyhow::Result;
 
 	#[tokio::test]
-	async fn test_create() -> Result<()> {
+	async fn test_create_basic() -> Result<()> {
 		// -- Setup & Fixtures
 		let mm = _dev_utils::init_test().await;
 		let ctx = Ctx::root_ctx();
-		let fx_title = "TEST TITLE - test_model_task_create";
+		let fx_title = "test_model_task_create_basic";
 
-		// -- Exec - Create
-		let id = TaskBmc::create(
-			&ctx,
-			&mm,
-			TaskForCreate { title: fx_title.to_string() },
-		)
-		.await?;
+		// -- Exec
+		let task_fc = TaskForCreate { title: fx_title.to_string() };
+		let id = TaskBmc::create(&ctx, &mm, task_fc).await?;
 
-		// -- Check - Create
+		// -- Check
 		let task = TaskBmc::get(&ctx, &mm, id).await?;
 		assert_eq!(task.title, fx_title);
 
-		// -- Clean - Delete
+		// -- Clean
 		TaskBmc::delete(&ctx, &mm, id).await?;
 
 		Ok(())
 	}
 
 	#[tokio::test]
-	async fn test_delete_err() -> Result<()> {
+	async fn test_get_err_not_found() -> Result<()> {
 		// -- Setup & Fixtures
 		let mm = _dev_utils::init_test().await;
 		let ctx = Ctx::root_ctx();
-		let fx_id = 10; // below 1000 so should have no row.
+		let fx_id = 100;
 
 		// -- Exec
-		let res = TaskBmc::delete(&ctx, &mm, fx_id).await;
+		let res = TaskBmc::get(&ctx, &mm, 100).await;
 
 		// -- Check
 		assert!(
-			matches!(
-				res,
-				Err(model::Error::EntityNotFound { table: "task", id: fx_id })
-			),
+			matches!(res, Err(Error::EntityNotFound { table: "task", id: fx_id })),
+			"EntityNotFound not matching"
+		);
+
+		Ok(())
+	}
+
+	#[tokio::test]
+	async fn test_delete_err_not_found() -> Result<()> {
+		// -- Setup & Fixtures
+		let mm = _dev_utils::init_test().await;
+		let ctx = Ctx::root_ctx();
+		let fx_id = 100;
+
+		// -- Exec
+		let res = TaskBmc::delete(&ctx, &mm, 100).await;
+
+		// -- Check
+		assert!(
+			matches!(res, Err(Error::EntityNotFound { table: "task", id: fx_id })),
 			"EntityNotFound not matching"
 		);
 
