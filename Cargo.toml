@@ -21,17 +21,17 @@ serde_with = {version = "3", features = ["time_0_3"]}
 axum = "0.6"
 tower-http = { version = "0.4", features = ["fs"] }
 tower-cookies = "0.9"
+# -- Data
+sqlx = { version = "0.6", features = [ "runtime-tokio-rustls", "postgres", "uuid", "time" ] }
+sqlb = "0.2" # Optional
 # -- Crypt & Encoding
 rand = "0.8"
 hmac = "0.12"
 sha2 = "0.10"
 base64-url = "2"
-uuid = {version = "1", features = ["v4", "fast-rng",]}
-# -- Data
-sqlx = { version = "0.6", features = [ "runtime-tokio-rustls", "postgres", "uuid", "time" ] }
-sqlb = "0.2" # Optional
 # -- Others
 lazy-regex = "2"
+uuid = {version = "1", features = ["v4", "fast-rng"]}
 time = "0.3"
 async-trait = "0.1"
 strum_macros = "0.24"
