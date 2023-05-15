@@ -175,10 +175,11 @@ mod tests {
 	async fn test_get_demo1() -> Result<()> {
 		// -- Setup & Fixtures
 		let mm = _dev_utils::init_test().await;
+		let ctx = Ctx::root_ctx();
 		let fx_username = "demo1";
 
 		// -- Exec
-		let user: User = UserBmc::first_by_username(&Ctx::root_ctx(), &mm, "demo1")
+		let user: User = UserBmc::first_by_username(&ctx, &mm, "demo1")
 			.await?
 			.context("Should have user 'demo1'")?;
 
