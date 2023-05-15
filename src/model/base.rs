@@ -70,13 +70,13 @@ where
 {
 	let db = mm.db();
 
-	let entity = sqlb::select()
+	let entities = sqlb::select()
 		.table(MC::TABLE)
 		.order_by("id")
 		.fetch_all::<_, E>(db)
 		.await?;
 
-	Ok(entity)
+	Ok(entities)
 }
 
 pub async fn update<MC, D>(
