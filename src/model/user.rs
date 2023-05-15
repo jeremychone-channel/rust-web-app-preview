@@ -1,12 +1,12 @@
 use crate::crypt::pwd::{self};
 use crate::crypt::EncryptContent;
 use crate::ctx::Ctx;
-use crate::model::base::{get, DbBmc};
+use crate::model::base::{self, get, DbBmc};
 use crate::model::{Error, ModelManager, Result};
 use crate::utils;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
-use sqlb::{Fields, HasFields};
+use sqlb::Fields;
 use sqlx::FromRow;
 use time::format_description::well_known::Rfc3339;
 use time::OffsetDateTime;
@@ -37,10 +37,6 @@ pub struct UserForCreate {
 #[derive(Fields)]
 pub struct UserForInsert {
 	pub username: String,
-	pub cid: i64,
-	pub ctime: OffsetDateTime,
-	pub mid: i64,
-	pub mtime: OffsetDateTime,
 }
 
 #[serde_as]
@@ -77,35 +73,31 @@ impl UserBmc {
 
 		let UserForCreate { username, pwd_clear } = user_fc;
 
-		let user = UserForInsert {
-			username: username.to_string(),
-			cid: ctx.user_id(),
-			ctime: now,
-			mid: ctx.user_id(),
-			mtime: now,
-		};
+		let user_fi = UserForInsert { username: username.to_string() };
 
-		let (id, pwd_salt) = sqlb::insert()
-			.table(Self::TABLE)
-			.data(user.fields())
-			.returning(&["id", "pwd_salt"])
-			.fetch_one::<_, (i64, Uuid)>(db)
+		let user_id = base::create::<Self, _>(ctx, mm, user_fi)
 			.await
-			.map_err(|sqlx_error| match sqlx_error.as_database_error() {
-				Some(db_error) => {
-					if let Some(code) = db_error.code() {
-						if code == "23505" {
+			.map_err(|model_error| match model_error {
+				Error::Sqlx(sqlx_error) => {
+					if let Some((code, constraint)) = sqlx_error
+						.as_database_error()
+						.and_then(|db_error| {
+							db_error.code().zip(db_error.constraint())
+						}) {
+						// "23505" => postgresql "unique violation"
+						// Note: Here we could part the
+						if code == "23505" && constraint == "user_username_key" {
 							return Error::UserAlreadyExists { username };
 						}
 					}
 					Error::Sqlx(sqlx_error)
 				}
-				_ => Error::Sqlx(sqlx_error),
+				_ => model_error,
 			})?;
 
-		Self::update_pwd(ctx, mm, id, &pwd_clear).await?;
+		Self::update_pwd(ctx, mm, user_id, &pwd_clear).await?;
 
-		Ok(id)
+		Ok(user_id)
 	}
 
 	#[allow(unused)]
@@ -225,7 +217,7 @@ mod tests {
 		let mm = _dev_utils::init_test().await;
 		let ctx = Ctx::root_ctx();
 		let fx_username = "demo3";
-		let fx_pwd_clear = "wecome3";
+		let fx_pwd_clear = "welcome3";
 
 		// -- Exec
 		let id = UserBmc::create(
