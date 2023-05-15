@@ -1,7 +1,7 @@
 use crate::crypt::pwd::{self};
 use crate::crypt::EncryptContent;
 use crate::ctx::Ctx;
-use crate::model::base::{self, get, DbBmc};
+use crate::model::base::{self, DbBmc};
 use crate::model::{Error, ModelManager, Result};
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
@@ -115,7 +115,7 @@ impl UserBmc {
 	where
 		E: UserBy,
 	{
-		get::<Self, _>(ctx, mm, id).await
+		base::get::<Self, _>(ctx, mm, id).await
 	}
 
 	pub async fn first_by_username<E>(
