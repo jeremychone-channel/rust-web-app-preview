@@ -11,12 +11,9 @@ use sha2::Sha512;
 
 // endregion: --- Modules
 
-/// The "content" parts of an encrypt command.
-/// For example, the `salt` might be per user.
-/// However, `key` can be context (i.e., different for pwd-scheme, token, or reset password)
 pub struct EncryptContent {
-	pub content: String, // clear content
-	pub salt: String,
+	pub content: String, // Clear content.
+	pub salt: String,    // Could be per user.
 }
 
 pub fn encrypt_into_b64u(
@@ -25,13 +22,15 @@ pub fn encrypt_into_b64u(
 ) -> Result<String> {
 	let EncryptContent { content, salt } = enc_content;
 
-	// Create a HMAC-SHA-512
+	// -- Create a HMAC-SHA-512 from key.
 	let mut hmac_sha512 =
 		Hmac::<Sha512>::new_from_slice(key).map_err(|_| Error::KeyFailHmac)?;
 
+	// -- Add content.
 	hmac_sha512.update(content.as_bytes());
 	hmac_sha512.update(salt.as_bytes());
 
+	// -- Finalize and b64u encode.
 	let hmac_result = hmac_sha512.finalize();
 	let result_bytes = hmac_result.into_bytes();
 
