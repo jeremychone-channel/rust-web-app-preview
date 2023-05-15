@@ -124,6 +124,30 @@ mod tests {
 	}
 
 	#[tokio::test]
+	async fn test_list_basic() -> Result<()> {
+		// -- Setup & Fixtures
+		let mm = _dev_utils::init_test().await;
+		let ctx = Ctx::root_ctx();
+		let fx_titles = &["test_list_basic 01", "test_list_basic 02"];
+		let fx_tasks = _dev_utils::seed_tasks(&ctx, &mm, fx_titles).await?;
+
+		// -- List
+		let tasks = TaskBmc::list(&ctx, &mm).await?;
+		let tasks: Vec<Task> = tasks
+			.into_iter()
+			.filter(|t| t.title.starts_with("test_list_basic"))
+			.collect();
+		assert_eq!(tasks.len(), 2, "number of seeded tasks.");
+
+		// -- Clean
+		for task in tasks.iter() {
+			TaskBmc::delete(&ctx, &mm, task.id).await?;
+		}
+
+		Ok(())
+	}
+
+	#[tokio::test]
 	async fn test_delete_err_not_found() -> Result<()> {
 		// -- Setup & Fixtures
 		let mm = _dev_utils::init_test().await;
