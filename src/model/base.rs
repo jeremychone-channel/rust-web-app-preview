@@ -72,6 +72,7 @@ where
 
 	let entity = sqlb::select()
 		.table(MC::TABLE)
+		.order_by("id")
 		.fetch_all::<_, E>(db)
 		.await?;
 
