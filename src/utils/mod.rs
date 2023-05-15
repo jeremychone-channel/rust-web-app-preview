@@ -33,7 +33,6 @@ pub fn parse_utc(moment: &str) -> Result<OffsetDateTime> {
 // endregion: --- Time
 
 // region:    --- Base64
-#[inline(always)]
 pub fn b64u_encode(content: &str) -> String {
 	base64_url::encode(content)
 }
