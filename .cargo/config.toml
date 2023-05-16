@@ -5,7 +5,7 @@
 [env]
 
 # Scope down tracing, to filter out external lib tracing.
-RUST_LOG="rust_axum_base=debug"
+RUST_LOG="rust_web_app_preview=debug"
 
 # -- Service Environment Variables
 
