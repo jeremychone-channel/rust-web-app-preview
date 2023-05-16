@@ -75,17 +75,6 @@ mod tests {
 	use anyhow::Result;
 
 	#[test]
-	fn test_encrypt() -> Result<()> {
-		let salt = "some-salt".to_string();
-		let pwd_clear = "welcome".to_string();
-		let pwd_enc = encrypt_pwd(&EncryptContent { salt, content: pwd_clear })?;
-
-		assert!(!pwd_enc.is_empty(), "pwd_enc");
-
-		Ok(())
-	}
-
-	#[test]
 	fn test_validate() -> Result<()> {
 		let salt = "some-salt";
 		let pwd_clear = "welcome";
@@ -94,6 +83,7 @@ mod tests {
 			salt: salt.to_string(),
 			content: pwd_clear.to_string(),
 		})?;
+		println!("->> {pwd_enc_1}");
 
 		validate_pwd(
 			&EncryptContent {
@@ -108,7 +98,7 @@ mod tests {
 
 	#[test]
 	fn test_extract_scheme() -> Result<()> {
-		let s = "#01#G1Awj9k19UY2D04EQ9DCxpSIxMApGgI0Ogvg+Xi/QXoXEO1b5hAXmusXmT2wo/L8VWenfZShPT42gk7k3BZSwA==";
+		let s = "#01#DdVzPPKKpjs-xuf-Y88t3MpQ5KPDqa7C2gpaTIysHnHIzX_j2IgNb3WtEDHLfF2ps1OWVPKOkgLFvvDMvNrN-A";
 		assert_eq!(extract_scheme(s)?, "01");
 		Ok(())
 	}
