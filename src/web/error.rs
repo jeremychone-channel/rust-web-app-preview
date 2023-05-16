@@ -88,10 +88,14 @@ impl Error {
 		use web::Error::*;
 
 		match self {
-			// -- Login/Auth
-			LoginFailUsernameNotFound | LoginFailUserHasNoPwd { .. } => {
+			// -- Login
+			LoginFailUsernameNotFound
+			| LoginFailUserHasNoPwd { .. }
+			| LoginFailPwdNotMatching { .. } => {
 				(StatusCode::FORBIDDEN, ClientError::LOGIN_FAIL)
 			}
+
+			// -- Auth
 			CtxAuth(_) => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
 
 			// -- Model
