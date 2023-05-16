@@ -89,8 +89,26 @@ async fn pexec(db: &Db, file: &str) -> Result<(), sqlx::Error> {
 	let sqls: Vec<&str> = content.split(';').collect();
 
 	// -- SQL Execute each part.
+	let mut fn_sql_parts: Vec<&str> = Vec::new();
 	for sql in sqls {
-		sqlx::query(sql).execute(db).await?;
+		// -- Trick to not split function body
+		//    (TODO: Needs to be make it more robust.)
+
+		// If it is the begin of a function we start keeping track
+		if sql.contains("BEGIN") {
+			fn_sql_parts.push(sql);
+		} else if !fn_sql_parts.is_empty() {
+			fn_sql_parts.push(sql);
+
+			// Here we assume the end will be `$$ LANGUAGE plpgsql;`
+			if sql.trim().starts_with("$$") {
+				let sql = format!("{};", fn_sql_parts.join(";"));
+				sqlx::query(&sql).execute(db).await?;
+				fn_sql_parts.clear();
+			}
+		} else {
+			sqlx::query(sql).execute(db).await?;
+		}
 	}
 
 	Ok(())

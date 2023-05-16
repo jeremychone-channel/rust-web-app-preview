@@ -97,7 +97,10 @@ impl UserBmc {
 						}) {
 						// "23505" => postgresql "unique violation"
 						// Note: Here we could part the
-						if code == "23505" && constraint == "user_username_key" {
+						if code == "23505"
+							&& (constraint == "user_username_key"
+								|| constraint == "user_username_norm_key")
+						{
 							return Error::UserAlreadyExists { username };
 						}
 					}
@@ -249,11 +252,12 @@ mod tests {
 	}
 
 	#[tokio::test]
-	async fn test_create_demo3_twice_and_err() -> Result<()> {
+	async fn test_create_err_already_exists_username() -> Result<()> {
 		// -- Setup & Fixtures
 		let mm = _dev_utils::init_test().await;
 		let ctx = Ctx::root_ctx();
-		let fx_username = "demo3";
+		let fx_username_01 = "demo3";
+		let fx_username_02 = "demo3";
 		let fx_pwd_clear = "welcome3";
 
 		// -- Exec
@@ -261,7 +265,7 @@ mod tests {
 			&ctx,
 			&mm,
 			UserForCreate {
-				username: fx_username.to_string(),
+				username: fx_username_01.to_string(),
 				pwd_clear: fx_pwd_clear.to_string(),
 			},
 		)
@@ -271,19 +275,68 @@ mod tests {
 			&ctx,
 			&mm,
 			UserForCreate {
-				username: fx_username.to_string(),
+				username: fx_username_02.to_string(),
 				pwd_clear: fx_pwd_clear.to_string(),
 			},
 		)
 		.await;
 
-		let expected_error: Result<i64, Error> =
-			Err(Error::UserAlreadyExists { username: fx_username.to_string() });
-
+		// -- Check
 		assert!(
-			matches!(&res, expected_error),
-			"Error not matching.\nexpected: {expected_error:?}\nfound: {res:?}"
+			matches!(&res, Err(Error::UserAlreadyExists { username })),
+			"res not matching expected Error::UserAlreadyExists. res: {res:?}"
 		);
+
+		// -- Clean
+		sqlx::query(r#"DELETE FROM "user" where id = $1"#)
+			.bind(id)
+			.execute(mm.db())
+			.await?;
+
+		Ok(())
+	}
+
+	#[tokio::test]
+	async fn test_create_err_already_exists_norm() -> Result<()> {
+		// -- Setup & Fixtures
+		let mm = _dev_utils::init_test().await;
+		let ctx = Ctx::root_ctx();
+		let fx_username_01 = "demo3";
+		let fx_username_02 = "Demo 3";
+		let fx_pwd_clear = "welcome3";
+
+		// -- Exec
+		let id = UserBmc::create(
+			&ctx,
+			&mm,
+			UserForCreate {
+				username: fx_username_01.to_string(),
+				pwd_clear: fx_pwd_clear.to_string(),
+			},
+		)
+		.await?;
+
+		let res = UserBmc::create(
+			&ctx,
+			&mm,
+			UserForCreate {
+				username: fx_username_02.to_string(),
+				pwd_clear: fx_pwd_clear.to_string(),
+			},
+		)
+		.await;
+
+		// -- Check
+		assert!(
+			matches!(&res, Err(Error::UserAlreadyExists { username })),
+			"res not matching expected Error::UserAlreadyExists. res: {res:?}"
+		);
+
+		// -- Clean
+		sqlx::query(r#"DELETE FROM "user" where id = $1"#)
+			.bind(id)
+			.execute(mm.db())
+			.await?;
 
 		Ok(())
 	}
