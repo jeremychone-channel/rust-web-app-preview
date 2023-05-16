@@ -6,19 +6,22 @@ use lazy_regex::regex_captures;
 pub const DEFAULT_SCHEME: &str = "02";
 
 /// Encrypt the password with the default scheme.
-pub fn encrypt_pwd(args: &EncryptContent) -> Result<String> {
-	encrypt_for_scheme(DEFAULT_SCHEME, args)
+pub fn encrypt_pwd(enc_content: &EncryptContent) -> Result<String> {
+	encrypt_for_scheme(DEFAULT_SCHEME, enc_content)
 }
 
 pub enum SchemeStatus {
 	Ok,       // The pwd use the latest scheme. All good.
 	Outdated, // The pwd use a old scheme. Would need to be re-encrypted.
 }
-/// Validation if an EncryptContent matches
-/// the encrypted pwd reference (usually coming from `user.pwd`)
-pub fn validate_pwd(args: &EncryptContent, pwd_ref: &str) -> Result<SchemeStatus> {
+/// Validate if an EncryptContent matches
+pub fn validate_pwd(
+	enc_content: &EncryptContent,
+	pwd_ref: &str,
+) -> Result<SchemeStatus> {
 	let origin_scheme = extract_scheme(pwd_ref)?;
-	let new_pwd = encrypt_for_scheme(&origin_scheme, args)?;
+	let new_pwd = encrypt_for_scheme(&origin_scheme, enc_content)?;
+
 	if pwd_ref == new_pwd {
 		if origin_scheme == DEFAULT_SCHEME {
 			Ok(SchemeStatus::Ok)
@@ -70,8 +73,6 @@ mod tests {
 	#![allow(unused)]
 	use super::*;
 	use anyhow::Result;
-	use rand::RngCore;
-	use tracing::debug;
 
 	#[test]
 	fn test_encrypt() -> Result<()> {
@@ -79,7 +80,8 @@ mod tests {
 		let pwd_clear = "welcome".to_string();
 		let pwd_enc = encrypt_pwd(&EncryptContent { salt, content: pwd_clear })?;
 
-		debug!("pwd_enc: {pwd_enc}");
+		assert!(!pwd_enc.is_empty(), "pwd_enc");
+
 		Ok(())
 	}
 
