@@ -19,14 +19,15 @@ pub enum Error {
 
 	// -- Login
 	LoginFailUsernameNotFound,
-	LoginFailUserHasNoPwd { username: String },
+	LoginFailUserHasNoPwd { user_id: i64 },
+	LoginFailPwdNotMatching { user_id: i64 },
 
-	// -- Auth
+	// -- CtxAuthError
 	CtxAuth(web::mw_auth::CtxAuthError),
 
-	// -- Sub Modules
-	Crypt(crypt::Error),
+	// -- Modules
 	Model(model::Error),
+	Crypt(crypt::Error),
 
 	// -- External Modules
 	SerdeJson(String),
@@ -39,15 +40,15 @@ impl From<model::Error> for Error {
 	}
 }
 
-impl From<serde_json::Error> for Error {
-	fn from(val: serde_json::Error) -> Self {
-		Error::SerdeJson(val.to_string())
+impl From<crypt::Error> for Error {
+	fn from(val: crypt::Error) -> Self {
+		Self::Crypt(val)
 	}
 }
 
-impl From<crypt::Error> for Error {
-	fn from(val: crypt::Error) -> Self {
-		Error::Crypt(val)
+impl From<serde_json::Error> for Error {
+	fn from(val: serde_json::Error) -> Self {
+		Error::SerdeJson(val.to_string())
 	}
 }
 // endregion: --- Error Froms

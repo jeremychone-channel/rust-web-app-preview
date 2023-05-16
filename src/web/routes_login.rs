@@ -29,16 +29,17 @@ async fn api_login_handler(
 	debug!("{:<12} - api_login_handler", "HANDLER");
 
 	let LoginPayload { username, pwd: pwd_clear } = payload;
+	let root_ctx = Ctx::root_ctx();
 
 	// -- Get the user.
-	let user =
-		UserBmc::first_by_username::<UserForLogin>(&Ctx::root_ctx(), &mm, &username)
-			.await?
-			.ok_or(Error::LoginFailUsernameNotFound)?;
+	let user: UserForLogin = UserBmc::first_by_username(&root_ctx, &mm, &username)
+		.await?
+		.ok_or(Error::LoginFailUsernameNotFound)?;
+	let user_id = user.id;
 
 	// -- Validate the password.
 	let Some(pwd) = user.pwd else {
-		return Err(Error::LoginFailUserHasNoPwd{ username }) ;
+		return Err(Error::LoginFailUserHasNoPwd{ user_id }) ;
 	};
 
 	let scheme_status = pwd::validate_pwd(
@@ -47,12 +48,13 @@ async fn api_login_handler(
 			content: pwd_clear.clone(),
 		},
 		&pwd,
-	)?;
+	)
+	.map_err(|_| Error::LoginFailPwdNotMatching { user_id })?;
 
-	// -- If pwd scheme outdated, update it.
+	// -- If pwd scheme outdated, update pwd.
 	if let SchemeStatus::Outdated = scheme_status {
 		debug!("pwd encrypt scheme outdated, upgrading.");
-		UserBmc::update_pwd(&Ctx::root_ctx(), &mm, user.id, &pwd_clear).await?;
+		UserBmc::update_pwd(&root_ctx, &mm, user.id, &pwd_clear).await?;
 	}
 
 	// -- Generate the web token.
