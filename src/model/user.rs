@@ -96,7 +96,6 @@ impl UserBmc {
 							db_error.code().zip(db_error.constraint())
 						}) {
 						// "23505" => postgresql "unique violation"
-						// Note: Here we could part the
 						if code == "23505"
 							&& (constraint == "user_username_key"
 								|| constraint == "user_username_norm_key")
