@@ -65,7 +65,6 @@ pub async fn init_dev_db() -> Result<(), Box<dyn std::error::Error>> {
 	.fetch_one(&app_db)
 	.await?;
 
-	let salt = salt.to_string();
 	let pwd = pwd::encrypt_pwd(&EncryptContent {
 		salt: salt.to_string(),
 		content: "welcome".to_string(),

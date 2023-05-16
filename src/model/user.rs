@@ -169,6 +169,7 @@ mod tests {
 	#![allow(unused)]
 	use super::*;
 	use crate::_dev_utils;
+	use crate::crypt::pwd::validate_pwd;
 	use anyhow::{Context, Result};
 
 	#[tokio::test]
@@ -179,12 +180,35 @@ mod tests {
 		let fx_username = "demo1";
 
 		// -- Exec
-		let user: User = UserBmc::first_by_username(&ctx, &mm, "demo1")
+		let user: User = UserBmc::first_by_username(&ctx, &mm, fx_username)
 			.await?
 			.context("Should have user 'demo1'")?;
 
 		// -- Check
-		assert_eq!(fx_username, "demo1");
+		assert_eq!(fx_username, fx_username);
+
+		Ok(())
+	}
+
+	#[tokio::test]
+	async fn test_pwd_demo1() -> Result<()> {
+		// -- Setup & Fixtures
+		let mm = _dev_utils::init_test().await;
+		let ctx = Ctx::root_ctx();
+		let fx_username = "demo1";
+		let fx_pwd = "welcome";
+
+		// -- Check
+		let user: UserForLogin = UserBmc::first_by_username(&ctx, &mm, fx_username)
+			.await?
+			.context("Should have user 'demo1'")?;
+		validate_pwd(
+			&EncryptContent {
+				content: fx_pwd.to_string(),
+				salt: user.pwd_salt.to_string(),
+			},
+			&user.pwd.unwrap(),
+		)?;
 
 		Ok(())
 	}
