@@ -24,6 +24,7 @@ SERVICE_DB_URL="postgres://app_user:dev_only_pwd@localhost/app_db"
 SERVICE_PWD_KEY="U96vOyRaI4tjumjHRk0FK2D1N1UAg2jiVZ66y-3Q0k_BfgY3Gmvft0A2JDzb9ZgT2QzGPgBUJnGtc_1MBeUS5w"
 
 SERVICE_TOKEN_KEY="CUF2rzJgVUSMYKls9ysmUGbZlha7H-HvqjHroY_wYPuUZsXqz7wpkGn3XVubVY8wfhLH7H8_0ksxOMkJiSiCWQ"
+SERVICE_TOKEN_DURATION_SEC="1800"
 
 ## -- ConfigMap
 

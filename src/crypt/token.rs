@@ -5,12 +5,12 @@ use crate::utils::{
 	b64u_decode, b64u_encode, now_utc, now_utc_plus_sec_str, parse_utc,
 };
 
-/// The release of a parse token.
-/// All properties have be b64u decoded.
+/// Token with the string serialized format as
+/// `user_b64u.exp_b64u.sign_b64u`
 pub struct Token {
-	pub user: String,      // user identifier
-	pub exp: String,       // expiration date in iso8601
-	pub sign_b64u: String, // signature, in base64url encoded
+	pub user: String,      // User identifier (username for now).
+	pub exp: String,       // Expiration date in Rfc3339.
+	pub sign_b64u: String, // Signature, in base64url encoded.
 }
 
 impl Token {
@@ -44,14 +44,7 @@ impl std::fmt::Display for Token {
 	}
 }
 
-/// With the format `user_ident.expiration.signature`
-///
-/// All these parts will be base64url endcoded:
-///
-/// - `user_ident` is the username in our case, but could be `user.id` or `user.uuid`
-/// - `expiration` is the utc iso8601 expiration date of this token.
-/// - `signature` is the token signature of the two first parts (base64url encoded) in base64url
-///
+/// Generate a Token for a given user identifier and its token salt.
 pub fn generate_token(user: &str, salt: &str) -> Result<Token> {
 	let duration_sec = config().TOKEN_DURATION_SEC;
 
@@ -60,7 +53,7 @@ pub fn generate_token(user: &str, salt: &str) -> Result<Token> {
 	let exp = now_utc_plus_sec_str(duration_sec);
 
 	// -- Sign the two first components.
-	let sign_b64u = sign_into_b64u(&user, &exp, salt)?;
+	let sign_b64u = token_sign_into_b64u(&user, &exp, salt)?;
 
 	Ok(Token { user, exp, sign_b64u })
 }
@@ -69,7 +62,9 @@ pub fn generate_token(user: &str, salt: &str) -> Result<Token> {
 /// Returns - tuple of decoded string (user, expiration).
 pub fn validate_token_sign_and_exp(origin_token: &Token, salt: &str) -> Result<()> {
 	// -- Validate signature.
-	let new_sign_b64u = sign_into_b64u(&origin_token.user, &origin_token.exp, salt)?;
+	let new_sign_b64u =
+		token_sign_into_b64u(&origin_token.user, &origin_token.exp, salt)?;
+
 	if new_sign_b64u != origin_token.sign_b64u {
 		return Err(Error::TokenSignatureNotMatching);
 	}
@@ -86,7 +81,9 @@ pub fn validate_token_sign_and_exp(origin_token: &Token, salt: &str) -> Result<(
 	Ok(())
 }
 
-fn sign_into_b64u(user: &str, exp: &str, salt: &str) -> Result<String> {
+/// Create a token signature given the user identifier,
+/// expiration, and salt.
+fn token_sign_into_b64u(user: &str, exp: &str, salt: &str) -> Result<String> {
 	let key = &config().TOKEN_KEY;
 	let content = format!("{}.{}", b64u_encode(user), b64u_encode(exp));
 	let signature =

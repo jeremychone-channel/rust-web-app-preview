@@ -1,6 +1,7 @@
 use crate::{Error, Result};
 use once_cell::sync::OnceCell;
 use std::env;
+use std::str::FromStr;
 
 pub fn config() -> &'static Config {
 	static INSTANCE: OnceCell<Config> = OnceCell::new();
@@ -32,8 +33,9 @@ impl Config {
 		Ok(Config {
 			// -- Crypt
 			PWD_KEY: get_env_b64u_as_u8s("SERVICE_PWD_KEY")?,
+
 			TOKEN_KEY: get_env_b64u_as_u8s("SERVICE_TOKEN_KEY")?,
-			TOKEN_DURATION_SEC: 1800.,
+			TOKEN_DURATION_SEC: get_env_parse("SERVICE_TOKEN_DURATION_SEC")?,
 
 			// -- Db
 			DB_URL: get_env("SERVICE_DB_URL")?,
@@ -46,6 +48,11 @@ impl Config {
 
 fn get_env(name: &'static str) -> Result<String> {
 	env::var(name).map_err(|_| Error::ConfMissingEnv(name))
+}
+
+fn get_env_parse<T: FromStr>(name: &'static str) -> Result<T> {
+	let val = get_env(name)?;
+	val.parse::<T>().map_err(|_| Error::ConfWrongFormat(name))
 }
 
 fn get_env_b64u_as_u8s(name: &'static str) -> Result<Vec<u8>> {
