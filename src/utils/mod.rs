@@ -14,10 +14,8 @@ pub fn now_utc() -> OffsetDateTime {
 	OffsetDateTime::now_utc()
 }
 
-// TODO: Need to validate if the .unwrap below are 100% safe.
 pub fn format_time(time: OffsetDateTime) -> String {
-	// Because native time format, safe enough to unwrap.
-	time.format(&Rfc3339).unwrap()
+	time.format(&Rfc3339).unwrap() // TODO: need to check if safe.
 }
 
 pub fn now_utc_plus_sec_str(sec: f64) -> String {
@@ -38,11 +36,11 @@ pub fn b64u_encode(content: &str) -> String {
 }
 
 pub fn b64u_decode(b64u: &str) -> Result<String> {
-	let user_ident = base64_url::decode(b64u)
+	let decoded_string = base64_url::decode(b64u)
 		.ok()
 		.and_then(|r| String::from_utf8(r).ok())
 		.ok_or(Error::FailToB64uDecode)?;
 
-	Ok(user_ident)
+	Ok(decoded_string)
 }
 // endregion: --- Base64
