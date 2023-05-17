@@ -1,8 +1,10 @@
-mod rpc_task;
+// region:    --- Modules
+
+mod task_rpc;
 
 use crate::ctx::Ctx;
 use crate::model::ModelManager;
-use crate::web::rpc::rpc_task::{create_task, delete_task, list_tasks, update_task};
+use crate::web::rpc::task_rpc::{create_task, delete_task, list_tasks, update_task};
 use crate::web::{Error, Result};
 use axum::extract::State;
 use axum::response::{IntoResponse, Response};
@@ -12,6 +14,8 @@ use serde::Deserialize;
 use serde_json::{from_value, json, to_value, Value};
 use sqlb::Fields;
 use tracing::debug;
+
+// endregion: --- Modules
 
 #[derive(Deserialize)]
 struct RpcRequest {
@@ -58,9 +62,7 @@ async fn rpc_handler(
 	};
 
 	// -- Execute the RPC Handler routing.
-	let mut res = rpc_handler_inner(rpc_req, mm, ctx)
-		.await
-		.into_response();
+	let mut res = rpc_handler_inner(rpc_req, mm, ctx).await.into_response();
 
 	// -- Set the RPC Context as a reponse extension.
 	res.extensions_mut().insert(rpc_ctx);

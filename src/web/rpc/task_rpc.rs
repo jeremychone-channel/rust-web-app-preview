@@ -4,8 +4,6 @@ use crate::model::ModelManager;
 use crate::web::rpc::{ParamsForUpdate, ParamsIded};
 use crate::web::Result;
 
-// region:    --- REST Handlers
-
 pub async fn create_task(
 	mm: ModelManager,
 	ctx: Ctx,
@@ -48,5 +46,3 @@ pub async fn delete_task(
 
 	Ok(task)
 }
-
-// endregion: --- REST Handlers
