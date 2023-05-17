@@ -83,7 +83,6 @@ mod tests {
 			salt: salt.to_string(),
 			content: pwd_clear.to_string(),
 		})?;
-		println!("->> {pwd_enc_1}");
 
 		validate_pwd(
 			&EncryptContent {
