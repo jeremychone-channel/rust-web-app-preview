@@ -41,7 +41,7 @@ pub fn b64u_decode(b64u: &str) -> Result<String> {
 	let user_ident = base64_url::decode(b64u)
 		.ok()
 		.and_then(|r| String::from_utf8(r).ok())
-		.ok_or(Error::FailToB64UDecode)?;
+		.ok_or(Error::FailToB64uDecode)?;
 
 	Ok(user_ident)
 }

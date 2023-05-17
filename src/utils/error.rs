@@ -4,7 +4,7 @@ pub type Result<T> = core::result::Result<T, Error>;
 
 #[derive(Debug, Serialize)]
 pub enum Error {
-	FailToB64UDecode,
+	FailToB64uDecode,
 	DateFailParse(String),
 }
 
