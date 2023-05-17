@@ -28,6 +28,17 @@ pub struct User {
 	pub mtime: OffsetDateTime,
 }
 
+#[derive(Deserialize)]
+pub struct UserForCreate {
+	pub username: String,
+	pub pwd_clear: String,
+}
+
+#[derive(Fields)]
+pub struct UserForInsert {
+	pub username: String,
+}
+
 #[derive(Clone, FromRow, Debug)]
 pub struct UserForLogin {
 	pub id: i64,
@@ -46,17 +57,6 @@ pub struct UserForAuth {
 
 	// -- pwd and salts
 	pub token_salt: Uuid,
-}
-
-#[derive(Deserialize)]
-pub struct UserForCreate {
-	pub username: String,
-	pub pwd_clear: String,
-}
-
-#[derive(Fields)]
-pub struct UserForInsert {
-	pub username: String,
 }
 
 /// Marker trait
