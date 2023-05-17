@@ -86,13 +86,11 @@ impl UserBmc {
 
 		let user_fi = UserForInsert { username: username.to_string() };
 
-		let user_id = base::create::<Self, _>(ctx, mm, user_fi)
-			.await
-			.map_err(|model_error| match model_error {
+		let user_id = base::create::<Self, _>(ctx, mm, user_fi).await.map_err(
+			|model_error| match model_error {
 				Error::Sqlx(sqlx_error) => {
-					if let Some((code, constraint)) = sqlx_error
-						.as_database_error()
-						.and_then(|db_error| {
+					if let Some((code, constraint)) =
+						sqlx_error.as_database_error().and_then(|db_error| {
 							db_error.code().zip(db_error.constraint())
 						}) {
 						// "23505" => postgresql "unique violation"
@@ -106,7 +104,8 @@ impl UserBmc {
 					Error::Sqlx(sqlx_error)
 				}
 				_ => model_error,
-			})?;
+			},
+		)?;
 
 		Self::update_pwd(ctx, mm, user_id, &pwd_clear).await?;
 
@@ -301,7 +300,7 @@ mod tests {
 		let mm = _dev_utils::init_test().await;
 		let ctx = Ctx::root_ctx();
 		let fx_username_01 = "demo3";
-		let fx_username_02 = "Demo 3";
+		let fx_username_02 = " Demo3 ";
 		let fx_pwd_clear = "welcome3";
 
 		// -- Exec

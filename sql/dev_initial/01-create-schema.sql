@@ -26,7 +26,12 @@ CREATE TABLE "user" (
 CREATE OR REPLACE FUNCTION user_username_norm_tg_fn()
 RETURNS TRIGGER AS $$
 BEGIN
-  NEW.username_norm := LOWER(REGEXP_REPLACE(TRIM(NEW.username), '[^a-zA-Z0-9]', '', 'g'));
+  -- This is a strickier rule when the app has full username control (.e.g., not accepting email addresses)
+  -- NEW.username_norm := LOWER(REGEXP_REPLACE(TRIM(NEW.username), '[^a-zA-Z0-9]', '', 'g'));
+
+  -- Fairly common rule compatible with most email providers.
+  NEW.username_norm := LOWER(TRIM(NEW.username));
+
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
