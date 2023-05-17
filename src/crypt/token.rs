@@ -1,9 +1,9 @@
-use crate::crypt::EncryptContent;
+use crate::config;
+use crate::crypt::{encrypt_into_b64u, EncryptContent};
 use crate::crypt::{Error, Result};
 use crate::utils::{
 	b64u_decode, b64u_encode, now_utc, now_utc_plus_sec_str, parse_utc,
 };
-use crate::{config, crypt};
 
 /// The release of a parse token.
 /// All properties have be b64u decoded.
@@ -89,10 +89,8 @@ pub fn validate_token_sign_and_exp(origin_token: &Token, salt: &str) -> Result<(
 fn sign_into_b64u(user: &str, exp: &str, salt: &str) -> Result<String> {
 	let key = &config().TOKEN_KEY;
 	let content = format!("{}.{}", b64u_encode(user), b64u_encode(exp));
-	let signature = crypt::encrypt_into_b64u(
-		key,
-		&EncryptContent { content, salt: salt.to_string() },
-	)?;
+	let signature =
+		encrypt_into_b64u(key, &EncryptContent { content, salt: salt.to_string() })?;
 
 	Ok(signature)
 }
