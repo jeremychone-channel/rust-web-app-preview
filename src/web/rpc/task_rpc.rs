@@ -1,15 +1,17 @@
 use crate::ctx::Ctx;
 use crate::model::task::{Task, TaskBmc, TaskForCreate, TaskForUpdate};
 use crate::model::ModelManager;
-use crate::web::rpc::{ParamsForUpdate, ParamsIded};
+use crate::web::rpc::{ParamsForCreate, ParamsForUpdate, ParamsIded};
 use crate::web::Result;
 
 pub async fn create_task(
 	mm: ModelManager,
 	ctx: Ctx,
-	task_fc: TaskForCreate,
+	params: ParamsForCreate<TaskForCreate>,
 ) -> Result<Task> {
-	let id = TaskBmc::create(&ctx, &mm, task_fc).await?;
+	let ParamsForCreate { data } = params;
+
+	let id = TaskBmc::create(&ctx, &mm, data).await?;
 	let task = TaskBmc::get(&ctx, &mm, id).await?;
 
 	Ok(task)
@@ -26,8 +28,9 @@ pub async fn update_task(
 	ctx: Ctx,
 	params: ParamsForUpdate<TaskForUpdate>,
 ) -> Result<Task> {
-	let ParamsForUpdate { id, data: task_fu } = params;
-	TaskBmc::update(&ctx, &mm, id, task_fu).await?;
+	let ParamsForUpdate { id, data } = params;
+
+	TaskBmc::update(&ctx, &mm, id, data).await?;
 
 	let task = TaskBmc::get(&ctx, &mm, id).await?;
 

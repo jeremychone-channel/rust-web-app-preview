@@ -29,7 +29,9 @@ async fn main() -> Result<()> {
 			"id": null,
 			"method": "create_task",
 			"params": {
-				"title": "task AAA"
+				"data": {
+					"title": "task AAA"
+				}
 			}
 		}),
 	);

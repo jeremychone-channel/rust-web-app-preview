@@ -12,17 +12,42 @@ use axum::routing::post;
 use axum::{Json, Router};
 use serde::Deserialize;
 use serde_json::{from_value, json, to_value, Value};
-use sqlb::Fields;
 use tracing::debug;
 
 // endregion: --- Modules
 
+/// RPC Request Body coming from the client RPC Call.
 #[derive(Deserialize)]
 struct RpcRequest {
 	id: Option<Value>,
 	method: String,
 	params: Option<Value>,
 }
+
+/// RPC Context holding the id and method for further logging.
+#[derive(Debug)]
+pub struct RpcCtx {
+	pub id: Option<Value>,
+	pub method: String,
+}
+
+// region:    --- Params Types
+#[derive(Deserialize)]
+pub struct ParamsForCreate<D> {
+	data: D,
+}
+
+#[derive(Deserialize)]
+pub struct ParamsForUpdate<D> {
+	id: i64,
+	data: D,
+}
+
+#[derive(Deserialize)]
+pub struct ParamsIded {
+	id: i64,
+}
+// endregion: --- Params Types
 
 pub fn routes(mm: ModelManager) -> Router {
 	Router::new()
@@ -102,22 +127,3 @@ async fn rpc_handler_inner(
 
 	Ok(Json(body_response))
 }
-
-#[derive(Debug)]
-pub struct RpcCtx {
-	pub id: Option<Value>,
-	pub method: String,
-}
-
-// region:    --- Params Types
-#[derive(Deserialize, Fields)]
-pub struct ParamsIded {
-	id: i64,
-}
-
-#[derive(Deserialize)]
-pub struct ParamsForUpdate<D> {
-	id: i64,
-	data: D,
-}
-// endregion: --- Params Types
