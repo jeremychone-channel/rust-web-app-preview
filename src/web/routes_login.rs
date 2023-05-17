@@ -1,5 +1,4 @@
 use crate::crypt::pwd::{self, SchemeStatus};
-use crate::crypt::token::generate_token;
 use crate::crypt::EncryptContent;
 use crate::ctx::Ctx;
 use crate::model::user::{UserBmc, UserForLogin};
@@ -11,7 +10,7 @@ use axum::routing::post;
 use axum::{Json, Router};
 use serde::Deserialize;
 use serde_json::{json, Value};
-use tower_cookies::{Cookie, Cookies};
+use tower_cookies::Cookies;
 use tracing::debug;
 
 pub fn routes(mm: ModelManager) -> Router {
@@ -58,8 +57,7 @@ async fn api_login_handler(
 	}
 
 	// -- Generate the web token.
-	let token = generate_token(&user.username, &user.token_salt.to_string())?;
-	cookies.add(Cookie::new(web::AUTH_TOKEN, token.to_string()));
+	web::set_token_cookie(&cookies, &user.username, &user.token_salt.to_string())?;
 
 	// -- Create the success body.
 	let body = Json(json!({

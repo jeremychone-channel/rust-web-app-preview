@@ -1,4 +1,4 @@
-use crate::crypt::token::{generate_token, validate_token_sign_and_exp, Token};
+use crate::crypt::token::{validate_token_sign_and_exp, Token};
 use crate::ctx::Ctx;
 use crate::model::user::{UserBmc, UserForAuth};
 use crate::model::ModelManager;
@@ -66,8 +66,11 @@ pub async fn mw_ctx_resolver<B>(
 	// -- Update Token
 	// If auth success, create a new Token with the updated expiration date.
 	if let Ok(user) = result_user.as_ref() {
-		let token = generate_token(&user.username, &user.token_salt.to_string())?;
-		cookies.add(Cookie::new(web::AUTH_TOKEN, token.to_string()));
+		web::set_token_cookie(
+			&cookies,
+			&user.username,
+			&user.token_salt.to_string(),
+		)?;
 	}
 	// Ohterwise, remove the cookie if something went wrong other than TokenNotInCookie.
 	else if !matches!(result_user, Err(CtxAuthError::TokenNotInCookie)) {
