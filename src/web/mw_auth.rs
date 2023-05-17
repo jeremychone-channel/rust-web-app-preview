@@ -35,15 +35,14 @@ pub async fn mw_ctx_resolver<B>(
 ) -> Result<Response> {
 	debug!("{:<12} - mw_ctx_resolver", "MIDDLEWARE");
 
-	let token = cookies
-		.get(AUTH_TOKEN)
-		.map(|c| c.value().to_string());
+	let token = cookies.get(AUTH_TOKEN).map(|c| c.value().to_string());
 
-	// -- Get the token.
+	// -- Parse Token
 	let token = token
 		.ok_or(CtxAuthError::TokenNotInCookie)
 		.and_then(|t| Token::parse(&t).map_err(|_| CtxAuthError::TokenWrongFormat));
 
+	// -- Validate Token
 	// Get the user from the db.
 	let result_user = match &token {
 		Ok(token) => {
@@ -53,30 +52,29 @@ pub async fn mw_ctx_resolver<B>(
 				&token.user,
 			)
 			.await? // If cannot access the DB, critical enough to return Error. TODO: To reassess.
-			.ok_or(CtxAuthError::FailFoundUser(token.user.to_string()))
+			.ok_or(CtxAuthError::FailUserNotFound(token.user.to_string()))
 		}
 		Err(ex) => CtxAuthResult::Err(ex.clone()),
 	};
 
-	// -- Validate the token.
 	let result_user = result_user.and_then(|user| {
 		validate_token_sign_and_exp(&token.unwrap(), &user.token_salt.to_string())
 			.map(|_| user)
 			.map_err(|ex| CtxAuthError::FailValidate(ex.to_string()))
 	});
 
-	// -- Update the Token.
+	// -- Update Token
 	// If auth success, create a new Token with the updated expiration date.
 	if let Ok(user) = result_user.as_ref() {
 		let token = generate_token(&user.username, &user.token_salt.to_string())?;
 		cookies.add(Cookie::new(web::AUTH_TOKEN, token.to_string()));
 	}
-	// Ohterwise, remove the cookie if something went wrong other than NoAuthTokenCookie.
+	// Ohterwise, remove the cookie if something went wrong other than TokenNotInCookie.
 	else if !matches!(result_user, Err(CtxAuthError::TokenNotInCookie)) {
 		cookies.remove(Cookie::named(AUTH_TOKEN))
 	}
 
-	// -- Create the ctx if we have the user
+	// -- Create the ctx if we have the user.
 	let result_ctx = result_user.and_then(|user| {
 		Ctx::new(user.id).map_err(|ex| CtxAuthError::CtxCreateFail(ex.to_string()))
 	});
@@ -112,8 +110,8 @@ type CtxAuthResult<T> = core::result::Result<T, CtxAuthError>;
 pub enum CtxAuthError {
 	TokenNotInCookie,
 	TokenWrongFormat,
+	FailUserNotFound(String),
 	FailValidate(String),
-	FailFoundUser(String),
 	CtxNotInRequestExt,
 	CtxCreateFail(String),
 }
