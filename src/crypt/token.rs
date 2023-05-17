@@ -47,7 +47,10 @@ impl std::fmt::Display for Token {
 /// Generate a Token for a given user identifier and its token salt.
 pub fn generate_token(user: &str, salt: &str) -> Result<Token> {
 	let duration_sec = config().TOKEN_DURATION_SEC;
+	_generate_token(user, salt, duration_sec)
+}
 
+fn _generate_token(user: &str, salt: &str, duration_sec: f64) -> Result<Token> {
 	// -- Compute the two first components.
 	let user = user.to_string();
 	let exp = now_utc_plus_sec_str(duration_sec);
@@ -91,3 +94,53 @@ fn token_sign_into_b64u(user: &str, exp: &str, salt: &str) -> Result<String> {
 
 	Ok(signature)
 }
+
+// region:    --- Tests
+#[cfg(test)]
+mod tests {
+	#![allow(unused)]
+	use super::*;
+	use anyhow::Result;
+	use std::thread;
+	use std::time::Duration;
+
+	#[test]
+	fn test_validate_token_ok() -> Result<()> {
+		// -- Setup & Fixtures
+		let fx_user = "user_one";
+		let fx_salt = "pepper";
+		let fx_duration_sec = 0.02; // 10ms
+		let fx_token = _generate_token(fx_user, fx_salt, fx_duration_sec)?;
+
+		// -- Exec
+		thread::sleep(Duration::from_millis(10));
+		let res = validate_token_sign_and_exp(&fx_token, fx_salt);
+
+		// -- Check
+		res?;
+
+		Ok(())
+	}
+
+	#[test]
+	fn test_validate_token_err() -> Result<()> {
+		// -- Setup & Fixtures
+		let fx_user = "user_one";
+		let fx_salt = "pepper";
+		let fx_duration_sec = 0.01; // 10ms
+		let fx_token = _generate_token(fx_user, fx_salt, fx_duration_sec)?;
+
+		// -- Exec
+		thread::sleep(Duration::from_millis(20));
+		let res = validate_token_sign_and_exp(&fx_token, fx_salt);
+
+		// -- Check
+		assert!(
+			matches!(res, Err(Error::TokenExpired)),
+			"Should have matched `Err(Error::TokenExpired)` but was `{res:?}`"
+		);
+
+		Ok(())
+	}
+}
+// endregion: --- Tests
