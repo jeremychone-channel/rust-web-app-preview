@@ -33,7 +33,7 @@ pub fn routes(mm: ModelManager) -> Router {
 macro_rules! exec_rpc_fn {
 	// With params.
 	($rpc_fn:expr, $mm:expr, $ctx:expr, $rpc_params:expr) => {{
-		let rpc_fn_name = stringify!(rpc_fn);
+		let rpc_fn_name = stringify!($rpc_fn);
 		let params = $rpc_params.ok_or(Error::RpcMissingParams {
 			rpc_method: rpc_fn_name.to_string(),
 		})?;
@@ -81,7 +81,10 @@ async fn rpc_handler_inner(
 		params: rpc_params,
 	} = rpc_req;
 
-	debug!("{:<12} - rpc_handler - method: {rpc_method}", "HANDLER");
+	debug!(
+		"{:<12} - rpc_handler_inner - method: {rpc_method}",
+		"HANDLER"
+	);
 
 	let res = match rpc_method.as_str() {
 		// Ticket CRUD
