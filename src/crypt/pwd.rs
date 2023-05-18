@@ -19,11 +19,11 @@ pub fn validate_pwd(
 	enc_content: &EncryptContent,
 	pwd_ref: &str,
 ) -> Result<SchemeStatus> {
-	let origin_scheme = extract_scheme(pwd_ref)?;
-	let new_pwd = encrypt_for_scheme(&origin_scheme, enc_content)?;
+	let scheme_ref = extract_scheme(pwd_ref)?;
+	let pwd_new = encrypt_for_scheme(&scheme_ref, enc_content)?;
 
-	if pwd_ref == new_pwd {
-		if origin_scheme == DEFAULT_SCHEME {
+	if pwd_ref == pwd_new {
+		if scheme_ref == DEFAULT_SCHEME {
 			Ok(SchemeStatus::Ok)
 		} else {
 			Ok(SchemeStatus::Outdated)
@@ -33,11 +33,28 @@ pub fn validate_pwd(
 	}
 }
 
+// region:    --- Schemes
+fn encrypt_scheme_01(enc_content: &EncryptContent) -> Result<String> {
+	let key = &config().PWD_KEY;
+
+	encrypt_into_b64u(key, enc_content)
+}
+
+// Same as "01", just for demonstration.
+fn encrypt_scheme_02(enc_content: &EncryptContent) -> Result<String> {
+	let key = &config().PWD_KEY;
+
+	encrypt_into_b64u(key, enc_content)
+}
+
+// endregion: --- Schemes
+
 // region:    --- Scheme Infra
+/// scheme: e.g., "01"
 fn encrypt_for_scheme(scheme: &str, args: &EncryptContent) -> Result<String> {
 	let pwd = match scheme {
 		"01" => encrypt_scheme_01(args),
-		DEFAULT_SCHEME => encrypt_scheme_02(args),
+		"02" => encrypt_scheme_02(args),
 		_ => Err(Error::SchemeUnknown(scheme.to_string())),
 	};
 
@@ -52,19 +69,6 @@ fn extract_scheme(enc_content: &str) -> Result<String> {
 	.map(|(_whole, scheme)| scheme.to_string())
 	.ok_or(Error::SchemeNotFoundInContent)
 }
-
-fn encrypt_scheme_01(enc_content: &EncryptContent) -> Result<String> {
-	let key = &config().PWD_KEY;
-
-	encrypt_into_b64u(key, enc_content)
-}
-
-// In this example, same a scheme_01 (showing that it works)
-fn encrypt_scheme_02(enc_pwd_args: &EncryptContent) -> Result<String> {
-	let key = &config().PWD_KEY;
-
-	encrypt_into_b64u(key, enc_pwd_args)
-}
 // endregion: --- Scheme Infra
 
 // region:    --- Tests
@@ -76,18 +80,19 @@ mod tests {
 
 	#[test]
 	fn test_validate() -> Result<()> {
-		let salt = "some-salt";
-		let pwd_clear = "welcome";
+		// -- Setup & Fixtures
+		let fx_salt = "some-salt";
+		let fx_pwd_clear = "welcome";
 
 		let pwd_enc_1 = encrypt_pwd(&EncryptContent {
-			salt: salt.to_string(),
-			content: pwd_clear.to_string(),
+			salt: fx_salt.to_string(),
+			content: fx_pwd_clear.to_string(),
 		})?;
 
 		validate_pwd(
 			&EncryptContent {
-				salt: salt.to_string(),
-				content: pwd_clear.to_string(),
+				salt: fx_salt.to_string(),
+				content: fx_pwd_clear.to_string(),
 			},
 			&pwd_enc_1,
 		)?;
@@ -96,9 +101,33 @@ mod tests {
 	}
 
 	#[test]
-	fn test_extract_scheme() -> Result<()> {
-		let s = "#01#DdVzPPKKpjs-xuf-Y88t3MpQ5KPDqa7C2gpaTIysHnHIzX_j2IgNb3WtEDHLfF2ps1OWVPKOkgLFvvDMvNrN-A";
-		assert_eq!(extract_scheme(s)?, "01");
+	fn test_extract_scheme_ok() -> Result<()> {
+		// -- Fixtures
+		let fx_pwd = "#01#DdVzPPKKpjs-xuf-Y88t3MpQ5KPDqa7C2gpaTIysHnHIzX_j2IgNb3WtEDHLfF2ps1OWVPKOkgLFvvDMvNrN-A";
+
+		// -- Exec
+		let res = extract_scheme(fx_pwd)?;
+
+		// -- Check
+		assert_eq!(res, "01");
+
+		Ok(())
+	}
+
+	#[test]
+	fn test_extract_scheme_err_without() -> Result<()> {
+		// -- Fixtures
+		let fx_pwd = "DdVzPPKKpjs-xuf-Y88t3MpQ5KPDqa7C2gpaTIysHnHIzX_j2IgNb3WtEDHLfF2ps1OWVPKOkgLFvvDMvNrN-A";
+
+		// -- Exec
+		let res = extract_scheme(fx_pwd);
+
+		// -- Check
+		assert!(
+			matches!(res, Err(Error::SchemeNotFoundInContent)),
+			"Error not matching. Actual: {res:?}"
+		);
+
 		Ok(())
 	}
 }
