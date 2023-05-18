@@ -167,12 +167,13 @@ impl UserBmc {
 // region:    --- Tests
 #[cfg(test)]
 mod tests {
-	#![allow(unused)]
 	use super::*;
 	use crate::_dev_utils;
 	use crate::crypt::pwd::validate_pwd;
 	use anyhow::{Context, Result};
+	use serial_test::serial;
 
+	#[serial]
 	#[tokio::test]
 	async fn test_get_demo1() -> Result<()> {
 		// -- Setup & Fixtures
@@ -186,11 +187,12 @@ mod tests {
 			.context("Should have user 'demo1'")?;
 
 		// -- Check
-		assert_eq!(fx_username, fx_username);
+		assert_eq!(user.username, fx_username);
 
 		Ok(())
 	}
 
+	#[serial]
 	#[tokio::test]
 	async fn test_pwd_demo1() -> Result<()> {
 		// -- Setup & Fixtures
@@ -214,6 +216,7 @@ mod tests {
 		Ok(())
 	}
 
+	#[serial]
 	#[tokio::test]
 	async fn test_create_demo2() -> Result<()> {
 		// -- Setup & Fixtures
@@ -249,6 +252,7 @@ mod tests {
 		Ok(())
 	}
 
+	#[serial]
 	#[tokio::test]
 	async fn test_create_err_already_exists_username() -> Result<()> {
 		// -- Setup & Fixtures
@@ -281,7 +285,7 @@ mod tests {
 
 		// -- Check
 		assert!(
-			matches!(&res, Err(Error::UserAlreadyExists { username })),
+			matches!(&res, Err(Error::UserAlreadyExists { username: ref s }) if s == fx_username_01),
 			"res not matching expected Error::UserAlreadyExists. res: {res:?}"
 		);
 
@@ -294,6 +298,7 @@ mod tests {
 		Ok(())
 	}
 
+	#[serial]
 	#[tokio::test]
 	async fn test_create_err_already_exists_norm() -> Result<()> {
 		// -- Setup & Fixtures
@@ -326,7 +331,7 @@ mod tests {
 
 		// -- Check
 		assert!(
-			matches!(&res, Err(Error::UserAlreadyExists { username })),
+			matches!(&res, Err(Error::UserAlreadyExists { username: ref s }) if s == fx_username_02),
 			"res not matching expected Error::UserAlreadyExists. res: {res:?}"
 		);
 

@@ -75,7 +75,6 @@ fn extract_scheme(enc_content: &str) -> Result<String> {
 // region:    --- Tests
 #[cfg(test)]
 mod tests {
-	#![allow(unused)]
 	use super::*;
 	use anyhow::Result;
 

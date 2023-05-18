@@ -98,7 +98,6 @@ fn token_sign_into_b64u(user: &str, exp: &str, salt: &str) -> Result<String> {
 // region:    --- Tests
 #[cfg(test)]
 mod tests {
-	#![allow(unused)]
 	use super::*;
 	use anyhow::Result;
 	use std::thread;

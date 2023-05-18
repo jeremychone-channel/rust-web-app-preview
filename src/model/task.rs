@@ -77,12 +77,13 @@ impl TaskBmc {
 // region:    --- Tests
 #[cfg(test)]
 mod tests {
-	#![allow(unused)]
 	use super::*;
 	use crate::_dev_utils;
 	use crate::model::Error;
 	use anyhow::Result;
+	use serial_test::serial;
 
+	#[serial]
 	#[tokio::test]
 	async fn test_create_basic() -> Result<()> {
 		// -- Setup & Fixtures
@@ -104,6 +105,7 @@ mod tests {
 		Ok(())
 	}
 
+	#[serial]
 	#[tokio::test]
 	async fn test_get_err_not_found() -> Result<()> {
 		// -- Setup & Fixtures
@@ -112,24 +114,25 @@ mod tests {
 		let fx_id = 100;
 
 		// -- Exec
-		let res = TaskBmc::get(&ctx, &mm, 100).await;
+		let res = TaskBmc::get(&ctx, &mm, fx_id).await;
 
 		// -- Check
 		assert!(
-			matches!(res, Err(Error::EntityNotFound { table: "task", id: fx_id })),
+			matches!(res, Err(Error::EntityNotFound { table: "task", id: 100 })),
 			"EntityNotFound not matching"
 		);
 
 		Ok(())
 	}
 
+	#[serial]
 	#[tokio::test]
 	async fn test_list_basic() -> Result<()> {
 		// -- Setup & Fixtures
 		let mm = _dev_utils::init_test().await;
 		let ctx = Ctx::root_ctx();
 		let fx_titles = &["test_list_basic 01", "test_list_basic 02"];
-		let fx_tasks = _dev_utils::seed_tasks(&ctx, &mm, fx_titles).await?;
+		_dev_utils::seed_tasks(&ctx, &mm, fx_titles).await?;
 
 		// -- List
 		let tasks = TaskBmc::list(&ctx, &mm).await?;
@@ -147,6 +150,7 @@ mod tests {
 		Ok(())
 	}
 
+	#[serial]
 	#[tokio::test]
 	async fn test_delete_err_not_found() -> Result<()> {
 		// -- Setup & Fixtures
@@ -155,11 +159,11 @@ mod tests {
 		let fx_id = 100;
 
 		// -- Exec
-		let res = TaskBmc::delete(&ctx, &mm, 100).await;
+		let res = TaskBmc::delete(&ctx, &mm, fx_id).await;
 
 		// -- Check
 		assert!(
-			matches!(res, Err(Error::EntityNotFound { table: "task", id: fx_id })),
+			matches!(res, Err(Error::EntityNotFound { table: "task", id: 100 })),
 			"EntityNotFound not matching"
 		);
 
