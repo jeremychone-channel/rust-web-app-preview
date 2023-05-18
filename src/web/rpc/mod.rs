@@ -112,13 +112,13 @@ async fn rpc_handler_inner(
 	);
 
 	let result_body = match rpc_method.as_str() {
-		// -- Task RPC Methods
+		// -- Task RPC methods.
 		"create_task" => exec_rpc_fn!(create_task, ctx, mm, rpc_params),
 		"list_tasks" => exec_rpc_fn!(list_tasks, mm, ctx),
 		"update_task" => exec_rpc_fn!(update_task, ctx, mm, rpc_params),
 		"delete_task" => exec_rpc_fn!(delete_task, ctx, mm, rpc_params),
 
-		// -- Fallback
+		// -- Fallback as Err.
 		_ => return Err(Error::RpcMethodUnkown(rpc_method)),
 	};
 

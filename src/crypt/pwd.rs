@@ -10,6 +10,7 @@ pub fn encrypt_pwd(enc_content: &EncryptContent) -> Result<String> {
 	encrypt_for_scheme(DEFAULT_SCHEME, enc_content)
 }
 
+#[derive(Debug)]
 pub enum SchemeStatus {
 	Ok,       // The pwd use the latest scheme. All good.
 	Outdated, // The pwd use a old scheme. Would need to be re-encrypted.
