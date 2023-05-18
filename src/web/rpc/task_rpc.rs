@@ -5,8 +5,8 @@ use crate::web::rpc::{ParamsForCreate, ParamsForUpdate, ParamsIded};
 use crate::web::Result;
 
 pub async fn create_task(
-	mm: ModelManager,
 	ctx: Ctx,
+	mm: ModelManager,
 	params: ParamsForCreate<TaskForCreate>,
 ) -> Result<Task> {
 	let ParamsForCreate { data } = params;
@@ -24,8 +24,8 @@ pub async fn list_tasks(mm: ModelManager, ctx: Ctx) -> Result<Vec<Task>> {
 }
 
 pub async fn update_task(
-	mm: ModelManager,
 	ctx: Ctx,
+	mm: ModelManager,
 	params: ParamsForUpdate<TaskForUpdate>,
 ) -> Result<Task> {
 	let ParamsForUpdate { id, data } = params;
@@ -38,8 +38,8 @@ pub async fn update_task(
 }
 
 pub async fn delete_task(
-	mm: ModelManager,
 	ctx: Ctx,
+	mm: ModelManager,
 	params: ParamsIded,
 ) -> Result<Task> {
 	let ParamsIded { id } = params;

@@ -57,7 +57,7 @@ pub fn routes(mm: ModelManager) -> Router {
 
 macro_rules! exec_rpc_fn {
 	// With params.
-	($rpc_fn:expr, $mm:expr, $ctx:expr, $rpc_params:expr) => {{
+	($rpc_fn:expr, $ctx:expr, $mm:expr, $rpc_params:expr) => {{
 		let rpc_fn_name = stringify!($rpc_fn);
 		let params = $rpc_params.ok_or(Error::RpcMissingParams {
 			rpc_method: rpc_fn_name.to_string(),
@@ -66,12 +66,12 @@ macro_rules! exec_rpc_fn {
 			rpc_method: rpc_fn_name.to_string(),
 		})?;
 
-		$rpc_fn($mm, $ctx, params).await.map(to_value)??
+		$rpc_fn($ctx, $mm, params).await.map(to_value)??
 	}};
 
 	// Without params.
-	($rpc_fn:expr, $mm:expr, $ctx:expr) => {{
-		$rpc_fn($mm, $ctx).await.map(to_value)??
+	($rpc_fn:expr, $ctx:expr, $mm:expr) => {{
+		$rpc_fn($ctx, $mm).await.map(to_value)??
 	}};
 }
 
@@ -87,7 +87,7 @@ async fn rpc_handler(
 	};
 
 	// -- Execute the RPC Handler routing.
-	let mut res = rpc_handler_inner(mm, ctx, rpc_req).await.into_response();
+	let mut res = rpc_handler_inner(ctx, mm, rpc_req).await.into_response();
 
 	// -- Set the RPC Context as a reponse extension.
 	res.extensions_mut().insert(rpc_ctx);
@@ -96,8 +96,8 @@ async fn rpc_handler(
 }
 
 async fn rpc_handler_inner(
-	mm: ModelManager,
 	ctx: Ctx,
+	mm: ModelManager,
 	rpc_req: RpcRequest,
 ) -> Result<Json<Value>> {
 	let RpcRequest {
@@ -113,10 +113,10 @@ async fn rpc_handler_inner(
 
 	let result_body = match rpc_method.as_str() {
 		// Task CRUDs
-		"create_task" => exec_rpc_fn!(create_task, mm, ctx, rpc_params),
+		"create_task" => exec_rpc_fn!(create_task, ctx, mm, rpc_params),
 		"list_tasks" => exec_rpc_fn!(list_tasks, mm, ctx),
-		"update_task" => exec_rpc_fn!(update_task, mm, ctx, rpc_params),
-		"delete_task" => exec_rpc_fn!(delete_task, mm, ctx, rpc_params),
+		"update_task" => exec_rpc_fn!(update_task, ctx, mm, rpc_params),
+		"delete_task" => exec_rpc_fn!(delete_task, ctx, mm, rpc_params),
 		_ => return Err(Error::RpcMethodUnkown(rpc_method)),
 	};
 
