@@ -66,12 +66,12 @@ macro_rules! exec_rpc_fn {
 			rpc_method: rpc_fn_name.to_string(),
 		})?;
 
-		$rpc_fn($mm, $ctx, params).await.map(to_value)?
+		$rpc_fn($mm, $ctx, params).await.map(to_value)??
 	}};
 
 	// Without params.
 	($rpc_fn:expr, $mm:expr, $ctx:expr) => {{
-		$rpc_fn($mm, $ctx).await.map(to_value)?
+		$rpc_fn($mm, $ctx).await.map(to_value)??
 	}};
 }
 
@@ -87,7 +87,7 @@ async fn rpc_handler(
 	};
 
 	// -- Execute the RPC Handler routing.
-	let mut res = rpc_handler_inner(rpc_req, mm, ctx).await.into_response();
+	let mut res = rpc_handler_inner(mm, ctx, rpc_req).await.into_response();
 
 	// -- Set the RPC Context as a reponse extension.
 	res.extensions_mut().insert(rpc_ctx);
@@ -96,9 +96,9 @@ async fn rpc_handler(
 }
 
 async fn rpc_handler_inner(
-	rpc_req: RpcRequest,
 	mm: ModelManager,
 	ctx: Ctx,
+	rpc_req: RpcRequest,
 ) -> Result<Json<Value>> {
 	let RpcRequest {
 		id: rpc_id,
@@ -111,8 +111,8 @@ async fn rpc_handler_inner(
 		"HANDLER"
 	);
 
-	let res = match rpc_method.as_str() {
-		// Ticket CRUD
+	let result_body = match rpc_method.as_str() {
+		// Task CRUDs
 		"create_task" => exec_rpc_fn!(create_task, mm, ctx, rpc_params),
 		"list_tasks" => exec_rpc_fn!(list_tasks, mm, ctx),
 		"update_task" => exec_rpc_fn!(update_task, mm, ctx, rpc_params),
@@ -122,7 +122,7 @@ async fn rpc_handler_inner(
 
 	let body_response = json!({
 		"id": rpc_id,
-		"result": res?
+		"result": result_body
 	});
 
 	Ok(Json(body_response))
