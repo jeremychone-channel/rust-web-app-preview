@@ -1,6 +1,6 @@
 use crate::ctx::Ctx;
 use crate::log::log_request;
-use crate::web::rpc::RpcCtx;
+use crate::web::rpc::RpcInfo;
 use crate::web::{self, ReqStamp};
 use axum::http::{Method, Uri};
 use axum::response::{IntoResponse, Response};
@@ -17,7 +17,7 @@ pub async fn main_response_mapper(
 ) -> Response {
 	debug!("{:<12} - main_response_mapper", "RES_MAPPER");
 
-	let rpc_ctx = res.extensions().get::<RpcCtx>();
+	let rpc_info = res.extensions().get::<RpcInfo>();
 
 	// -- Get the eventual response error.
 	let web_error = res.extensions().get::<web::Error>();
@@ -33,7 +33,7 @@ pub async fn main_response_mapper(
 				let detail = client_error.get("detail");
 
 				let client_error_body = json!({
-						"id": rpc_ctx.as_ref().map(|rpc| rpc.id.clone()),
+						"id": rpc_info.as_ref().map(|rpc| rpc.id.clone()),
 						"error": {
 							// TODO: Will need to follow json-rpc error code practices.
 							"code": 0,
@@ -59,7 +59,7 @@ pub async fn main_response_mapper(
 		req_stamp,
 		http_method,
 		uri,
-		rpc_ctx,
+		rpc_info,
 		ctx,
 		web_error,
 		client_error,

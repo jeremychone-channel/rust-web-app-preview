@@ -24,9 +24,9 @@ struct RpcRequest {
 	params: Option<Value>,
 }
 
-/// RPC Context holding the id and method for further logging.
+/// RPC basic information holding the id and method for further logging.
 #[derive(Debug)]
-pub struct RpcCtx {
+pub struct RpcInfo {
 	pub id: Option<Value>,
 	pub method: String,
 }
@@ -81,16 +81,14 @@ async fn rpc_handler(
 	Json(rpc_req): Json<RpcRequest>,
 ) -> Response {
 	// -- Create the RPC Context to be set to the response.extensions.
-	let rpc_ctx = RpcCtx {
+	let rpc_info = RpcInfo {
 		id: rpc_req.id.clone(),
 		method: rpc_req.method.clone(),
 	};
 
-	// -- Execute the RPC Handler routing.
+	// -- Exec & Store RpcInfo in response.
 	let mut res = rpc_handler_inner(ctx, mm, rpc_req).await.into_response();
-
-	// -- Set the RPC Context as a reponse extension.
-	res.extensions_mut().insert(rpc_ctx);
+	res.extensions_mut().insert(rpc_info);
 
 	res
 }

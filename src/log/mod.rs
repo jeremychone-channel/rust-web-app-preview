@@ -1,6 +1,6 @@
 use crate::ctx::Ctx;
 use crate::utils::{format_time, now_utc};
-use crate::web::rpc::RpcCtx;
+use crate::web::rpc::RpcInfo;
 use crate::web::ClientError;
 use crate::web::{self, ReqStamp};
 use crate::Result;
@@ -15,7 +15,7 @@ pub async fn log_request(
 	req_stamp: ReqStamp,
 	http_method: Method,
 	uri: Uri,
-	rpc_ctx: Option<&RpcCtx>,
+	rpc_info: Option<&RpcInfo>,
 	ctx: Option<Ctx>,
 	web_error: Option<&web::Error>,
 	client_error: Option<ClientError>,
@@ -42,8 +42,8 @@ pub async fn log_request(
 		http_path: uri.to_string(),
 		http_method: http_method.to_string(),
 
-		rpc_id: rpc_ctx.and_then(|rpc| rpc.id.as_ref().map(|id| id.to_string())),
-		rpc_method: rpc_ctx.map(|rpc| rpc.method.to_string()),
+		rpc_id: rpc_info.and_then(|rpc| rpc.id.as_ref().map(|id| id.to_string())),
+		rpc_method: rpc_info.map(|rpc| rpc.method.to_string()),
 
 		user_id: ctx.map(|c| c.user_id()),
 
