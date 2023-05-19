@@ -14,13 +14,13 @@ pub enum Error {
 	RpcMissingParams { rpc_method: String },
 	RpcFailJsonParams { rpc_method: String },
 
-	// -- Middelware/Extractor
-	ReqStampNotInResponseExt,
-
 	// -- Login
 	LoginFailUsernameNotFound,
 	LoginFailUserHasNoPwd { user_id: i64 },
 	LoginFailPwdNotMatching { user_id: i64 },
+
+	// -- Middelware/Extractor
+	ReqStampNotInResponseExt,
 
 	// -- CtxAuthError
 	CtxAuth(web::mw_auth::CtxAuthError),

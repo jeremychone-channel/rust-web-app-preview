@@ -1,4 +1,4 @@
-**IMPORTANT - THIS IS JUST A PREVIEW REPO, WILL GET REMOVED WHEN The `rust-axum-base` repo will be available.**
+**IMPORTANT - THIS IS JUST A PREVIEW REPO, WILL GET REMOVED WHEN The `awesomeapp-dev/rust-web-app` repo will be available.**
 
 Rust Axum Level Up Course
 
@@ -6,7 +6,7 @@ YouTube Full Course: _coming soon_
 
 MIT OR Apache, all free to use. 
 
-# Starting the DB
+## Starting the DB
 
 ```sh
 # Start postgresql server docker image:
@@ -21,7 +21,7 @@ docker exec -it -u postgres pg psql
 ALTER DATABASE postgres SET log_statement = 'all';
 ```
 
-# Dev (REPL)
+## Dev (REPL)
 
 ```sh
 # Terminal 1 - For server run.
@@ -41,7 +41,7 @@ cargo watch -q -c -x "test model::task::tests::test_create -- --nocapture"
 ```
 
 
-# Dev
+## Dev
 
 ```sh
 # Terminal 1 - For server run.

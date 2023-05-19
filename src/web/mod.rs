@@ -31,9 +31,10 @@ fn set_token_cookie(cookies: &Cookies, user: &str, salt: &str) -> Result<()> {
 	Ok(())
 }
 
-/// Request "Stamp" created at the begin of the http request flow by the `mw_req_stamp_resolver` with the following properties:
+/// Request "Stamp" created at the beginning of the http request
+/// flow by the `mw_req_stamp_resolver` with the following properties:
 ///
-/// - uuid - Unique identifier of the request.
+/// - uuid    - Unique identifier of the request.
 /// - time_in - Equivalent (close enough) of the beginning of the request.
 ///
 #[derive(Debug, Clone)]
