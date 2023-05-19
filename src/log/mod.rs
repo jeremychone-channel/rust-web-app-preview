@@ -12,15 +12,16 @@ use time::Duration;
 use tracing::debug;
 
 pub async fn log_request(
-	req_stamp: ReqStamp,
 	http_method: Method,
 	uri: Uri,
+	req_stamp: ReqStamp,
 	rpc_info: Option<&RpcInfo>,
 	ctx: Option<Ctx>,
 	web_error: Option<&web::Error>,
 	client_error: Option<ClientError>,
 ) -> Result<()> {
 	let ReqStamp { uuid, time_in } = req_stamp;
+
 	let error_type = web_error.map(|se| se.as_ref().to_string());
 	let error_data = serde_json::to_value(web_error)
 		.ok()
@@ -34,7 +35,7 @@ pub async fn log_request(
 	// Create the RequestLogLine
 	let log_line = RequestLogLine {
 		uuid: uuid.to_string(),
-		timestamp: format_time(now), // LogLine timestamp (could be seen as "time_out")
+		timestamp: format_time(now), // LogLine timestamp ("time_out")
 
 		time_in: format_time(time_in),
 		duration_ms,
@@ -64,7 +65,7 @@ pub async fn log_request(
 #[derive(Serialize)]
 struct RequestLogLine {
 	uuid: String,      // uuid string formatted
-	timestamp: String, // (should be ref3339)
+	timestamp: String, // (ref3339)
 
 	time_in: String,
 	duration_ms: f64,

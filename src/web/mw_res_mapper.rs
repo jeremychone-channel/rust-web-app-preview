@@ -28,9 +28,9 @@ pub async fn main_response_mapper(
 		client_status_error
 			.as_ref()
 			.map(|(status_code, client_error)| {
-				let client_error = to_value(client_error).unwrap();
-				let message = client_error.get("message");
-				let detail = client_error.get("detail");
+				let client_error = to_value(client_error).ok();
+				let message = client_error.as_ref().and_then(|v| v.get("message"));
+				let detail = client_error.as_ref().and_then(|v| v.get("detail"));
 
 				let client_error_body = json!({
 						"id": rpc_info.as_ref().map(|rpc| rpc.id.clone()),
@@ -56,9 +56,9 @@ pub async fn main_response_mapper(
 	// -- Build and log the server log line.
 	let client_error = client_status_error.unzip().1;
 	if let Err(log_err) = log_request(
-		req_stamp,
 		http_method,
 		uri,
+		req_stamp,
 		rpc_info,
 		ctx,
 		web_error,
