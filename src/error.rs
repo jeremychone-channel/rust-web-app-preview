@@ -4,10 +4,10 @@ pub type Result<T> = core::result::Result<T, Error>;
 
 #[derive(Debug)]
 pub enum Error {
-	// -- Conf
-	ConfMissingEnv(&'static str),
-	ConfWrongFormat(&'static str),
-	FailToLoadConf(&'static str),
+	// -- Config
+	ConfigMissingEnv(&'static str),
+	ConfigWrongFormat(&'static str),
+	ConfigFailToLoad(&'static str),
 
 	// -- Modules
 	Crypt(crypt::Error),

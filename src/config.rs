@@ -47,14 +47,14 @@ impl Config {
 }
 
 fn get_env(name: &'static str) -> Result<String> {
-	env::var(name).map_err(|_| Error::ConfMissingEnv(name))
+	env::var(name).map_err(|_| Error::ConfigMissingEnv(name))
 }
 
 fn get_env_parse<T: FromStr>(name: &'static str) -> Result<T> {
 	let val = get_env(name)?;
-	val.parse::<T>().map_err(|_| Error::ConfWrongFormat(name))
+	val.parse::<T>().map_err(|_| Error::ConfigWrongFormat(name))
 }
 
 fn get_env_b64u_as_u8s(name: &'static str) -> Result<Vec<u8>> {
-	base64_url::decode(&get_env(name)?).map_err(|_| Error::ConfWrongFormat(name))
+	base64_url::decode(&get_env(name)?).map_err(|_| Error::ConfigWrongFormat(name))
 }
