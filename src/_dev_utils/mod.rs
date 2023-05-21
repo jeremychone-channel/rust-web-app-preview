@@ -14,6 +14,7 @@ use tracing::info;
 // (for early development, called from `main()`)
 pub async fn init_dev() {
 	static INIT: OnceCell<()> = OnceCell::const_new();
+
 	INIT.get_or_init(|| async {
 		info!("{:<12} - init_dev_all()", "FOR-DEV-ONLY");
 
@@ -22,6 +23,8 @@ pub async fn init_dev() {
 	.await;
 }
 
+/// Test full initialization. For now, call the init_dev
+/// and create/hold/return a ModelManager.
 pub async fn init_test() -> ModelManager {
 	static INIT: OnceCell<ModelManager> = OnceCell::const_new();
 
