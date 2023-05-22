@@ -1,9 +1,14 @@
 //! Model Layer
+//!
 //! Design:
+//!
 //! - The Model layer normalizes the application's data type structure and access.
-//! - All application code data access must go through the Model layer.
-//! - In a web-app setting, `ModelManager` holds the internal model states.
-//! - It's used to call the entity Backend Model Controllers (aka, `Bmc`), e.g., `TicketBmc`.
+//! - All application code data access must go through the Model layer to access any data.
+//! - `ModelManager` holds the internal states/resources for data access.
+//!   (e.g., db_pool, S3 client, redis client).
+//! - In frameworks like Axum, Tauri, `ModelManager` are typically used as App State.
+//! - It's designed to be passed as an argument to all Backend Model Controllers (aka, `Bmc`)
+//!   (e.g., `TaskBmc`)
 
 // region:    --- Modules
 
@@ -32,6 +37,7 @@ impl ModelManager {
 		Ok(Self { db })
 	}
 
+	///
 	pub(in crate::model) fn db(&self) -> &Db {
 		&self.db
 	}

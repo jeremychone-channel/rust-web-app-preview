@@ -10,13 +10,13 @@ use tracing::info;
 
 // endregion: --- Modules
 
-// Initializer for local development
+// Initialize environment for local development.
 // (for early development, called from `main()`)
 pub async fn init_dev() {
 	static INIT: OnceCell<()> = OnceCell::const_new();
 
 	INIT.get_or_init(|| async {
-		info!("{:<12} - init_dev_all()", "FOR-DEV-ONLY");
+		info!("{:<12} - init_dev()", "FOR-DEV-ONLY");
 
 		dev_db::init_dev_db().await.unwrap();
 	})

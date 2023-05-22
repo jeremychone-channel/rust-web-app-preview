@@ -10,7 +10,7 @@ mod log;
 mod model;
 mod utils;
 mod web;
-// #[cfg(test)] // Commented for early development.
+// #[cfg(test)] // Commented during early development.
 pub mod _dev_utils;
 
 pub use self::error::{Error, Result};
@@ -35,7 +35,6 @@ async fn main() -> Result<()> {
 		.init();
 
 	// -- FOR DEV ONLY
-	// false: to not init tracing, as it is enabled in main above.
 	_dev_utils::init_dev().await;
 
 	// -- Initialize ModelController

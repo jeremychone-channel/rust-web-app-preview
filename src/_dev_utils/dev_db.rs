@@ -4,37 +4,27 @@ use sqlx::postgres::PgPoolOptions;
 use sqlx::{Pool, Postgres};
 use std::fs;
 use std::path::PathBuf;
-use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::Duration;
 use tracing::info;
 use uuid::Uuid;
 
-pub type Db = Pool<Postgres>;
+type Db = Pool<Postgres>;
 
 // NOTE: Harcode to prevent deployed system db update.
 const PG_DEV_POSTGRES_URL: &str = "postgres://postgres:welcome@localhost/postgres";
 const PG_DEV_APP_URL: &str = "postgres://app_user:dev_only_pwd@localhost/app_db";
 
 // sql files
-const SQL_RECREATE: &str = "sql/dev_initial/00-recreate-db.sql";
+const SQL_RECREATE_DB: &str = "sql/dev_initial/00-recreate-db.sql";
 const SQL_DIR: &str = "sql/dev_initial";
 
 pub async fn init_dev_db() -> Result<(), Box<dyn std::error::Error>> {
 	info!("{:<12} - init_dev_db()", "FOR-DEV-ONLY");
 
-	// Prevent to call this function more than one time to ensure
-	// unicity is insured upstream.
-	// TODO: Might want to reassess this strategy.
-	static INIT: AtomicU64 = AtomicU64::new(0);
-	let init = INIT.fetch_add(1, Ordering::Relaxed);
-	if init > 0 {
-		panic!("Cannot call model::store::init_dev_db twice.");
-	}
-
-	// -- Create the db with PG_ROOT.
+	// -- Create the app_db/app_user with posgres user.
 	{
-		let root_db: Db = new_db_pool(PG_DEV_POSTGRES_URL, 1).await?;
-		pexec(&root_db, SQL_RECREATE).await?;
+		let root_db = new_db_pool(PG_DEV_POSTGRES_URL).await?;
+		pexec(&root_db, SQL_RECREATE_DB).await?;
 	}
 
 	// -- Get sql files.
@@ -44,11 +34,11 @@ pub async fn init_dev_db() -> Result<(), Box<dyn std::error::Error>> {
 	paths.sort();
 
 	// -- SQL Execute each file.
-	let app_db = new_db_pool(PG_DEV_APP_URL, 1).await?;
+	let app_db = new_db_pool(PG_DEV_APP_URL).await?;
 	for path in paths {
 		if let Some(path) = path.to_str() {
 			// Only take .sql and skip the SQL_RECREATE
-			if path.ends_with(".sql") && path != SQL_RECREATE {
+			if path.ends_with(".sql") && path != SQL_RECREATE_DB {
 				pexec(&app_db, path).await?;
 			}
 		}
@@ -94,6 +84,10 @@ async fn pexec(db: &Db, file: &str) -> Result<(), sqlx::Error> {
 		// -- Trick to not split function body
 		//    (TODO: Needs to be make it more robust.)
 
+		// FIXME: This works for simple sql files with trigger with $$ notation.
+		//        However, will probably break for other specific cases.
+		//        It needs to be made more robust.
+		//        sqlx does not seems to have a non static file executor.
 		// If it is the begin of a function we start keeping track
 		if sql.contains("BEGIN") {
 			fn_sql_parts.push(sql);
@@ -114,10 +108,10 @@ async fn pexec(db: &Db, file: &str) -> Result<(), sqlx::Error> {
 	Ok(())
 }
 
-async fn new_db_pool(db_con_url: &str, max_con: u32) -> Result<Db, sqlx::Error> {
+async fn new_db_pool(db_con_url: &str) -> Result<Db, sqlx::Error> {
 	PgPoolOptions::new()
-		.max_connections(max_con)
-		.acquire_timeout(Duration::from_millis(500)) // Needs to find replacement
+		.max_connections(1)
+		.acquire_timeout(Duration::from_millis(500))
 		.connect(db_con_url)
 		.await
 }
