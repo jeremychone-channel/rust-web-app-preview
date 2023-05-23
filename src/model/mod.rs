@@ -16,7 +16,7 @@
 // region:    --- Modules
 
 mod base;
-pub mod error;
+mod error;
 mod store;
 pub mod task;
 pub mod user;
