@@ -35,12 +35,13 @@ pub struct ModelManager {
 impl ModelManager {
 	/// Constructor
 	pub async fn new() -> Result<Self> {
-		let db: Db = new_db_pool().await?;
+		let db = new_db_pool().await?;
 
 		Ok(Self { db })
 	}
 
-	///
+	/// Return the sqlx db pool reference.
+	/// (Only for the model layer)
 	pub(in crate::model) fn db(&self) -> &Db {
 		&self.db
 	}
