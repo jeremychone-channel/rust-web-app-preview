@@ -7,7 +7,7 @@ pub type Result<T> = core::result::Result<T, Error>;
 #[serde_as]
 #[derive(Debug, Serialize)]
 pub enum Error {
-	EntityNotFound { table: &'static str, id: i64 },
+	EntityNotFound { entity: &'static str, id: i64 },
 	UserAlreadyExists { username: String },
 
 	// -- Modules

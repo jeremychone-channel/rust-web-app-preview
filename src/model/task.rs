@@ -118,7 +118,7 @@ mod tests {
 
 		// -- Check
 		assert!(
-			matches!(res, Err(Error::EntityNotFound { table: "task", id: 100 })),
+			matches!(res, Err(Error::EntityNotFound { entity: "task", id: 100 })),
 			"EntityNotFound not matching"
 		);
 
@@ -163,7 +163,7 @@ mod tests {
 
 		// -- Check
 		assert!(
-			matches!(res, Err(Error::EntityNotFound { table: "task", id: 100 })),
+			matches!(res, Err(Error::EntityNotFound { entity: "task", id: 100 })),
 			"EntityNotFound not matching"
 		);
 

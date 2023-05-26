@@ -99,9 +99,9 @@ impl Error {
 			CtxAuth(_) => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
 
 			// -- Model
-			Model(model::Error::EntityNotFound { table, id }) => (
+			Model(model::Error::EntityNotFound { entity, id }) => (
 				StatusCode::BAD_REQUEST,
-				ClientError::EntityNotFound { entity: table, id: *id },
+				ClientError::EntityNotFound { entity, id: *id },
 			),
 			Model(model::Error::UserAlreadyExists { .. }) => {
 				(StatusCode::BAD_REQUEST, ClientError::USER_ALREADY_EXISTS)
