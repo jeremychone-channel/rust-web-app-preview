@@ -80,9 +80,9 @@ impl UserBmc {
 	pub async fn create(
 		ctx: &Ctx,
 		mm: &ModelManager,
-		user_fc: UserForCreate,
+		user_c: UserForCreate,
 	) -> Result<i64> {
-		let UserForCreate { username, pwd_clear } = user_fc;
+		let UserForCreate { username, pwd_clear } = user_c;
 
 		let user_fi = UserForInsert { username: username.to_string() };
 

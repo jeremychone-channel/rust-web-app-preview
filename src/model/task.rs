@@ -47,9 +47,9 @@ impl TaskBmc {
 	pub async fn create(
 		ctx: &Ctx,
 		mm: &ModelManager,
-		task_fc: TaskForCreate,
+		task_c: TaskForCreate,
 	) -> Result<i64> {
-		create::<Self, _>(ctx, mm, task_fc).await
+		create::<Self, _>(ctx, mm, task_c).await
 	}
 
 	pub async fn get(ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<Task> {
@@ -64,9 +64,9 @@ impl TaskBmc {
 		ctx: &Ctx,
 		mm: &ModelManager,
 		id: i64,
-		task_fu: TaskForUpdate,
+		task_u: TaskForUpdate,
 	) -> Result<()> {
-		update::<Self, _>(ctx, mm, id, task_fu).await
+		update::<Self, _>(ctx, mm, id, task_u).await
 	}
 
 	pub async fn delete(ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<()> {
@@ -92,8 +92,8 @@ mod tests {
 		let fx_title = "test_model_task_create_basic";
 
 		// -- Exec
-		let task_fc = TaskForCreate { title: fx_title.to_string() };
-		let id = TaskBmc::create(&ctx, &mm, task_fc).await?;
+		let task_c = TaskForCreate { title: fx_title.to_string() };
+		let id = TaskBmc::create(&ctx, &mm, task_c).await?;
 
 		// -- Check
 		let task = TaskBmc::get(&ctx, &mm, id).await?;

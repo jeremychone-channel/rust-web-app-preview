@@ -23,8 +23,7 @@ pub async fn init_dev() {
 	.await;
 }
 
-/// Test full initialization. For now, call the init_dev
-/// and create/hold/return a ModelManager.
+/// Initialize test environment.
 pub async fn init_test() -> ModelManager {
 	static INIT: OnceCell<ModelManager> = OnceCell::const_new();
 
