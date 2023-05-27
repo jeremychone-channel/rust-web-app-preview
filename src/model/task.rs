@@ -85,7 +85,7 @@ mod tests {
 
 	#[serial]
 	#[tokio::test]
-	async fn test_create_basic() -> Result<()> {
+	async fn test_create_ok() -> Result<()> {
 		// -- Setup & Fixtures
 		let mm = _dev_utils::init_test().await;
 		let ctx = Ctx::root_ctx();
@@ -127,18 +127,20 @@ mod tests {
 
 	#[serial]
 	#[tokio::test]
-	async fn test_list_basic() -> Result<()> {
+	async fn test_list_ok() -> Result<()> {
 		// -- Setup & Fixtures
 		let mm = _dev_utils::init_test().await;
 		let ctx = Ctx::root_ctx();
-		let fx_titles = &["test_list_basic 01", "test_list_basic 02"];
+		let fx_titles = &["test_list_ok 01", "test_list_ok 02"];
 		_dev_utils::seed_tasks(&ctx, &mm, fx_titles).await?;
 
-		// -- List
+		// -- Exec
 		let tasks = TaskBmc::list(&ctx, &mm).await?;
+
+		// -- Check
 		let tasks: Vec<Task> = tasks
 			.into_iter()
-			.filter(|t| t.title.starts_with("test_list_basic"))
+			.filter(|t| t.title.starts_with("test_list_ok"))
 			.collect();
 		assert_eq!(tasks.len(), 2, "number of seeded tasks.");
 
