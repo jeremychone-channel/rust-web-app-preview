@@ -51,14 +51,9 @@ where
 	let entity = sqlb::select()
 		.table(MC::TABLE)
 		.and_where("id", "=", id)
-		.fetch_one::<_, E>(db)
-		.await
-		.map_err(|ex| match ex {
-			sqlx::Error::RowNotFound => {
-				Error::EntityNotFound { entity: MC::TABLE, id }
-			}
-			_ => Error::Sqlx(ex),
-		})?;
+		.fetch_optional::<_, E>(db)
+		.await?
+		.ok_or(Error::EntityNotFound { entity: MC::TABLE, id })?;
 
 	Ok(entity)
 }
