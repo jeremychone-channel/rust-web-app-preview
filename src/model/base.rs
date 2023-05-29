@@ -20,8 +20,7 @@ where
 {
 	let db = mm.db();
 
-	let mut fields = data.fields();
-
+	let mut fields = data.not_none_fields();
 	if MC::HAS_TIMESTAMPS {
 		let user_id = ctx.user_id();
 		let now = utils::now_utc();
@@ -45,11 +44,13 @@ pub async fn get<MC, E>(_ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<E>
 where
 	MC: DbBmc,
 	E: for<'r> FromRow<'r, PgRow> + Unpin + Send,
+	E: HasFields,
 {
 	let db = mm.db();
 
 	let entity = sqlb::select()
 		.table(MC::TABLE)
+		.columns(E::field_names())
 		.and_where("id", "=", id)
 		.fetch_optional::<_, E>(db)
 		.await?
@@ -62,11 +63,13 @@ pub async fn list<MC, E>(_ctx: &Ctx, mm: &ModelManager) -> Result<Vec<E>>
 where
 	MC: DbBmc,
 	E: for<'r> FromRow<'r, PgRow> + Unpin + Send,
+	E: HasFields,
 {
 	let db = mm.db();
 
 	let entities = sqlb::select()
 		.table(MC::TABLE)
+		.columns(E::field_names())
 		.order_by("id")
 		.fetch_all::<_, E>(db)
 		.await?;
@@ -86,7 +89,7 @@ where
 {
 	let db = mm.db();
 
-	let mut fields = data.fields();
+	let mut fields = data.not_none_fields();
 
 	if MC::HAS_TIMESTAMPS {
 		let user_id = ctx.user_id();

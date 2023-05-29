@@ -5,7 +5,7 @@ use crate::model::base::{self, DbBmc};
 use crate::model::{Error, ModelManager, Result};
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
-use sqlb::Fields;
+use sqlb::{Fields, HasFields};
 use sqlx::postgres::PgRow;
 use sqlx::FromRow;
 use time::format_description::well_known::Rfc3339;
@@ -39,7 +39,7 @@ pub struct UserForInsert {
 	pub username: String,
 }
 
-#[derive(Clone, FromRow, Debug)]
+#[derive(Clone, FromRow, Fields, Debug)]
 pub struct UserForLogin {
 	pub id: i64,
 	pub username: String,
@@ -50,7 +50,7 @@ pub struct UserForLogin {
 	pub token_salt: Uuid,
 }
 
-#[derive(Clone, FromRow, Debug)]
+#[derive(Clone, FromRow, Fields, Debug)]
 pub struct UserForAuth {
 	pub id: i64,
 	pub username: String,
@@ -60,7 +60,7 @@ pub struct UserForAuth {
 }
 
 /// Marker trait
-pub trait UserBy: for<'r> FromRow<'r, PgRow> + Unpin + Send {}
+pub trait UserBy: HasFields + for<'r> FromRow<'r, PgRow> + Unpin + Send {}
 
 impl UserBy for User {}
 impl UserBy for UserForLogin {}
@@ -175,7 +175,7 @@ mod tests {
 
 	#[serial]
 	#[tokio::test]
-	async fn test_get_demo1() -> Result<()> {
+	async fn test_get_demo1_ok() -> Result<()> {
 		// -- Setup & Fixtures
 		let mm = _dev_utils::init_test().await;
 		let ctx = Ctx::root_ctx();
@@ -194,7 +194,7 @@ mod tests {
 
 	#[serial]
 	#[tokio::test]
-	async fn test_pwd_demo1() -> Result<()> {
+	async fn test_pwd_demo1_ok() -> Result<()> {
 		// -- Setup & Fixtures
 		let mm = _dev_utils::init_test().await;
 		let ctx = Ctx::root_ctx();
@@ -218,7 +218,7 @@ mod tests {
 
 	#[serial]
 	#[tokio::test]
-	async fn test_create_demo2() -> Result<()> {
+	async fn test_create_demo2_ok() -> Result<()> {
 		// -- Setup & Fixtures
 		let mm = _dev_utils::init_test().await;
 		let ctx = Ctx::root_ctx();
