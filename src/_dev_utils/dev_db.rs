@@ -37,9 +37,11 @@ pub async fn init_dev_db() -> Result<(), Box<dyn std::error::Error>> {
 	let app_db = new_db_pool(PG_DEV_APP_URL).await?;
 	for path in paths {
 		if let Some(path) = path.to_str() {
+			let path = path.replace('\\', "/"); // for Windows.
+
 			// Only take .sql and skip the SQL_RECREATE
 			if path.ends_with(".sql") && path != SQL_RECREATE_DB {
-				pexec(&app_db, path).await?;
+				pexec(&app_db, &path).await?;
 			}
 		}
 	}
