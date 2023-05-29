@@ -21,7 +21,7 @@ tower-http = { version = "0.4", features = ["fs"] }
 tower-cookies = "0.9"
 # -- Data
 sqlx = { version = "0.6", features = [ "runtime-tokio-rustls", "postgres", "uuid", "time" ] }
-sqlb = "0.3.1" # Optional
+sqlb = "0.3" # Optional
 # -- Crypt & Encoding
 rand = "0.8"
 hmac = "0.12"
