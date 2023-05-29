@@ -1759,9 +1759,9 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 
 [[package]]
 name = "sqlb"
-version = "0.3.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "068dc8a38a3bc5f7053f97afdbed6b24f9828b4581180c5ce3f69fb4aa93719c"
+checksum = "c7ab05b309eecbe966ee910f61c776f26424d373844f83d341ea70987abef8f9"
 dependencies = [
  "async-trait",
  "sqlb-macros",
@@ -1772,9 +1772,9 @@ dependencies = [
 
 [[package]]
 name = "sqlb-macros"
-version = "0.3.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c0d15bb4f393a46b8cbb092d83f51e7caf3cd255a10beeaed1051479fe5db77c"
+checksum = "a566a610bd7e532a731de4e69469f2e45eccea76cb7b54147af41a170d02c5a3"
 dependencies = [
  "proc-macro2",
  "quote",
