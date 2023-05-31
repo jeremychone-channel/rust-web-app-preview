@@ -13,10 +13,10 @@ pub trait DbBmc {
 	const HAS_TIMESTAMPS: bool;
 }
 
-pub async fn create<MC, D>(ctx: &Ctx, mm: &ModelManager, data: D) -> Result<i64>
+pub async fn create<MC, E>(ctx: &Ctx, mm: &ModelManager, data: E) -> Result<i64>
 where
 	MC: DbBmc,
-	D: HasFields,
+	E: HasFields,
 {
 	let db = mm.db();
 
@@ -77,15 +77,15 @@ where
 	Ok(entities)
 }
 
-pub async fn update<MC, D>(
+pub async fn update<MC, E>(
 	ctx: &Ctx,
 	mm: &ModelManager,
 	id: i64,
-	data: D,
+	data: E,
 ) -> Result<()>
 where
 	MC: DbBmc,
-	D: HasFields,
+	E: HasFields,
 {
 	let db = mm.db();
 

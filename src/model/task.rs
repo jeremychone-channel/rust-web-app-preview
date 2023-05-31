@@ -1,6 +1,6 @@
 use crate::ctx::Ctx;
-use crate::model::base::{create, delete, get, list, update, DbBmc};
-use crate::model::{ModelManager, Result};
+use crate::model::base::DbBmc;
+use crate::model::{base, ModelManager, Result};
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use sqlb::Fields;
@@ -49,15 +49,15 @@ impl TaskBmc {
 		mm: &ModelManager,
 		task_c: TaskForCreate,
 	) -> Result<i64> {
-		create::<Self, _>(ctx, mm, task_c).await
+		base::create::<Self, _>(ctx, mm, task_c).await
 	}
 
 	pub async fn get(ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<Task> {
-		get::<Self, _>(ctx, mm, id).await
+		base::get::<Self, _>(ctx, mm, id).await
 	}
 
 	pub async fn list(ctx: &Ctx, mm: &ModelManager) -> Result<Vec<Task>> {
-		list::<Self, _>(ctx, mm).await
+		base::list::<Self, _>(ctx, mm).await
 	}
 
 	pub async fn update(
@@ -66,11 +66,11 @@ impl TaskBmc {
 		id: i64,
 		task_u: TaskForUpdate,
 	) -> Result<()> {
-		update::<Self, _>(ctx, mm, id, task_u).await
+		base::update::<Self, _>(ctx, mm, id, task_u).await
 	}
 
 	pub async fn delete(ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<()> {
-		delete::<Self>(ctx, mm, id).await
+		base::delete::<Self>(ctx, mm, id).await
 	}
 }
 
@@ -148,6 +148,34 @@ mod tests {
 		for task in tasks.iter() {
 			TaskBmc::delete(&ctx, &mm, task.id).await?;
 		}
+
+		Ok(())
+	}
+
+	#[serial]
+	#[tokio::test]
+	async fn test_update_ok() -> Result<()> {
+		// -- Setup & Fixtures
+		let mm = _dev_utils::init_test().await;
+		let ctx = Ctx::root_ctx();
+		let fx_title = "test_update_ok - task 01";
+		let fx_title_new = "test_update_ok - task 01 - new";
+		let fx_task = _dev_utils::seed_tasks(&ctx, &mm, &[fx_title])
+			.await?
+			.remove(0);
+
+		// -- Exec
+		TaskBmc::update(
+			&ctx,
+			&mm,
+			fx_task.id,
+			TaskForUpdate { title: Some(fx_title_new.to_string()) },
+		)
+		.await?;
+
+		// -- Check
+		let task = TaskBmc::get(&ctx, &mm, fx_task.id).await?;
+		assert_eq!(task.title, fx_title_new);
 
 		Ok(())
 	}
