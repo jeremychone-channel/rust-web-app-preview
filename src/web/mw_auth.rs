@@ -15,12 +15,12 @@ use serde::Serialize;
 use tower_cookies::{Cookie, Cookies};
 use tracing::debug;
 
-pub async fn mw_require_auth<B>(
+pub async fn mw_ctx_require<B>(
 	ctx: Result<Ctx>,
 	req: Request<B>,
 	next: Next<B>,
 ) -> Result<Response> {
-	debug!("{:<12} - mw_require_auth - {ctx:?}", "MIDDLEWARE");
+	debug!("{:<12} - mw_require_ctx - {ctx:?}", "MIDDLEWARE");
 
 	ctx?;
 
