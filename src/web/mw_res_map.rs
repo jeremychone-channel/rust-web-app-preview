@@ -8,7 +8,7 @@ use axum::Json;
 use serde_json::{json, to_value};
 use tracing::{debug, error};
 
-pub async fn mw_response_mapper(
+pub async fn mw_response_map(
 	ctx: Option<Ctx>,
 	http_method: Method,
 	uri: Uri,

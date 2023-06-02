@@ -20,20 +20,20 @@ pub async fn mw_ctx_require<B>(
 	req: Request<B>,
 	next: Next<B>,
 ) -> Result<Response> {
-	debug!("{:<12} - mw_require_ctx - {ctx:?}", "MIDDLEWARE");
+	debug!("{:<12} - mw_ctx_require - {ctx:?}", "MIDDLEWARE");
 
 	ctx?;
 
 	Ok(next.run(req).await)
 }
 
-pub async fn mw_ctx_resolver<B>(
+pub async fn mw_ctx_resolve<B>(
 	mm: State<ModelManager>,
 	cookies: Cookies,
 	mut req: Request<B>,
 	next: Next<B>,
 ) -> Result<Response> {
-	debug!("{:<12} - mw_ctx_resolver", "MIDDLEWARE");
+	debug!("{:<12} - mw_ctx_resolve", "MIDDLEWARE");
 
 	let token = cookies.get(AUTH_TOKEN).map(|c| c.value().to_string());
 

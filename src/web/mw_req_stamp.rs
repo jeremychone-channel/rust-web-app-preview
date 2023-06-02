@@ -9,7 +9,7 @@ use axum::response::Response;
 use tracing::debug;
 use uuid::Uuid;
 
-pub async fn mw_req_stamp_resolver<B>(
+pub async fn mw_req_stamp<B>(
 	mut req: Request<B>,
 	next: Next<B>,
 ) -> Result<Response> {
@@ -18,8 +18,7 @@ pub async fn mw_req_stamp_resolver<B>(
 	let time_in = now_utc();
 	let uuid = Uuid::new_v4();
 
-	req.extensions_mut()
-		.insert(ReqStamp { uuid, time_in });
+	req.extensions_mut().insert(ReqStamp { uuid, time_in });
 
 	Ok(next.run(req).await)
 }
