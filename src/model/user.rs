@@ -44,7 +44,7 @@ pub struct UserForLogin {
 	pub id: i64,
 	pub username: String,
 
-	// -- pwd and token salts
+	// -- pwd and token info
 	pub pwd: Option<String>, // encrypted, #_scheme_id_#....
 	pub pwd_salt: Uuid,
 	pub token_salt: Uuid,
@@ -55,7 +55,7 @@ pub struct UserForAuth {
 	pub id: i64,
 	pub username: String,
 
-	// -- pwd and salts
+	// -- token info
 	pub token_salt: Uuid,
 }
 
@@ -175,7 +175,7 @@ mod tests {
 
 	#[serial]
 	#[tokio::test]
-	async fn test_get_demo1_ok() -> Result<()> {
+	async fn test_first_ok_demo1() -> Result<()> {
 		// -- Setup & Fixtures
 		let mm = _dev_utils::init_test().await;
 		let ctx = Ctx::root_ctx();
@@ -194,7 +194,7 @@ mod tests {
 
 	#[serial]
 	#[tokio::test]
-	async fn test_pwd_demo1_ok() -> Result<()> {
+	async fn test_pwd_ok_demo1() -> Result<()> {
 		// -- Setup & Fixtures
 		let mm = _dev_utils::init_test().await;
 		let ctx = Ctx::root_ctx();
@@ -218,7 +218,7 @@ mod tests {
 
 	#[serial]
 	#[tokio::test]
-	async fn test_create_demo2_ok() -> Result<()> {
+	async fn test_create_ok_demo2() -> Result<()> {
 		// -- Setup & Fixtures
 		let mm = _dev_utils::init_test().await;
 		let ctx = Ctx::root_ctx();
