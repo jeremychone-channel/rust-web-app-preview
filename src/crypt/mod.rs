@@ -13,7 +13,7 @@ use sha2::Sha512;
 
 pub struct EncryptContent {
 	pub content: String, // Clear content.
-	pub salt: String,    // Could be per user.
+	pub salt: String,    // Clear salt.
 }
 
 pub fn encrypt_into_b64u(
@@ -38,3 +38,34 @@ pub fn encrypt_into_b64u(
 
 	Ok(result)
 }
+
+// region:    --- Tests
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use anyhow::Result;
+	use rand::RngCore;
+
+	#[test]
+	fn test_encrypt_into_b64u_ok() -> Result<()> {
+		// -- Setup & Fixture
+		let mut fx_key = [0u8; 64]; // 512 bits = 64 bytes
+		rand::thread_rng().fill_bytes(&mut fx_key);
+		let fx_enc_content = EncryptContent {
+			content: "hello world".to_string(),
+			salt: "some pepper".to_string(),
+		};
+		// TODO: Need to fix fx_key, and precompute fx_res.
+		let fx_res = encrypt_into_b64u(&fx_key, &fx_enc_content)?;
+
+		// -- Exec
+		let res = encrypt_into_b64u(&fx_key, &fx_enc_content)?;
+		println!("->> {res}");
+
+		// -- Check
+		assert_eq!(res, fx_res);
+
+		Ok(())
+	}
+}
+// endregion: --- Tests

@@ -6,8 +6,8 @@ fn main() -> Result<()> {
 	rand::thread_rng().fill_bytes(&mut key);
 	println!("\nGenerated key for HMAC:\n{key:?}");
 
-	let b64 = base64_url::encode(&key);
-	println!("\nKey b64u encoded:\n{b64}");
+	let b64u = base64_url::encode(&key);
+	println!("\nKey b64u encoded:\n{b64u}");
 
 	Ok(())
 }
