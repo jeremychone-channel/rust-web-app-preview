@@ -7,7 +7,6 @@ pub enum Error {
 	// -- Config
 	ConfigMissingEnv(&'static str),
 	ConfigWrongFormat(&'static str),
-	ConfigFailToLoad(&'static str),
 
 	// -- Modules
 	Crypt(crypt::Error),

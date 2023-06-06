@@ -15,7 +15,7 @@ pub enum SchemeStatus {
 	Ok,       // The pwd use the latest scheme. All good.
 	Outdated, // The pwd use a old scheme. Would need to be re-encrypted.
 }
-/// Validate if an EncryptContent matches
+/// Validate if an EncryptContent matches.
 pub fn validate_pwd(
 	enc_content: &EncryptContent,
 	pwd_ref: &str,
@@ -23,7 +23,7 @@ pub fn validate_pwd(
 	let scheme_ref = extract_scheme(pwd_ref)?;
 	let pwd_new = encrypt_for_scheme(&scheme_ref, enc_content)?;
 
-	if pwd_ref == pwd_new {
+	if pwd_new == pwd_ref {
 		if scheme_ref == DEFAULT_SCHEME {
 			Ok(SchemeStatus::Ok)
 		} else {
