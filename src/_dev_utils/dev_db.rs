@@ -1,12 +1,12 @@
-use crate::crypt::pwd::{self};
-use crate::crypt::EncryptContent;
+use crate::ctx::Ctx;
+use crate::model::user::{User, UserBmc};
+use crate::model::ModelManager;
 use sqlx::postgres::PgPoolOptions;
 use sqlx::{Pool, Postgres};
 use std::fs;
 use std::path::PathBuf;
 use std::time::Duration;
 use tracing::info;
-use uuid::Uuid;
 
 type Db = Pool<Postgres>;
 
@@ -17,6 +17,8 @@ const PG_DEV_APP_URL: &str = "postgres://app_user:dev_only_pwd@localhost/app_db"
 // sql files
 const SQL_RECREATE_DB: &str = "sql/dev_initial/00-recreate-db.sql";
 const SQL_DIR: &str = "sql/dev_initial";
+
+const DEMO_PWD: &str = "welcome";
 
 pub async fn init_dev_db() -> Result<(), Box<dyn std::error::Error>> {
 	info!("{:<12} - init_dev_db()", "FOR-DEV-ONLY");
@@ -46,27 +48,15 @@ pub async fn init_dev_db() -> Result<(), Box<dyn std::error::Error>> {
 		}
 	}
 
-	// -- Set the "welcome" password to demo1
-	let (id, salt): (i64, Uuid) = sqlx::query_as(
-		r#"
-	SELECT id, pwd_salt FROM "user"
-	WHERE username = $1
-	"#,
-	)
-	.bind("demo1")
-	.fetch_one(&app_db)
-	.await?;
+	// -- Init model layer.
+	let mm = ModelManager::new().await?;
+	let ctx = Ctx::root_ctx();
 
-	let pwd = pwd::encrypt_pwd(&EncryptContent {
-		salt: salt.to_string(),
-		content: "welcome".to_string(),
-	})?;
-
-	sqlx::query(r#"UPDATE "user" SET pwd = $1 WHERE id = $2"#)
-		.bind(pwd)
-		.bind(id)
-		.execute(&app_db)
-		.await?;
+	// -- Set demo1 pwd
+	let demo1_user: User = UserBmc::first_by_username(&ctx, &mm, "demo1")
+		.await?
+		.unwrap();
+	UserBmc::update_pwd(&ctx, &mm, demo1_user.id, DEMO_PWD).await?;
 
 	Ok(())
 }
