@@ -35,8 +35,8 @@ pub struct UserForCreate {
 }
 
 #[derive(Fields)]
-pub struct UserForInsert {
-	pub username: String,
+struct UserForInsert {
+	username: String,
 }
 
 #[derive(Clone, FromRow, Fields, Debug)]
@@ -147,10 +147,9 @@ impl UserBmc {
 		let db = mm.db();
 
 		let user: UserForLogin = Self::get(ctx, mm, id).await?;
-
 		let pwd = pwd::encrypt_pwd(&EncryptContent {
-			salt: user.pwd_salt.to_string(),
 			content: pwd_clear.to_string(),
+			salt: user.pwd_salt.to_string(),
 		})?;
 
 		sqlb::update()
