@@ -6,12 +6,14 @@ use crate::utils::{
 };
 use std::str::FromStr;
 
+// region:    --- Token Type
+
 /// Token with the string serialized format as
-/// `user_b64u.exp_b64u.sign_b64u`
+/// `ident_b64u.exp_b64u.sign_b64u`
 pub struct Token {
-	pub user: String,      // User identifier (username for now).
+	pub ident: String,     // identifier (username for example).
 	pub exp: String,       // Expiration date in Rfc3339.
-	pub sign_b64u: String, // Signature, in base64url encoded.
+	pub sign_b64u: String, // Signature, base64url encoded.
 }
 
 impl FromStr for Token {
@@ -22,9 +24,9 @@ impl FromStr for Token {
 		if splits.len() != 3 {
 			return Err(Error::TokenInvalidFormat);
 		}
-		let (user_b64u, exp_b64u, sign_b64u) = (splits[0], splits[1], splits[2]);
+		let (ident_b64u, exp_b64u, sign_b64u) = (splits[0], splits[1], splits[2]);
 		Ok(Self {
-			user: b64u_decode(user_b64u)
+			ident: b64u_decode(ident_b64u)
 				.map_err(|_| Error::TokenCannotDecodeUser)?,
 			exp: b64u_decode(exp_b64u).map_err(|_| Error::TokenCannotDecodeExp)?,
 			sign_b64u: sign_b64u.to_string(),
@@ -40,36 +42,59 @@ impl std::fmt::Display for Token {
 		write!(
 			fmt,
 			"{}.{}.{}",
-			b64u_encode(&self.user),
+			b64u_encode(&self.ident),
 			b64u_encode(&self.exp),
 			self.sign_b64u
 		)
 	}
 }
 
+// endregion: --- Token Type
+
+// region:    --- Web Token Gen and Validation
+
 /// Generate a Token for a given user identifier and its token salt.
-pub fn generate_token(user: &str, salt: &str) -> Result<Token> {
-	let duration_sec = config().TOKEN_DURATION_SEC;
-	_generate_token(user, salt, duration_sec)
+pub fn generate_web_token(user: &str, salt: &str) -> Result<Token> {
+	let config::Config { TOKEN_DURATION_SEC, TOKEN_KEY, .. } = &config();
+	_generate_token(user, salt, *TOKEN_DURATION_SEC, TOKEN_KEY)
 }
 
-fn _generate_token(user: &str, salt: &str, duration_sec: f64) -> Result<Token> {
+pub fn validate_web_token(origin_token: &Token, salt: &str) -> Result<()> {
+	let config::Config { TOKEN_KEY, .. } = &config();
+	_validate_token_sign_and_exp(origin_token, salt, TOKEN_KEY)?;
+	Ok(())
+}
+
+// endregion: --- Web Token Validation
+
+// region:    --- (private) Token Gen and Validation
+
+fn _generate_token(
+	ident: &str,
+	salt: &str,
+	duration_sec: f64,
+	key: &[u8],
+) -> Result<Token> {
 	// -- Compute the two first components.
-	let user = user.to_string();
+	let ident = ident.to_string();
 	let exp = now_utc_plus_sec_str(duration_sec);
 
 	// -- Sign the two first components.
-	let sign_b64u = token_sign_into_b64u(&user, &exp, salt)?;
+	let sign_b64u = _token_sign_into_b64u(&ident, &exp, salt, key)?;
 
-	Ok(Token { user, exp, sign_b64u })
+	Ok(Token { ident, exp, sign_b64u })
 }
 
 /// Validate if the origin_token signature match what it is supposed to match.
 /// Returns - tuple of decoded string (user, expiration).
-pub fn validate_token_sign_and_exp(origin_token: &Token, salt: &str) -> Result<()> {
+fn _validate_token_sign_and_exp(
+	origin_token: &Token,
+	salt: &str,
+	key: &[u8],
+) -> Result<()> {
 	// -- Validate signature.
 	let new_sign_b64u =
-		token_sign_into_b64u(&origin_token.user, &origin_token.exp, salt)?;
+		_token_sign_into_b64u(&origin_token.ident, &origin_token.exp, salt, key)?;
 
 	if new_sign_b64u != origin_token.sign_b64u {
 		return Err(Error::TokenSignatureNotMatching);
@@ -89,14 +114,20 @@ pub fn validate_token_sign_and_exp(origin_token: &Token, salt: &str) -> Result<(
 
 /// Create a token signature given the user identifier,
 /// expiration, and salt.
-fn token_sign_into_b64u(user: &str, exp: &str, salt: &str) -> Result<String> {
-	let key = &config().TOKEN_KEY;
-	let content = format!("{}.{}", b64u_encode(user), b64u_encode(exp));
+fn _token_sign_into_b64u(
+	ident: &str,
+	exp: &str,
+	salt: &str,
+	key: &[u8],
+) -> Result<String> {
+	let content = format!("{}.{}", b64u_encode(ident), b64u_encode(exp));
 	let signature =
 		encrypt_into_b64u(key, &EncryptContent { content, salt: salt.to_string() })?;
 
 	Ok(signature)
 }
+
+// endregion: --- Private Token Gen and Validation
 
 // region:    --- Tests
 #[cfg(test)]
@@ -107,16 +138,18 @@ mod tests {
 	use std::time::Duration;
 
 	#[test]
-	fn test_validate_token_ok() -> Result<()> {
+	fn test_validate_web_token_ok() -> Result<()> {
 		// -- Setup & Fixtures
 		let fx_user = "user_one";
 		let fx_salt = "pepper";
 		let fx_duration_sec = 0.02; // 10ms
-		let fx_token = _generate_token(fx_user, fx_salt, fx_duration_sec)?;
+		let token_key = &config().TOKEN_KEY;
+		let fx_token =
+			_generate_token(fx_user, fx_salt, fx_duration_sec, token_key)?;
 
 		// -- Exec
 		thread::sleep(Duration::from_millis(10));
-		let res = validate_token_sign_and_exp(&fx_token, fx_salt);
+		let res = validate_web_token(&fx_token, fx_salt);
 
 		// -- Check
 		res?;
@@ -125,16 +158,18 @@ mod tests {
 	}
 
 	#[test]
-	fn test_validate_token_err() -> Result<()> {
+	fn test_validate_web_token_err() -> Result<()> {
 		// -- Setup & Fixtures
 		let fx_user = "user_one";
 		let fx_salt = "pepper";
 		let fx_duration_sec = 0.01; // 10ms
-		let fx_token = _generate_token(fx_user, fx_salt, fx_duration_sec)?;
+		let token_key = &config().TOKEN_KEY;
+		let fx_token =
+			_generate_token(fx_user, fx_salt, fx_duration_sec, token_key)?;
 
 		// -- Exec
 		thread::sleep(Duration::from_millis(20));
-		let res = validate_token_sign_and_exp(&fx_token, fx_salt);
+		let res = validate_web_token(&fx_token, fx_salt);
 
 		// -- Check
 		assert!(

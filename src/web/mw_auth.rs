@@ -1,4 +1,4 @@
-use crate::crypt::token::{validate_token_sign_and_exp, Token};
+use crate::crypt::token::{validate_web_token, Token};
 use crate::ctx::Ctx;
 use crate::model::user::{UserBmc, UserForAuth};
 use crate::model::ModelManager;
@@ -50,16 +50,16 @@ pub async fn mw_ctx_resolve<B>(
 			UserBmc::first_by_username::<UserForAuth>(
 				&Ctx::root_ctx(),
 				&mm,
-				&token.user,
+				&token.ident,
 			)
 			.await? // If cannot access the DB, critical enough to return Error. TODO: To reassess.
-			.ok_or(CtxAuthError::FailUserNotFound(token.user.to_string()))
+			.ok_or(CtxAuthError::FailUserNotFound(token.ident.to_string()))
 		}
 		Err(ex) => CtxAuthResult::Err(ex.clone()),
 	};
 
 	let result_user = result_user.and_then(|user| {
-		validate_token_sign_and_exp(&token.unwrap(), &user.token_salt.to_string())
+		validate_web_token(&token.unwrap(), &user.token_salt.to_string())
 			.map(|_| user)
 			.map_err(|ex| CtxAuthError::FailValidate(ex.to_string()))
 	});
