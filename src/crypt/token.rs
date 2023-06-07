@@ -86,7 +86,7 @@ fn _generate_token(
 }
 
 /// Validate if the origin_token signature match what it is supposed to match.
-/// Returns - tuple of decoded string (user, expiration).
+/// Returns - tuple of decoded string (ident, expiration).
 fn _validate_token_sign_and_exp(
 	origin_token: &Token,
 	salt: &str,
@@ -112,7 +112,7 @@ fn _validate_token_sign_and_exp(
 	Ok(())
 }
 
-/// Create a token signature given the user identifier,
+/// Create a token signature given the ident identifier,
 /// expiration, and salt.
 fn _token_sign_into_b64u(
 	ident: &str,
