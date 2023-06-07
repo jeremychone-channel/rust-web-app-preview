@@ -4,6 +4,7 @@ use crate::crypt::{Error, Result};
 use crate::utils::{
 	b64u_decode, b64u_encode, now_utc, now_utc_plus_sec_str, parse_utc,
 };
+use std::str::FromStr;
 
 /// Token with the string serialized format as
 /// `user_b64u.exp_b64u.sign_b64u`
@@ -13,9 +14,11 @@ pub struct Token {
 	pub sign_b64u: String, // Signature, in base64url encoded.
 }
 
-impl Token {
-	pub fn parse(token: &str) -> Result<Token> {
-		let splits: Vec<&str> = token.split('.').collect();
+impl FromStr for Token {
+	type Err = Error;
+
+	fn from_str(token_str: &str) -> std::result::Result<Self, Self::Err> {
+		let splits: Vec<&str> = token_str.split('.').collect();
 		if splits.len() != 3 {
 			return Err(Error::TokenInvalidFormat);
 		}

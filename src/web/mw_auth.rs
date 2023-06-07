@@ -12,6 +12,7 @@ use axum::http::Request;
 use axum::middleware::Next;
 use axum::response::Response;
 use serde::Serialize;
+use std::str::FromStr;
 use tower_cookies::{Cookie, Cookies};
 use tracing::debug;
 
@@ -38,9 +39,9 @@ pub async fn mw_ctx_resolve<B>(
 	let token = cookies.get(AUTH_TOKEN).map(|c| c.value().to_string());
 
 	// -- Parse Token
-	let token = token
-		.ok_or(CtxAuthError::TokenNotInCookie)
-		.and_then(|t| Token::parse(&t).map_err(|_| CtxAuthError::TokenWrongFormat));
+	let token = token.ok_or(CtxAuthError::TokenNotInCookie).and_then(|t| {
+		Token::from_str(&t).map_err(|_| CtxAuthError::TokenWrongFormat)
+	});
 
 	// -- Validate Token
 	// Get the user from the db.
