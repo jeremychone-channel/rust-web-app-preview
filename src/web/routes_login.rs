@@ -56,7 +56,7 @@ async fn api_login_handler(
 		UserBmc::update_pwd(&root_ctx, &mm, user.id, &pwd_clear).await?;
 	}
 
-	// -- Generate the web token.
+	// -- Set web token.
 	web::set_token_cookie(&cookies, &user.username, &user.token_salt.to_string())?;
 
 	// -- Create the success body.

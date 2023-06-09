@@ -16,11 +16,11 @@ pub enum Error {
 
 	// -- Token
 	TokenInvalidFormat,
+	TokenCannotDecodeIdent,
+	TokenCannotDecodeExp,
 	TokenSignatureNotMatching,
 	TokenExpNotIso,
 	TokenExpired,
-	TokenCannotDecodeUser,
-	TokenCannotDecodeExp,
 	TokenCannotDecodeSign,
 	TokenUserNotMatching,
 }
