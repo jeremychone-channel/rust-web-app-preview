@@ -38,7 +38,9 @@ pub async fn mw_ctx_resolve<B>(
 
 	let ctx_ext_result = _ctx_resolve(mm, &cookies).await;
 
-	if !matches!(ctx_ext_result, Err(CtxExtError::TokenNotInCookie)) {
+	if ctx_ext_result.is_err()
+		&& !matches!(ctx_ext_result, Err(CtxExtError::TokenNotInCookie))
+	{
 		cookies.remove(Cookie::named(AUTH_TOKEN))
 	}
 
