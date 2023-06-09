@@ -12,7 +12,6 @@ use axum::http::Request;
 use axum::middleware::Next;
 use axum::response::Response;
 use serde::Serialize;
-use std::str::FromStr;
 use tower_cookies::{Cookie, Cookies};
 use tracing::debug;
 
@@ -58,8 +57,7 @@ async fn _ctx_resolve(mm: State<ModelManager>, cookies: &Cookies) -> CtxExtResul
 		.ok_or(CtxExtError::TokenNotInCookie)?;
 
 	// -- Parse Token
-	let token =
-		Token::from_str(&token).map_err(|_| CtxExtError::TokenWrongFormat)?;
+	let token: Token = token.parse().map_err(|_| CtxExtError::TokenWrongFormat)?;
 
 	// -- Get UserForAuth
 	let user: UserForAuth =
@@ -76,8 +74,7 @@ async fn _ctx_resolve(mm: State<ModelManager>, cookies: &Cookies) -> CtxExtResul
 	web::set_token_cookie(cookies, &user.username, &user.token_salt.to_string())
 		.map_err(|_| CtxExtError::CannotSetTokenCookie)?;
 
-	// -- Create CtxResult
-
+	// -- Create CtxExtResult
 	Ctx::new(user.id).map_err(|ex| CtxExtError::CtxCreateFail(ex.to_string()))
 }
 
