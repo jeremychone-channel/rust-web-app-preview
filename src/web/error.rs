@@ -22,8 +22,8 @@ pub enum Error {
 	// -- Middelware/Extractor
 	ReqStampNotInResponseExt,
 
-	// -- CtxAuthError
-	CtxAuth(web::mw_auth::CtxAuthError),
+	// -- CtxExtError
+	CtxExt(web::mw_auth::CtxExtError),
 
 	// -- Modules
 	Model(model::Error),
@@ -96,7 +96,7 @@ impl Error {
 			}
 
 			// -- Auth
-			CtxAuth(_) => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
+			CtxExt(_) => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
 
 			// -- Model
 			Model(model::Error::EntityNotFound { entity, id }) => (

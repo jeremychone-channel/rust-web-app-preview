@@ -36,57 +36,47 @@ pub async fn mw_ctx_resolve<B>(
 ) -> Result<Response> {
 	debug!("{:<12} - mw_ctx_resolve", "MIDDLEWARE");
 
-	let token = cookies.get(AUTH_TOKEN).map(|c| c.value().to_string());
+	let ctx_ext_result = _ctx_resolve(mm, &cookies).await;
 
-	// -- Parse Token
-	let token = token.ok_or(CtxAuthError::TokenNotInCookie).and_then(|t| {
-		Token::from_str(&t).map_err(|_| CtxAuthError::TokenWrongFormat)
-	});
-
-	// -- Validate Token
-	// Get the user from the db.
-	let result_user = match &token {
-		Ok(token) => {
-			UserBmc::first_by_username::<UserForAuth>(
-				&Ctx::root_ctx(),
-				&mm,
-				&token.ident,
-			)
-			.await? // If cannot access the DB, critical enough to return Error. TODO: To reassess.
-			.ok_or(CtxAuthError::FailUserNotFound(token.ident.to_string()))
-		}
-		Err(ex) => CtxAuthResult::Err(ex.clone()),
-	};
-
-	let result_user = result_user.and_then(|user| {
-		validate_web_token(&token.unwrap(), &user.token_salt.to_string())
-			.map(|_| user)
-			.map_err(|ex| CtxAuthError::FailValidate(ex.to_string()))
-	});
-
-	// -- Update Token
-	// If auth success, create a new Token with the updated expiration date.
-	if let Ok(user) = result_user.as_ref() {
-		web::set_token_cookie(
-			&cookies,
-			&user.username,
-			&user.token_salt.to_string(),
-		)?;
-	}
-	// Ohterwise, remove the cookie if something went wrong other than TokenNotInCookie.
-	else if !matches!(result_user, Err(CtxAuthError::TokenNotInCookie)) {
+	if !matches!(ctx_ext_result, Err(CtxExtError::TokenNotInCookie)) {
 		cookies.remove(Cookie::named(AUTH_TOKEN))
 	}
 
-	// -- Create the ctx if we have the user.
-	let result_ctx = result_user.and_then(|user| {
-		Ctx::new(user.id).map_err(|ex| CtxAuthError::CtxCreateFail(ex.to_string()))
-	});
-
 	// -- Store the ctx_result in the request extension.
-	req.extensions_mut().insert(result_ctx);
+	req.extensions_mut().insert(ctx_ext_result);
 
 	Ok(next.run(req).await)
+}
+
+async fn _ctx_resolve(mm: State<ModelManager>, cookies: &Cookies) -> CtxExtResult {
+	// -- Get Token String
+	let token = cookies
+		.get(AUTH_TOKEN)
+		.map(|c| c.value().to_string())
+		.ok_or(CtxExtError::TokenNotInCookie)?;
+
+	// -- Parse Token
+	let token =
+		Token::from_str(&token).map_err(|_| CtxExtError::TokenWrongFormat)?;
+
+	// -- Get UserForAuth
+	let user: UserForAuth =
+		UserBmc::first_by_username(&Ctx::root_ctx(), &mm, &token.ident)
+			.await
+			.map_err(|ex| CtxExtError::ModelAccessError(ex.to_string()))?
+			.ok_or(CtxExtError::FailUserNotFound(token.ident.to_string()))?;
+
+	// -- Validate Token
+	validate_web_token(&token, &user.token_salt.to_string())
+		.map_err(|ex| CtxExtError::FailValidate(ex.to_string()))?;
+
+	// -- Update Token
+	web::set_token_cookie(cookies, &user.username, &user.token_salt.to_string())
+		.map_err(|_| CtxExtError::CannotSetTokenCookie)?;
+
+	// -- Create CtxResult
+
+	Ctx::new(user.id).map_err(|ex| CtxExtError::CtxCreateFail(ex.to_string()))
 }
 
 // region:    --- Ctx Extractor
@@ -99,24 +89,26 @@ impl<S: Send + Sync> FromRequestParts<S> for Ctx {
 
 		parts
 			.extensions
-			.get::<CtxAuthResult<Ctx>>()
-			.ok_or(Error::CtxAuth(CtxAuthError::CtxNotInRequestExt))?
+			.get::<CtxExtResult>()
+			.ok_or(Error::CtxExt(CtxExtError::CtxNotInRequestExt))?
 			.clone()
-			.map_err(Error::CtxAuth)
+			.map_err(Error::CtxExt)
 	}
 }
 // endregion: --- Ctx Extractor
 
 // region:    --- Ctx Extractor Result/Error
-type CtxAuthResult<T> = core::result::Result<T, CtxAuthError>;
+type CtxExtResult = core::result::Result<Ctx, CtxExtError>;
 
 #[derive(Clone, Serialize, Debug)]
-pub enum CtxAuthError {
+pub enum CtxExtError {
 	TokenNotInCookie,
 	TokenWrongFormat,
+	CannotSetTokenCookie,
 	FailUserNotFound(String),
 	FailValidate(String),
 	CtxNotInRequestExt,
 	CtxCreateFail(String),
+	ModelAccessError(String),
 }
 // endregion: --- Ctx Extractor Result/Error
