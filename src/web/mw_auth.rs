@@ -2,7 +2,7 @@ use crate::crypt::token::{validate_web_token, Token};
 use crate::ctx::Ctx;
 use crate::model::user::{UserBmc, UserForAuth};
 use crate::model::ModelManager;
-use crate::web;
+use crate::web::set_token_cookie;
 use crate::web::AUTH_TOKEN;
 use crate::web::{Error, Result};
 use async_trait::async_trait;
@@ -43,7 +43,8 @@ pub async fn mw_ctx_resolve<B>(
 		cookies.remove(Cookie::named(AUTH_TOKEN))
 	}
 
-	// -- Store the ctx_result in the request extension.
+	// Store the ctx_ext_result in the request extension
+	// (for Ctx extractor).
 	req.extensions_mut().insert(ctx_ext_result);
 
 	Ok(next.run(req).await)
@@ -64,14 +65,14 @@ async fn _ctx_resolve(mm: State<ModelManager>, cookies: &Cookies) -> CtxExtResul
 		UserBmc::first_by_username(&Ctx::root_ctx(), &mm, &token.ident)
 			.await
 			.map_err(|ex| CtxExtError::ModelAccessError(ex.to_string()))?
-			.ok_or(CtxExtError::FailUserNotFound(token.ident.to_string()))?;
+			.ok_or(CtxExtError::UserNotFound)?;
 
 	// -- Validate Token
 	validate_web_token(&token, &user.token_salt.to_string())
-		.map_err(|ex| CtxExtError::FailValidate(ex.to_string()))?;
+		.map_err(|_| CtxExtError::FailValidate)?;
 
 	// -- Update Token
-	web::set_token_cookie(cookies, &user.username, &user.token_salt.to_string())
+	set_token_cookie(cookies, &user.username, &user.token_salt.to_string())
 		.map_err(|_| CtxExtError::CannotSetTokenCookie)?;
 
 	// -- Create CtxExtResult
@@ -103,11 +104,13 @@ type CtxExtResult = core::result::Result<Ctx, CtxExtError>;
 pub enum CtxExtError {
 	TokenNotInCookie,
 	TokenWrongFormat,
+
+	UserNotFound,
+	ModelAccessError(String),
+	FailValidate,
 	CannotSetTokenCookie,
-	FailUserNotFound(String),
-	FailValidate(String),
+
 	CtxNotInRequestExt,
 	CtxCreateFail(String),
-	ModelAccessError(String),
 }
 // endregion: --- Ctx Extractor Result/Error
