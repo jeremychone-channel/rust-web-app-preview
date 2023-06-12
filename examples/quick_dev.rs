@@ -21,7 +21,7 @@ async fn main() -> Result<()> {
 	let req_create_task = hc.do_post(
 		"/api/rpc",
 		json!({
-			"id": null,
+			"id": 1,
 			"method": "create_task",
 			"params": {
 				"data": {
@@ -51,7 +51,7 @@ async fn main() -> Result<()> {
 	let req_delete_task = hc.do_post(
 		"/api/rpc",
 		json!({
-			"id": null,
+			"id": 1,
 			"method": "delete_task",
 			"params": {
 				"id": 1001 // Harcode the task id
@@ -63,7 +63,7 @@ async fn main() -> Result<()> {
 	let req_list_tasks = hc.do_post(
 		"/api/rpc",
 		json!({
-			"id": 22,
+			"id": 1,
 			"method": "list_tasks"
 		}),
 	);

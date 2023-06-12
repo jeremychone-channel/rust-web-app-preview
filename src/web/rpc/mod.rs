@@ -93,9 +93,9 @@ macro_rules! exec_rpc_fn {
 	}};
 
 	// Without params.
-	($rpc_fn:expr, $ctx:expr, $mm:expr) => {{
+	($rpc_fn:expr, $ctx:expr, $mm:expr) => {
 		$rpc_fn($ctx, $mm).await.map(to_value)??
-	}};
+	};
 }
 
 async fn _rpc_handler(
