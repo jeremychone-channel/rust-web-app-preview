@@ -101,7 +101,7 @@ impl Error {
 			// -- Model
 			Model(model::Error::EntityNotFound { entity, id }) => (
 				StatusCode::BAD_REQUEST,
-				ClientError::EntityNotFound { entity, id: *id },
+				ClientError::ENTITY_NOT_FOUND { entity, id: *id },
 			),
 			Model(model::Error::UserAlreadyExists { .. }) => {
 				(StatusCode::BAD_REQUEST, ClientError::USER_ALREADY_EXISTS)
@@ -123,9 +123,9 @@ impl Error {
 #[serde(tag = "message", content = "detail")]
 #[allow(non_camel_case_types)]
 pub enum ClientError {
-	USER_ALREADY_EXISTS,
 	LOGIN_FAIL,
 	NO_AUTH,
-	EntityNotFound { entity: &'static str, id: i64 },
+	ENTITY_NOT_FOUND { entity: &'static str, id: i64 },
+	USER_ALREADY_EXISTS,
 	SERVICE_ERROR,
 }
