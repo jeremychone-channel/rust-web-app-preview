@@ -65,7 +65,7 @@ async fn rpc_handler(
 	ctx: Ctx,
 	Json(rpc_req): Json<RpcRequest>,
 ) -> Response {
-	// -- Create the RPC Context to be set to the response.extensions.
+	// -- Create the RPC Info to be set to the response.extensions.
 	let rpc_info = RpcInfo {
 		id: rpc_req.id.clone(),
 		method: rpc_req.method.clone(),
@@ -76,6 +76,13 @@ async fn rpc_handler(
 	res.extensions_mut().insert(rpc_info);
 
 	res
+}
+
+/// RPC basic information holding the id and method for further logging.
+#[derive(Debug)]
+pub struct RpcInfo {
+	pub id: Option<Value>,
+	pub method: String,
 }
 
 macro_rules! exec_rpc_fn {
@@ -128,11 +135,4 @@ async fn _rpc_handler(
 	});
 
 	Ok(Json(body_response))
-}
-
-/// RPC basic information holding the id and method for further logging.
-#[derive(Debug)]
-pub struct RpcInfo {
-	pub id: Option<Value>,
-	pub method: String,
 }

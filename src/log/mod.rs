@@ -20,13 +20,14 @@ pub async fn log_request(
 	web_error: Option<&web::Error>,
 	client_error: Option<ClientError>,
 ) -> Result<()> {
-	let ReqStamp { uuid, time_in } = req_stamp;
+	
 
 	let error_type = web_error.map(|se| se.as_ref().to_string());
 	let error_data = serde_json::to_value(web_error)
 		.ok()
 		.and_then(|mut v| v.get_mut("data").map(|v| v.take()));
 
+	let ReqStamp { uuid, time_in } = req_stamp;
 	let now = now_utc();
 	let duration: Duration = now - time_in;
 	// duration_ms in milliseconds with microseconds precision.

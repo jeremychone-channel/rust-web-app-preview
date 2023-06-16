@@ -32,12 +32,16 @@ fn set_token_cookie(cookies: &Cookies, user: &str, salt: &str) -> Result<()> {
 	Ok(())
 }
 
-/// Request "Stamp" created at the beginning of the http request
-/// flow by the `mw_req_stamp_resolver` with the following properties:
-///
-/// - uuid    - Unique identifier of the request.
-/// - time_in - Equivalent (close enough) of the beginning of the request.
-///
+fn remove_token_cookie(cookies: &Cookies) -> Result<()> {
+	let mut cookie = Cookie::named(AUTH_TOKEN);
+	cookie.set_path("/");
+
+	cookies.remove(cookie);
+
+	Ok(())
+}
+
+/// Resolve by mw_req_stamp.
 #[derive(Debug, Clone)]
 pub struct ReqStamp {
 	pub uuid: Uuid,

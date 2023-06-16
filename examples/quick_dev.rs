@@ -35,7 +35,7 @@ async fn main() -> Result<()> {
 	let req_update_task = hc.do_post(
 		"/api/rpc",
 		json!({
-			"id": null,
+			"id": 1,
 			"method": "update_task",
 			"params": {
 				"id": 1000, // Hardcode the task id.
@@ -47,7 +47,6 @@ async fn main() -> Result<()> {
 	);
 	req_update_task.await?.print().await?;
 
-	// Note: This will attempt to delete task id 1001
 	let req_delete_task = hc.do_post(
 		"/api/rpc",
 		json!({
@@ -58,7 +57,7 @@ async fn main() -> Result<()> {
 			}
 		}),
 	);
-	// req_delete_task.await?.print().await?;
+	req_delete_task.await?.print().await?;
 
 	let req_list_tasks = hc.do_post(
 		"/api/rpc",
@@ -68,6 +67,14 @@ async fn main() -> Result<()> {
 		}),
 	);
 	req_list_tasks.await?.print().await?;
+
+	// let req_logoff = hc.do_post(
+	// 	"/api/logoff",
+	// 	json!({
+	// 		"logoff": true
+	// 	}),
+	// );
+	// req_logoff.await?.print().await?;
 
 	Ok(())
 }
