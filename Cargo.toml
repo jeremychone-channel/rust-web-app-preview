@@ -28,11 +28,11 @@ hmac = "0.12"
 sha2 = "0.10"
 base64-url = "2"
 # -- Others
-lazy-regex = "2"
+lazy-regex = "3"
 uuid = {version = "1", features = ["v4", "fast-rng"]}
 time = "0.3"
 async-trait = "0.1"
-strum_macros = "0.24"
+strum_macros = "0.25"
 
 
 [dev-dependencies]
