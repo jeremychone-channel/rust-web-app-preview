@@ -1,4 +1,5 @@
 use crate::{Error, Result};
+use base64::{engine::general_purpose, Engine as _};
 use std::env;
 use std::str::FromStr;
 use std::sync::OnceLock;
@@ -56,5 +57,7 @@ fn get_env_parse<T: FromStr>(name: &'static str) -> Result<T> {
 }
 
 fn get_env_b64u_as_u8s(name: &'static str) -> Result<Vec<u8>> {
-	base64_url::decode(&get_env(name)?).map_err(|_| Error::ConfigWrongFormat(name))
+	general_purpose::URL_SAFE_NO_PAD
+		.decode(get_env(name)?)
+		.map_err(|_| Error::ConfigWrongFormat(name))
 }

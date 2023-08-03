@@ -4,6 +4,7 @@ mod error;
 
 pub use self::error::{Error, Result};
 
+use base64::{engine::general_purpose, Engine as _};
 use time::format_description::well_known::Rfc3339;
 use time::{Duration, OffsetDateTime};
 
@@ -31,11 +32,12 @@ pub fn parse_utc(moment: &str) -> Result<OffsetDateTime> {
 
 // region:    --- Base64
 pub fn b64u_encode(content: &str) -> String {
-	base64_url::encode(content)
+	general_purpose::URL_SAFE_NO_PAD.encode(content.as_bytes())
 }
 
 pub fn b64u_decode(b64u: &str) -> Result<String> {
-	let decoded_string = base64_url::decode(b64u)
+	let decoded_string = general_purpose::URL_SAFE_NO_PAD
+		.decode(b64u)
 		.ok()
 		.and_then(|r| String::from_utf8(r).ok())
 		.ok_or(Error::FailToB64uDecode)?;
