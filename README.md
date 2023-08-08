@@ -58,6 +58,11 @@ or unit tests
 cargo test -- --test-threads=1
 ```
 
+## Generate new key
+
+```sh
+cargo run -p gen_key
+```
 
 <br /><br />
 _[This repo](https://github.com/jeremychone-channel/rust-web-app-preview)_

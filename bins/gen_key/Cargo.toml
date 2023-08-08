@@ -1,0 +1,12 @@
+[package]
+name = "gen_key"
+version = "0.1.0"
+edition = "2021"
+description = "AwesomeApp Rust Web App Preview."
+
+[dependencies]
+base64="0.21"
+rand = "0.8"
+anyhow = "1"
+# -- App Crates
+lib_utils = { path = "../../libs/utils"}

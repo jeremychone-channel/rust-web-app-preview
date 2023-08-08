@@ -3,7 +3,6 @@
 
 use crate::ctx::Ctx;
 use crate::model::{Error, ModelManager, Result};
-use crate::utils;
 use sqlb::HasFields;
 use sqlx::postgres::PgRow;
 use sqlx::FromRow;
@@ -23,7 +22,7 @@ where
 	let mut fields = data.not_none_fields();
 	if MC::HAS_TIMESTAMPS {
 		let user_id = ctx.user_id();
-		let now = utils::now_utc();
+		let now = lib_utils::now_utc();
 		fields.push(("cid", user_id).into());
 		fields.push(("ctime", now).into());
 		fields.push(("mid", user_id).into());
@@ -93,7 +92,7 @@ where
 
 	if MC::HAS_TIMESTAMPS {
 		let user_id = ctx.user_id();
-		let now = utils::now_utc();
+		let now = lib_utils::now_utc();
 		fields.push(("mid", user_id).into());
 		fields.push(("mtime", now).into());
 	}

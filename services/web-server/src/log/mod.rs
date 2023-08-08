@@ -1,10 +1,10 @@
 use crate::ctx::Ctx;
-use crate::utils::{format_time, now_utc};
 use crate::web::rpc::RpcInfo;
 use crate::web::ClientError;
 use crate::web::{self, ReqStamp};
 use crate::Result;
 use axum::http::{Method, Uri};
+use lib_utils::{format_time, now_utc};
 use serde::Serialize;
 use serde_json::{json, Value};
 use serde_with::skip_serializing_none;
@@ -20,8 +20,6 @@ pub async fn log_request(
 	web_error: Option<&web::Error>,
 	client_error: Option<ClientError>,
 ) -> Result<()> {
-	
-
 	let error_type = web_error.map(|se| se.as_ref().to_string());
 	let error_data = serde_json::to_value(web_error)
 		.ok()

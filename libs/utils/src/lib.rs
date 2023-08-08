@@ -32,7 +32,11 @@ pub fn parse_utc(moment: &str) -> Result<OffsetDateTime> {
 
 // region:    --- Base64
 pub fn b64u_encode(content: &str) -> String {
-	general_purpose::URL_SAFE_NO_PAD.encode(content.as_bytes())
+	b64u_encode_bytes(content.as_bytes())
+}
+
+pub fn b64u_encode_bytes(bytes: &[u8]) -> String {
+	general_purpose::URL_SAFE_NO_PAD.encode(bytes)
 }
 
 pub fn b64u_decode(b64u: &str) -> Result<String> {
