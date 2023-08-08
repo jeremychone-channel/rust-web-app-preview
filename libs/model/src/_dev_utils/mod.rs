@@ -2,9 +2,9 @@
 
 mod dev_db;
 
-use crate::ctx::Ctx;
-use crate::model::task::{Task, TaskBmc, TaskForCreate};
-use crate::model::{self, ModelManager};
+use crate::task::{Task, TaskBmc, TaskForCreate};
+use crate::ModelManager;
+use lib_ctx::Ctx;
 use tokio::sync::OnceCell;
 use tracing::info;
 
@@ -41,7 +41,7 @@ pub async fn seed_tasks(
 	ctx: &Ctx,
 	mm: &ModelManager,
 	titles: &[&str],
-) -> model::Result<Vec<Task>> {
+) -> crate::Result<Vec<Task>> {
 	let mut tasks = Vec::new();
 
 	for title in titles {

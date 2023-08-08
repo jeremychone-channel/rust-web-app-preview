@@ -1,7 +1,14 @@
 [workspace]
 members = [
-    "bins/gen_key",
-    "libs/utils",
+    # -- Tools
+    "tools/gen_key",
+
+    # -- Application Libraries
+    "libs/core",
+    "libs/model",
+
+    # -- Application Services
     "services/web-server"
 ]
-
+# default-members to allow simple `cargo run`
+default-members = ["services/web-server"]

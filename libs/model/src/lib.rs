@@ -21,9 +21,12 @@ mod store;
 pub mod task;
 pub mod user;
 
+// #[cfg(test)] // Commented during early development.
+pub mod _dev_utils;
+
 pub use self::error::{Error, Result};
 
-use crate::model::store::{new_db_pool, Db};
+use store::{new_db_pool, Db};
 
 // endregion: --- Modules
 
@@ -42,7 +45,7 @@ impl ModelManager {
 
 	/// Return the sqlx db pool reference.
 	/// (Only for the model layer)
-	pub(in crate::model) fn db(&self) -> &Db {
+	pub(crate) fn db(&self) -> &Db {
 		&self.db
 	}
 }

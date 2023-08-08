@@ -21,17 +21,36 @@ docker exec -it -u postgres pg psql
 ALTER DATABASE postgres SET log_statement = 'all';
 ```
 
-## Dev (REPL)
+## Dev
+
+```sh
+# Terminal 1 - For web-server run.
+cargo run
+# or `cargo run -p web-server`
+
+# Terminal 2 - For quick dev (part of web-server/examples for now).
+cargo run -p web-server --example quick_dev
+```
+
+or unit tests
+
+```sh
+# threads=1 for now, since recreate DB and could cause issue when concurrent.
+cargo test -- --test-threads=1
+```
+
+
+## Dev (HOT-RELOAD)
 
 ```sh
 # Terminal 1 - For server run.
 cargo watch -q -c -w src/ -w .cargo/ -x "run"
 
 # Terminal 2 - For quick dev.
-cargo watch -q -c -w examples/ -x "run --example quick_dev"
+cargo watch -q -c -w examples/ -x "run -p web-server --example quick_dev"
 ```
 
-Unit test REPL
+Unit test HOT-RELOAD
 
 ```sh
 cargo watch -q -c -x "test -- --nocapture"
@@ -41,22 +60,6 @@ cargo watch -q -c -x "test model::task::tests::test_create -- --nocapture"
 ```
 
 
-## Dev
-
-```sh
-# Terminal 1 - For server run.
-cargo run
-
-# Terminal 2 - For quick dev.
-cargo run --example quick_dev
-```
-
-or unit tests
-
-```sh
-# threads=1 for now, since recreate DB and could cause issue when concurrent.
-cargo test -- --test-threads=1
-```
 
 ## Generate new key
 

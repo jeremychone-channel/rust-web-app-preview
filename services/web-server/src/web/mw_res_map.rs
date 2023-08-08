@@ -1,5 +1,5 @@
-use crate::ctx::Ctx;
 use crate::log::log_request;
+use crate::web::mw_auth::CtxW;
 use crate::web::rpc::RpcInfo;
 use crate::web::{self, ReqStamp};
 use axum::http::{Method, Uri};
@@ -9,7 +9,7 @@ use serde_json::{json, to_value};
 use tracing::{debug, error};
 
 pub async fn mw_response_map(
-	ctx: Option<Ctx>,
+	ctx: Option<CtxW>,
 	http_method: Method,
 	uri: Uri,
 	req_stamp: ReqStamp,
@@ -55,6 +55,7 @@ pub async fn mw_response_map(
 
 	// -- Build and log the server log line.
 	let client_error = client_status_error.unzip().1;
+	let ctx = ctx.map(|c| c.0);
 	if let Err(log_err) = log_request(
 		http_method,
 		uri,

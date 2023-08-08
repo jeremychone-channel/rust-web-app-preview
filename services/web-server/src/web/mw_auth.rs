@@ -1,7 +1,3 @@
-use crate::crypt::token::{validate_web_token, Token};
-use crate::ctx::Ctx;
-use crate::model::user::{UserBmc, UserForAuth};
-use crate::model::ModelManager;
 use crate::web::set_token_cookie;
 use crate::web::AUTH_TOKEN;
 use crate::web::{Error, Result};
@@ -11,12 +7,16 @@ use axum::http::request::Parts;
 use axum::http::Request;
 use axum::middleware::Next;
 use axum::response::Response;
+use lib_core::crypt::token::{validate_web_token, Token};
+use lib_ctx::Ctx;
+use lib_model::user::{UserBmc, UserForAuth};
+use lib_model::ModelManager;
 use serde::Serialize;
 use tower_cookies::{Cookie, Cookies};
 use tracing::debug;
 
 pub async fn mw_ctx_require<B>(
-	ctx: Result<Ctx>,
+	ctx: Result<CtxW>,
 	req: Request<B>,
 	next: Next<B>,
 ) -> Result<Response> {
@@ -76,12 +76,19 @@ async fn _ctx_resolve(mm: State<ModelManager>, cookies: &Cookies) -> CtxExtResul
 		.map_err(|_| CtxExtError::CannotSetTokenCookie)?;
 
 	// -- Create CtxExtResult
-	Ctx::new(user.id).map_err(|ex| CtxExtError::CtxCreateFail(ex.to_string()))
+	Ctx::new(user.id)
+		.map(CtxW)
+		.map_err(|ex| CtxExtError::CtxCreateFail(ex.to_string()))
 }
 
 // region:    --- Ctx Extractor
+/// Wrapper type for Ctx.
+/// Note: New type pattern since Ctx is a workspace crate.
+#[derive(Debug, Clone)]
+pub struct CtxW(pub Ctx);
+
 #[async_trait]
-impl<S: Send + Sync> FromRequestParts<S> for Ctx {
+impl<S: Send + Sync> FromRequestParts<S> for CtxW {
 	type Rejection = Error;
 
 	async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self> {
@@ -98,7 +105,7 @@ impl<S: Send + Sync> FromRequestParts<S> for Ctx {
 // endregion: --- Ctx Extractor
 
 // region:    --- Ctx Extractor Result/Error
-type CtxExtResult = core::result::Result<Ctx, CtxExtError>;
+type CtxExtResult = core::result::Result<CtxW, CtxExtError>;
 
 #[derive(Clone, Serialize, Debug)]
 pub enum CtxExtError {

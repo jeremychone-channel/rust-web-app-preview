@@ -1,10 +1,10 @@
-use crate::ctx::Ctx;
-use crate::model::user::{User, UserBmc};
-use crate::model::ModelManager;
+use crate::user::{User, UserBmc};
+use crate::ModelManager;
+use lib_ctx::Ctx;
 use sqlx::postgres::PgPoolOptions;
 use sqlx::{Pool, Postgres};
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::time::Duration;
 use tracing::info;
 
@@ -15,7 +15,7 @@ const PG_DEV_POSTGRES_URL: &str = "postgres://postgres:welcome@localhost/postgre
 const PG_DEV_APP_URL: &str = "postgres://app_user:dev_only_pwd@localhost/app_db";
 
 // sql files
-const SQL_RECREATE_DB: &str = "sql/dev_initial/00-recreate-db.sql";
+const SQL_RECREATE_DB_FILE_NAME: &str = "00-recreate-db.sql";
 const SQL_DIR: &str = "sql/dev_initial";
 
 const DEMO_PWD: &str = "welcome";
@@ -23,28 +23,41 @@ const DEMO_PWD: &str = "welcome";
 pub async fn init_dev_db() -> Result<(), Box<dyn std::error::Error>> {
 	info!("{:<12} - init_dev_db()", "FOR-DEV-ONLY");
 
+	// -- Get the base_dir
+	// Note: This is because cargo test and cargo run won't give the same
+	//       current_dir given the worspace layout.
+	let current_dir = std::env::current_dir().unwrap();
+	let v: Vec<_> = current_dir.components().collect();
+	let path_comp = v.get(v.len().wrapping_sub(1));
+	let base_dir = if Some(true) == path_comp.map(|c| c.as_os_str() == "model") {
+		v[..v.len() - 2].iter().collect::<PathBuf>()
+	} else {
+		current_dir.clone()
+	};
+	let sql_dir = base_dir.join(SQL_DIR);
+
 	// -- Create the app_db/app_user with posgres user.
 	{
+		let sql_recreate_db_file = sql_dir.join(SQL_RECREATE_DB_FILE_NAME);
 		let root_db = new_db_pool(PG_DEV_POSTGRES_URL).await?;
-		pexec(&root_db, SQL_RECREATE_DB).await?;
+		pexec(&root_db, &sql_recreate_db_file).await?;
 	}
 
 	// -- Get sql files.
-	let mut paths: Vec<PathBuf> = fs::read_dir(SQL_DIR)?
+	let mut paths: Vec<PathBuf> = fs::read_dir(sql_dir)?
 		.filter_map(|e| e.ok().map(|e| e.path()))
 		.collect();
 	paths.sort();
-
 	// -- SQL Execute each file.
 	let app_db = new_db_pool(PG_DEV_APP_URL).await?;
-	for path in paths {
-		if let Some(path) = path.to_str() {
-			let path = path.replace('\\', "/"); // for Windows.
 
-			// Only take .sql and skip the SQL_RECREATE
-			if path.ends_with(".sql") && path != SQL_RECREATE_DB {
-				pexec(&app_db, &path).await?;
-			}
+	for path in paths {
+		let path_str = path.to_string_lossy();
+		// Only take .sql and skip the SQL_RECREATE
+		if path_str.ends_with(".sql")
+			&& !path_str.ends_with(SQL_RECREATE_DB_FILE_NAME)
+		{
+			pexec(&app_db, &path).await?;
 		}
 	}
 
@@ -62,8 +75,8 @@ pub async fn init_dev_db() -> Result<(), Box<dyn std::error::Error>> {
 	Ok(())
 }
 
-async fn pexec(db: &Db, file: &str) -> Result<(), sqlx::Error> {
-	info!("{:<12} - pexec: {file}", "FOR-DEV-ONLY");
+async fn pexec(db: &Db, file: &Path) -> Result<(), sqlx::Error> {
+	info!("{:<12} - pexec: {file:?}", "FOR-DEV-ONLY");
 
 	// -- Read the file.
 	let content = fs::read_to_string(file)?;
@@ -97,7 +110,6 @@ async fn pexec(db: &Db, file: &str) -> Result<(), sqlx::Error> {
 			sqlx::query(sql).execute(db).await?;
 		}
 	}
-
 	Ok(())
 }
 
