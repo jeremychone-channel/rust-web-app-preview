@@ -1,14 +1,14 @@
 [workspace]
 members = [
     # -- Tools
-    "tools/gen_key",
+    "crates/tools/gen_key",
 
     # -- Application Libraries
-    "libs/core",
-    "libs/model",
+    "crates/libs/core",
+    "crates/libs/model",
 
     # -- Application Services
-    "services/web-server"
+    "crates/services/web-server"
 ]
 # default-members to allow simple `cargo run`
-default-members = ["services/web-server"]
+default-members = ["crates/services/web-server"]
