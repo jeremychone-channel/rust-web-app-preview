@@ -44,10 +44,10 @@ cargo test -- --test-threads=1
 
 ```sh
 # Terminal 1 - For server run.
-cargo watch -q -c -w src/ -w .cargo/ -x "run"
+cargo watch -q -c -w crates/services/web-server/src -w .cargo/ -x "run"
 
 # Terminal 2 - For quick dev.
-cargo watch -q -c -w examples/ -x "run -p web-server --example quick_dev"
+cargo watch -q -c -w crates/services/web-server/examples -x "run -p web-server --example quick_dev"
 ```
 
 Unit test HOT-RELOAD
