@@ -4,11 +4,12 @@ members = [
     "crates/tools/gen_key",
 
     # -- Application Libraries
-    "crates/libs/base",
-    "crates/libs/model",
+    "crates/libs/base", # e.g., config, time, encoding, utilities.
+    "crates/libs/core", # e.g., model/store, ctx, pwd/token, events.
 
     # -- Application Services
     "crates/services/web-server"
 ]
-# default-members to allow simple `cargo run`
-default-members = ["crates/services/web-server"]
+
+# default-members to allow simple `cargo run` (but then needs to specify for test)
+# default-members = ["crates/services/web-server"]

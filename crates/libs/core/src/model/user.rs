@@ -1,8 +1,8 @@
-use crate::base::{self, DbBmc};
-use crate::{Error, ModelManager, Result};
-use lib_base::crypt::pwd::{self};
-use lib_base::crypt::EncryptContent;
-use lib_ctx::Ctx;
+use crate::crypt::pwd::{self};
+use crate::crypt::EncryptContent;
+use crate::ctx::Ctx;
+use crate::model::base::{self, DbBmc};
+use crate::model::{Error, ModelManager, Result};
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use sqlb::{Fields, HasFields};
@@ -168,8 +168,8 @@ impl UserBmc {
 mod tests {
 	use super::*;
 	use crate::_dev_utils;
+	use crate::crypt::pwd::validate_pwd;
 	use anyhow::{Context, Result};
-	use lib_base::crypt::pwd::validate_pwd;
 	use serial_test::serial;
 
 	#[serial]

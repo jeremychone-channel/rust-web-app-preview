@@ -1,4 +1,4 @@
-use lib_base::crypt;
+use lib_core::{crypt, model};
 
 pub type Result<T> = core::result::Result<T, Error>;
 
@@ -10,7 +10,7 @@ pub enum Error {
 
 	// -- Modules
 	Crypt(crypt::Error),
-	Model(lib_model::Error),
+	Model(model::Error),
 }
 // region:    --- Froms
 impl From<crypt::Error> for Error {
@@ -19,8 +19,8 @@ impl From<crypt::Error> for Error {
 	}
 }
 
-impl From<lib_model::Error> for Error {
-	fn from(val: lib_model::Error) -> Self {
+impl From<model::Error> for Error {
+	fn from(val: model::Error) -> Self {
 		Error::Model(val)
 	}
 }

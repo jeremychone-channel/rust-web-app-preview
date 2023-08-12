@@ -6,7 +6,7 @@ YouTube Full Course: _coming soon_
 
 MIT OR Apache, all free to use. 
 
-This is a multi-crate rust application with the following structure. 
+This is a multi-crate Rust Web application with the following structure. 
 
 - `crates/libs` - These are the library crates utilized by the service crates.
 	- `base` - Contains essential utilities frequently used throughout the codebase, including modules like **config**, **time**, **encoding**, and other common utilities.
@@ -14,7 +14,8 @@ This is a multi-crate rust application with the following structure.
 		- **model** layer, accountable for all data structuring and logic.
 		- **crypt** layer, handling encryption, **passwords**, and **token** validation.
 		- **ctx** layer, an integral part of the **model** layer and a precursor to the future **event** layer.
-- `crates/services` - Represents the application services. For **rust-web-app**, being a singular web application, there's just one service: **web-server**.
+- `crates/services` - Represents the application services. For **rust-web-app**, being a singular web application, there's just one service: 
+	- `web-server` - The Web server servicing the Web APIs and static files.
 - `crates/tools` - Comprises development tool crates, typically used as binary executables (e.g., executing `cargo run -b gen_query`).
 
 ## Starting the DB
@@ -36,8 +37,7 @@ ALTER DATABASE postgres SET log_statement = 'all';
 
 ```sh
 # Terminal 1 - For web-server run.
-cargo run
-# or `cargo run -p web-server`
+cargo run -p web-server
 
 # Terminal 2 - For quick dev (part of web-server/examples for now).
 cargo run -p web-server --example quick_dev
@@ -46,22 +46,22 @@ cargo run -p web-server --example quick_dev
 or unit tests
 
 ```sh
-# threads=1 for now, since recreate DB and could cause issue when concurrent.
-cargo test -- --test-threads=1
+# threads=1 for now
+cargo test 
 ```
 
 
-## Dev (HOT-RELOAD)
+## Dev (LIVE-RELOAD)
 
 ```sh
 # Terminal 1 - For server run.
-cargo watch -q -c -w crates/services/web-server/src -w .cargo/ -x "run"
+cargo watch -q -c -w crates/services/web-server/src -w .cargo/ -x "run -p web-server"
 
 # Terminal 2 - For quick dev.
 cargo watch -q -c -w crates/services/web-server/examples -x "run -p web-server --example quick_dev"
 ```
 
-Unit test HOT-RELOAD
+Unit test LIVE-RELOAD
 
 ```sh
 cargo watch -q -c -x "test -- --nocapture"

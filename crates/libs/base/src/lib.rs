@@ -1,5 +1,4 @@
 mod config;
-pub mod crypt;
 mod error;
 pub mod utils;
 

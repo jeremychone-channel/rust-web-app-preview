@@ -1,12 +1,11 @@
 [package]
-name = "lib_model"
+name = "lib_core"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
 tokio = { version = "1", features = ["full"] }
 # -- App Crates
-lib_ctx = { path = "../../libs/ctx"}
 lib_base = { path = "../../libs/base"}
 # -- Serde
 serde = { version = "1", features = ["derive"] }
@@ -17,12 +16,16 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 # -- Encoding
 base64="0.21"
+rand = "0.8"
+hmac = "0.12"
+sha2 = "0.10"
 # -- Data
 sqlx = { version = "0.6", features = [ "runtime-tokio-rustls", "postgres", "uuid", "time" ] }
 sqlb = "0.3" # Optional
 # -- Others
 uuid = {version = "1", features = ["v4", "fast-rng"]}
 time = "0.3"
+lazy-regex = "3"
 
 [dev-dependencies]
 anyhow = "1"

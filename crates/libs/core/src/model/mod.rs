@@ -21,9 +21,6 @@ mod store;
 pub mod task;
 pub mod user;
 
-// #[cfg(test)] // Commented during early development.
-pub mod _dev_utils;
-
 pub use self::error::{Error, Result};
 
 use store::{new_db_pool, Db};

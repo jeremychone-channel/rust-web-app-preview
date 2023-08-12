@@ -1,6 +1,6 @@
-use crate::user::{User, UserBmc};
-use crate::ModelManager;
-use lib_ctx::Ctx;
+use crate::ctx::Ctx;
+use crate::model::user::{User, UserBmc};
+use crate::model::ModelManager;
 use sqlx::postgres::PgPoolOptions;
 use sqlx::{Pool, Postgres};
 use std::fs;
@@ -28,9 +28,9 @@ pub async fn init_dev_db() -> Result<(), Box<dyn std::error::Error>> {
 	//       current_dir given the worspace layout.
 	let current_dir = std::env::current_dir().unwrap();
 	let v: Vec<_> = current_dir.components().collect();
-	let path_comp = v.get(v.len().wrapping_sub(1));
-	let base_dir = if Some(true) == path_comp.map(|c| c.as_os_str() == "model") {
-		v[..v.len() - 2].iter().collect::<PathBuf>()
+	let path_comp = v.get(v.len().wrapping_sub(3));
+	let base_dir = if Some(true) == path_comp.map(|c| c.as_os_str() == "crates") {
+		v[..v.len() - 3].iter().collect::<PathBuf>()
 	} else {
 		current_dir.clone()
 	};

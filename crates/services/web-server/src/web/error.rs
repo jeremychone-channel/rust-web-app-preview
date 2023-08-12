@@ -1,7 +1,7 @@
 use crate::web;
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
-use lib_base::crypt;
+use lib_core::{crypt, model};
 use serde::Serialize;
 use tracing::debug;
 
@@ -27,7 +27,7 @@ pub enum Error {
 	CtxExt(web::mw_auth::CtxExtError),
 
 	// -- Modules
-	Model(lib_model::Error),
+	Model(model::Error),
 	Crypt(crypt::Error),
 
 	// -- External Modules
@@ -35,8 +35,8 @@ pub enum Error {
 }
 
 // region:    --- Error Froms
-impl From<lib_model::Error> for Error {
-	fn from(val: lib_model::Error) -> Self {
+impl From<model::Error> for Error {
+	fn from(val: model::Error) -> Self {
 		Error::Model(val)
 	}
 }
@@ -100,11 +100,11 @@ impl Error {
 			CtxExt(_) => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
 
 			// -- Model
-			Model(lib_model::Error::EntityNotFound { entity, id }) => (
+			Model(model::Error::EntityNotFound { entity, id }) => (
 				StatusCode::BAD_REQUEST,
 				ClientError::ENTITY_NOT_FOUND { entity, id: *id },
 			),
-			Model(lib_model::Error::UserAlreadyExists { .. }) => {
+			Model(model::Error::UserAlreadyExists { .. }) => {
 				(StatusCode::BAD_REQUEST, ClientError::USER_ALREADY_EXISTS)
 			}
 
