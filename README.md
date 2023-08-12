@@ -6,6 +6,17 @@ YouTube Full Course: _coming soon_
 
 MIT OR Apache, all free to use. 
 
+This is a multi-crate rust application with the following structure. 
+
+- `crates/libs` - These are the library crates utilized by the service crates.
+	- `base` - Contains essential utilities frequently used throughout the codebase, including modules like **config**, **time**, **encoding**, and other common utilities.
+	- `core` - The core logic library employed by most or all application services. Key modules encompass: 
+		- **model** layer, accountable for all data structuring and logic.
+		- **crypt** layer, handling encryption, **passwords**, and **token** validation.
+		- **ctx** layer, an integral part of the **model** layer and a precursor to the future **event** layer.
+- `crates/services` - Represents the application services. For **rust-web-app**, being a singular web application, there's just one service: **web-server**.
+- `crates/tools` - Comprises development tool crates, typically used as binary executables (e.g., executing `cargo run -b gen_query`).
+
 ## Starting the DB
 
 ```sh

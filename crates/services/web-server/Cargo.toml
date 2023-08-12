@@ -9,7 +9,7 @@ description = "AwesomeApp Rust Web App Preview."
 [dependencies]
 tokio = { version = "1", features = ["full"] }
 # -- App Crates
-lib_core = { path = "../../libs/core"}
+lib_base = { path = "../../libs/base"}
 lib_model = { path = "../../libs/model"}
 lib_ctx = { path = "../../libs/ctx"}
 # -- Tracing

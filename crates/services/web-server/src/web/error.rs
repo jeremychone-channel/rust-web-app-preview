@@ -1,7 +1,7 @@
 use crate::web;
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
-use lib_core::crypt;
+use lib_base::crypt;
 use serde::Serialize;
 use tracing::debug;
 

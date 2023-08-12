@@ -1,4 +1,4 @@
-use lib_core::crypt;
+use lib_base::crypt;
 
 pub type Result<T> = core::result::Result<T, Error>;
 

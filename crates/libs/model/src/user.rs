@@ -1,7 +1,7 @@
 use crate::base::{self, DbBmc};
 use crate::{Error, ModelManager, Result};
-use lib_core::crypt::pwd::{self};
-use lib_core::crypt::EncryptContent;
+use lib_base::crypt::pwd::{self};
+use lib_base::crypt::EncryptContent;
 use lib_ctx::Ctx;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
@@ -169,7 +169,7 @@ mod tests {
 	use super::*;
 	use crate::_dev_utils;
 	use anyhow::{Context, Result};
-	use lib_core::crypt::pwd::validate_pwd;
+	use lib_base::crypt::pwd::validate_pwd;
 	use serial_test::serial;
 
 	#[serial]

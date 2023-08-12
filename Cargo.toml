@@ -4,7 +4,7 @@ members = [
     "crates/tools/gen_key",
 
     # -- Application Libraries
-    "crates/libs/core",
+    "crates/libs/base",
     "crates/libs/model",
 
     # -- Application Services

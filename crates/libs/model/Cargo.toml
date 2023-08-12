@@ -7,7 +7,7 @@ edition = "2021"
 tokio = { version = "1", features = ["full"] }
 # -- App Crates
 lib_ctx = { path = "../../libs/ctx"}
-lib_core = { path = "../../libs/core"}
+lib_base = { path = "../../libs/base"}
 # -- Serde
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"

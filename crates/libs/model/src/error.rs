@@ -1,5 +1,5 @@
 use crate::store;
-use lib_core::crypt;
+use lib_base::crypt;
 use serde::Serialize;
 use serde_with::{serde_as, DisplayFromStr};
 pub type Result<T> = core::result::Result<T, Error>;

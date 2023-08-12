@@ -7,7 +7,7 @@ use axum::http::request::Parts;
 use axum::http::Request;
 use axum::middleware::Next;
 use axum::response::Response;
-use lib_core::crypt::token::{validate_web_token, Token};
+use lib_base::crypt::token::{validate_web_token, Token};
 use lib_ctx::Ctx;
 use lib_model::user::{UserBmc, UserForAuth};
 use lib_model::ModelManager;

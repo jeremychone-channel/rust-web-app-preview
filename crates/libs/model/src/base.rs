@@ -2,7 +2,7 @@
 //! For now, focuses on the "Db Bmcs."
 
 use crate::{Error, ModelManager, Result};
-use lib_core::utils::now_utc;
+use lib_base::utils::now_utc;
 use lib_ctx::Ctx;
 use sqlb::HasFields;
 use sqlx::postgres::PgRow;

@@ -4,7 +4,7 @@ mod error;
 
 pub use self::error::{Error, Result};
 
-use lib_core::config;
+use lib_base::config;
 use sqlx::postgres::PgPoolOptions;
 use sqlx::{Pool, Postgres};
 
