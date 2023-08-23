@@ -13,16 +13,6 @@ pub enum Error {
 	PwdNotMatching,
 	SchemeUnknown(String),
 	SchemeNotFoundInContent,
-
-	// -- Token
-	TokenInvalidFormat,
-	TokenCannotDecodeIdent,
-	TokenCannotDecodeExp,
-	TokenSignatureNotMatching,
-	TokenExpNotIso,
-	TokenExpired,
-	TokenCannotDecodeSign,
-	TokenUserNotMatching,
 }
 
 // region:    --- Error Boiler

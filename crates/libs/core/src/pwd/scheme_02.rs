@@ -1,26 +1,22 @@
-// region:    --- Modules
-
-mod error;
-pub mod pwd;
-// pub mod token;
-
-pub use self::error::{Error, Result};
-
+use crate::config;
+use crate::pwd::{EncryptContent, Scheme};
+use crate::pwd::{Error, Result};
 use hmac::{Hmac, Mac};
-use lib_utils::b64::b64u_encode_bytes;
+use lib_base::b64::b64u_encode_bytes;
 use sha2::Sha512;
 
-// endregion: --- Modules
+pub struct Scheme02;
 
-pub struct EncryptContent {
-	pub content: String, // Clear content.
-	pub salt: String,    // Clear salt.
+impl Scheme for Scheme02 {
+	const NAME: &'static str = "02";
+
+	fn encrypt(enc_content: &EncryptContent) -> Result<String> {
+		let key = &config().PWD_KEY;
+		_encrypt(key, enc_content)
+	}
 }
 
-pub fn encrypt_into_b64u(
-	key: &[u8],
-	enc_content: &EncryptContent,
-) -> Result<String> {
+fn _encrypt(key: &[u8], enc_content: &EncryptContent) -> Result<String> {
 	let EncryptContent { content, salt } = enc_content;
 
 	// -- Create a HMAC-SHA-512 from key.
@@ -57,10 +53,10 @@ mod tests {
 			salt: "some pepper".to_string(),
 		};
 		// TODO: Need to fix fx_key, and precompute fx_res.
-		let fx_res = encrypt_into_b64u(&fx_key, &fx_enc_content)?;
+		let fx_res = _encrypt(&fx_key, &fx_enc_content)?;
 
 		// -- Exec
-		let res = encrypt_into_b64u(&fx_key, &fx_enc_content)?;
+		let res = _encrypt(&fx_key, &fx_enc_content)?;
 
 		// -- Check
 		assert_eq!(res, fx_res);

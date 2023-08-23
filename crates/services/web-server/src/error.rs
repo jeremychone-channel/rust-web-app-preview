@@ -1,4 +1,4 @@
-use lib_core::{crypt, model};
+use lib_core::{model, pwd};
 
 pub type Result<T> = core::result::Result<T, Error>;
 
@@ -9,13 +9,13 @@ pub enum Error {
 	ConfigWrongFormat(&'static str),
 
 	// -- Modules
-	Crypt(crypt::Error),
+	Crypt(pwd::Error),
 	Model(model::Error),
 }
 
 // region:    --- Froms
-impl From<crypt::Error> for Error {
-	fn from(val: crypt::Error) -> Self {
+impl From<pwd::Error> for Error {
+	fn from(val: pwd::Error) -> Self {
 		Error::Crypt(val)
 	}
 }

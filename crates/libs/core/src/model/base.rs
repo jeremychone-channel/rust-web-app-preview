@@ -3,7 +3,7 @@
 
 use crate::ctx::Ctx;
 use crate::model::{Error, ModelManager, Result};
-use lib_utils::time::now_utc;
+use lib_base::time::now_utc;
 use sqlb::HasFields;
 use sqlx::postgres::PgRow;
 use sqlx::FromRow;

@@ -9,4 +9,4 @@ base64="0.21"
 rand = "0.8"
 anyhow = "1"
 # -- App Crates
-lib_utils = { path = "../../libs/utils"}
+lib_base = { path = "../../libs/base"}

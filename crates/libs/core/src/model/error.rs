@@ -1,5 +1,5 @@
-use crate::crypt;
 use crate::model::store;
+use crate::pwd;
 use serde::Serialize;
 use serde_with::{serde_as, DisplayFromStr};
 pub type Result<T> = core::result::Result<T, Error>;
@@ -11,7 +11,7 @@ pub enum Error {
 	UserAlreadyExists { username: String },
 
 	// -- Modules
-	Crypt(crypt::Error),
+	Crypt(pwd::Error),
 	Store(store::Error),
 
 	// -- Externals
@@ -25,8 +25,8 @@ impl From<store::Error> for Error {
 	}
 }
 
-impl From<crypt::Error> for Error {
-	fn from(val: crypt::Error) -> Self {
+impl From<pwd::Error> for Error {
+	fn from(val: pwd::Error) -> Self {
 		Error::Crypt(val)
 	}
 }

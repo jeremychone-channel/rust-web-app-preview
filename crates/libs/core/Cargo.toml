@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 tokio = { version = "1", features = ["full"] }
 # -- App Crates
-lib_utils = { path = "../../libs/utils"}
+lib_base = { path = "../../libs/base"}
 
 # -- Serde
 serde = { version = "1", features = ["derive"] }

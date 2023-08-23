@@ -1,4 +1,4 @@
-use lib_utils::env::{self, get_env, get_env_b64u_as_u8s, get_env_parse};
+use lib_base::env::{self, get_env, get_env_b64u_as_u8s, get_env_parse};
 use std::sync::OnceLock;
 
 pub fn config() -> &'static Config {

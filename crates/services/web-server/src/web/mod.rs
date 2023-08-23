@@ -7,11 +7,12 @@ pub mod mw_res_map;
 pub mod routes_login;
 pub mod routes_static;
 pub mod rpc;
+mod web_token;
 
 pub use self::error::ClientError;
 pub use self::error::{Error, Result};
 
-use crate::crypt::generate_web_token;
+use crate::web::web_token::generate_web_token;
 use time::OffsetDateTime;
 use tower_cookies::{Cookie, Cookies};
 use uuid::Uuid;

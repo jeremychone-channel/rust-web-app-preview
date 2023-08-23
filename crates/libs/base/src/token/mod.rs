@@ -1,3 +1,12 @@
+//! Design:
+//!
+//! - A `Token` serves as a reusable construct designed to sign a specific identifier with an associated expiration date.
+//! - The string format of a token follows the pattern: `identifier_b64u.expiration_rfc3339_b64u.signature_b64u`.
+//! - Each segment is encoded using base64 URL encoding to ensure maximum portability.
+//! - Tokens can be used for various purposes such as Web tokens, password reset tokens, signed URLs, or any other application that requires a string identifier with an expiration.
+//! - This Token implementation is utilized in `services/web-server/src/web/web_token.rs`.
+//! - Currently, the token employs a singular encryption scheme, which is typically sufficient. However, if necessary, it can be expanded to support multiple schemes (refer to `core/pwd/` for an example of a multi-scheme pattern).
+
 // region:    --- Modules
 
 mod error;
@@ -62,7 +71,7 @@ impl Display for Token {
 
 // endregion: --- Token
 
-// region:    --- Sign & Validation
+// region:    --- Generate, Sign, Validate
 
 /// Generate a new token given the identifier, duration_sec (for computing new expiration),
 /// and salt and key.
@@ -137,13 +146,21 @@ pub fn sign_token_into_b64u(
 	Ok(result)
 }
 
-// endregion: --- Sign & Validation
+// endregion: --- Generate, Sign, Validate
 
 // region:    --- Tests
 #[cfg(test)]
 mod tests {
 	use super::*;
+	use crate::b64::b64u_decode;
 	use anyhow::Result;
+	use std::thread;
+	use std::time::Duration;
+
+	const TEST_KEY: &str = "3lXyiZQyDRJRiGDA5u5oN8fXCfKkymqQNWwQ_0VbmPoSp7c6kHcfizI5LhTdcl5-zWwgdUEbHaed5h__TBI5ug";
+	fn get_fx_key() -> Vec<u8> {
+		b64u_decode(TEST_KEY).unwrap()
+	}
 
 	#[test]
 	fn test_token_display_ok() -> Result<()> {
@@ -178,6 +195,47 @@ mod tests {
 
 		// -- Check
 		assert_eq!(format!("{token:?}"), format!("{fx_token:?}"));
+
+		Ok(())
+	}
+
+	#[test]
+	fn test_validate_exp_ok() -> Result<()> {
+		// -- Setup & Fixtures
+		let fx_user = "user_one";
+		let fx_salt = "pepper";
+		let fx_duration_sec = 0.02; // 20ms
+		let fx_key = get_fx_key();
+		let fx_token = generate_token(fx_user, fx_duration_sec, fx_salt, &fx_key)?;
+
+		// -- Exec
+		thread::sleep(Duration::from_millis(10));
+		let res = validate_token(&fx_token, fx_salt, &fx_key);
+
+		// -- Check
+		res?;
+
+		Ok(())
+	}
+
+	#[test]
+	fn test_validate_web_token_err_expired() -> Result<()> {
+		// -- Setup & Fixtures
+		let fx_user = "user_one";
+		let fx_salt = "pepper";
+		let fx_duration_sec = 0.01; // 10ms
+		let fx_key = get_fx_key();
+		let fx_token = generate_token(fx_user, fx_duration_sec, fx_salt, &fx_key)?;
+
+		// -- Exec
+		thread::sleep(Duration::from_millis(20));
+		let res = validate_token(&fx_token, fx_salt, &fx_key);
+
+		// -- Check
+		assert!(
+			matches!(res, Err(Error::TokenExpired)),
+			"Should have matched `Err(Error::TokenExpired)` but was `{res:?}`"
+		);
 
 		Ok(())
 	}

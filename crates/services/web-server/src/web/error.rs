@@ -1,8 +1,8 @@
 use crate::web;
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
-use lib_core::{crypt, model};
-use lib_utils::token;
+use lib_base::token;
+use lib_core::{model, pwd};
 use serde::Serialize;
 use tracing::debug;
 
@@ -29,7 +29,7 @@ pub enum Error {
 
 	// -- Modules
 	Model(model::Error),
-	Crypt(crypt::Error),
+	Crypt(pwd::Error),
 	Token(token::Error),
 
 	// -- External Modules
@@ -43,8 +43,8 @@ impl From<model::Error> for Error {
 	}
 }
 
-impl From<crypt::Error> for Error {
-	fn from(val: crypt::Error) -> Self {
+impl From<pwd::Error> for Error {
+	fn from(val: pwd::Error) -> Self {
 		Self::Crypt(val)
 	}
 }

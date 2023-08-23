@@ -2,7 +2,6 @@
 
 // region:    --- Modules
 
-mod crypt;
 mod error;
 mod log;
 mod web;
