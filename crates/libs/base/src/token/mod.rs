@@ -1,11 +1,16 @@
+//! `token` module.
+//!
 //! Design:
 //!
 //! - A `Token` serves as a reusable construct designed to sign a specific identifier with an associated expiration date.
 //! - The string format of a token follows the pattern: `identifier_b64u.expiration_rfc3339_b64u.signature_b64u`.
 //! - Each segment is encoded using base64 URL encoding to ensure maximum portability.
-//! - Tokens can be used for various purposes such as Web tokens, password reset tokens, signed URLs, or any other application that requires a string identifier with an expiration.
+//! - Tokens can be used for various purposes such as Web tokens, password reset tokens,
+//!   signed URLs, or any other application that requires a string identifier with an expiration.
 //! - This Token implementation is utilized in `services/web-server/src/web/web_token.rs`.
-//! - Currently, the token employs a singular encryption scheme, which is typically sufficient. However, if necessary, it can be expanded to support multiple schemes (refer to `core/pwd/` for an example of a multi-scheme pattern).
+//! - Currently, the token employs a singular encryption scheme, which is typically sufficient.
+//!   However, if necessary, it can be expanded to support multiple schemes (refer to `core/pwd/` for an example of a multi-scheme pattern).
+//!
 
 // region:    --- Modules
 
