@@ -2,6 +2,7 @@ use crate::web;
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use lib_core::{crypt, model};
+use lib_utils::token;
 use serde::Serialize;
 use tracing::debug;
 
@@ -29,6 +30,7 @@ pub enum Error {
 	// -- Modules
 	Model(model::Error),
 	Crypt(crypt::Error),
+	Token(token::Error),
 
 	// -- External Modules
 	SerdeJson(String),
@@ -47,11 +49,18 @@ impl From<crypt::Error> for Error {
 	}
 }
 
+impl From<token::Error> for Error {
+	fn from(val: token::Error) -> Self {
+		Self::Token(val)
+	}
+}
+
 impl From<serde_json::Error> for Error {
 	fn from(val: serde_json::Error) -> Self {
 		Error::SerdeJson(val.to_string())
 	}
 }
+
 // endregion: --- Error Froms
 
 // region:    --- Axum IntoResponse

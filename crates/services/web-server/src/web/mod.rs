@@ -11,7 +11,7 @@ pub mod rpc;
 pub use self::error::ClientError;
 pub use self::error::{Error, Result};
 
-use lib_core::crypt::token::generate_web_token;
+use crate::crypt::generate_web_token;
 use time::OffsetDateTime;
 use tower_cookies::{Cookie, Cookies};
 use uuid::Uuid;

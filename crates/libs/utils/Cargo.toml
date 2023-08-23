@@ -1,15 +1,20 @@
 [package]
-name = "lib_base"
+name = "lib_utils"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-# -- Encoding
-base64="0.21"
 # -- Serde
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 serde_with = {version = "3", features = ["time_0_3"]}
+
+# -- Encoding & Crypt
+rand = "0.8"
+base64="0.21"
+hmac = "0.12"
+sha2 = "0.10"
+
 # -- Others
 time = "0.3"
 

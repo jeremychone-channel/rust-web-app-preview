@@ -2,12 +2,12 @@
 
 mod error;
 pub mod pwd;
-pub mod token;
+// pub mod token;
 
 pub use self::error::{Error, Result};
 
-use base64::{engine::general_purpose, Engine as _};
 use hmac::{Hmac, Mac};
+use lib_utils::b64::b64u_encode_bytes;
 use sha2::Sha512;
 
 // endregion: --- Modules
@@ -35,7 +35,7 @@ pub fn encrypt_into_b64u(
 	let hmac_result = hmac_sha512.finalize();
 	let result_bytes = hmac_result.into_bytes();
 
-	let result = general_purpose::URL_SAFE_NO_PAD.encode(result_bytes);
+	let result = b64u_encode_bytes(&result_bytes);
 
 	Ok(result)
 }

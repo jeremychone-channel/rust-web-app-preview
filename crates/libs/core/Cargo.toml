@@ -6,26 +6,32 @@ edition = "2021"
 [dependencies]
 tokio = { version = "1", features = ["full"] }
 # -- App Crates
-lib_base = { path = "../../libs/base"}
+lib_utils = { path = "../../libs/utils"}
+
 # -- Serde
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 serde_with = {version = "3", features = ["time_0_3"]}
+
 # -- Tracing
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-# -- Encoding
+
+# -- Encoding & Crypt
 base64="0.21"
 rand = "0.8"
 hmac = "0.12"
 sha2 = "0.10"
+
 # -- Data
 sqlx = { version = "0.6", features = [ "runtime-tokio-rustls", "postgres", "uuid", "time" ] }
 sqlb = "0.3" # Optional
+
 # -- Others
 uuid = {version = "1", features = ["v4", "fast-rng"]}
 time = "0.3"
 lazy-regex = "3"
+
 
 [dev-dependencies]
 anyhow = "1"

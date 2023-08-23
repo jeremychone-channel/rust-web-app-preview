@@ -2,12 +2,13 @@
 
 // region:    --- Modules
 
+mod crypt;
 mod error;
 mod log;
 mod web;
 
 pub use self::error::{Error, Result};
-pub use lib_base::config;
+pub use lib_core::config;
 
 use crate::web::mw_auth::{mw_ctx_require, mw_ctx_resolve};
 use crate::web::mw_req_stamp::mw_req_stamp;

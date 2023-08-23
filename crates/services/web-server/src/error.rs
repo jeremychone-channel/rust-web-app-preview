@@ -12,6 +12,7 @@ pub enum Error {
 	Crypt(crypt::Error),
 	Model(model::Error),
 }
+
 // region:    --- Froms
 impl From<crypt::Error> for Error {
 	fn from(val: crypt::Error) -> Self {

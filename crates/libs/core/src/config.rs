@@ -1,7 +1,4 @@
-use crate::{Error, Result};
-use base64::{engine::general_purpose, Engine as _};
-use std::env;
-use std::str::FromStr;
+use lib_utils::env::{self, get_env, get_env_b64u_as_u8s, get_env_parse};
 use std::sync::OnceLock;
 
 pub fn config() -> &'static Config {
@@ -47,17 +44,36 @@ impl Config {
 	}
 }
 
-fn get_env(name: &'static str) -> Result<String> {
-	env::var(name).map_err(|_| Error::ConfigMissingEnv(name))
+// region:    --- Error
+
+pub type Result<T> = core::result::Result<T, Error>;
+
+#[derive(Debug)]
+pub enum Error {
+	ConfigEnvFail(env::Error),
 }
 
-fn get_env_parse<T: FromStr>(name: &'static str) -> Result<T> {
-	let val = get_env(name)?;
-	val.parse::<T>().map_err(|_| Error::ConfigWrongFormat(name))
+// region:    --- Froms
+// FIXME: This assume that all env error will be a configEnvFail error.
+//        Would make sense if config::error only.
+impl From<env::Error> for Error {
+	fn from(val: env::Error) -> Self {
+		Self::ConfigEnvFail(val)
+	}
+}
+// endregion: --- Froms
+
+// region:    --- Error Boilerplate
+impl core::fmt::Display for Error {
+	fn fmt(
+		&self,
+		fmt: &mut core::fmt::Formatter,
+	) -> core::result::Result<(), core::fmt::Error> {
+		write!(fmt, "{self:?}")
+	}
 }
 
-fn get_env_b64u_as_u8s(name: &'static str) -> Result<Vec<u8>> {
-	general_purpose::URL_SAFE_NO_PAD
-		.decode(get_env(name)?)
-		.map_err(|_| Error::ConfigWrongFormat(name))
-}
+impl std::error::Error for Error {}
+// endregion: --- Error Boilerplate
+
+// endregion: --- Error

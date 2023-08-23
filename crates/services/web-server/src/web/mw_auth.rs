@@ -1,3 +1,4 @@
+use crate::crypt::validate_web_token;
 use crate::web::set_token_cookie;
 use crate::web::AUTH_TOKEN;
 use crate::web::{Error, Result};
@@ -7,10 +8,10 @@ use axum::http::request::Parts;
 use axum::http::Request;
 use axum::middleware::Next;
 use axum::response::Response;
-use lib_core::crypt::token::{validate_web_token, Token};
 use lib_core::ctx::Ctx;
 use lib_core::model::user::{UserBmc, UserForAuth};
 use lib_core::model::ModelManager;
+use lib_utils::token::Token;
 use serde::Serialize;
 use tower_cookies::{Cookie, Cookies};
 use tracing::debug;

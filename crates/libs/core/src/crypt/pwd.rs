@@ -1,7 +1,7 @@
 use super::{Error, Result};
+use crate::config;
 use crate::crypt::{encrypt_into_b64u, EncryptContent};
 use lazy_regex::regex_captures;
-use lib_base::config;
 
 pub const DEFAULT_SCHEME: &str = "02";
 

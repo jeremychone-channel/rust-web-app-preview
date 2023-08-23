@@ -4,11 +4,16 @@ pub type Result<T> = core::result::Result<T, Error>;
 
 #[derive(Debug, Serialize)]
 pub enum Error {
-	// -- Time
-	DateFailParse(String),
+	HmacFailNewFromSlice,
 
-	// -- Base64
-	FailToB64uDecode,
+	TokenInvalidFormat,
+	TokenCannotDecodeIdent,
+	TokenCannotDecodeExp,
+	TokenSignatureNotMatching,
+	TokenExpNotIso,
+	TokenExpired,
+	TokenCannotDecodeSign,
+	TokenUserNotMatching,
 }
 
 // region:    --- Error Boilerplate
