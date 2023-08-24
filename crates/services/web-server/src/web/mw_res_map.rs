@@ -23,7 +23,7 @@ pub async fn mw_response_map(
 	let web_error = res.extensions().get::<web::Error>();
 	let client_status_error = web_error.map(|se| se.client_status_and_error());
 
-	// -- If client error, build the new reponse.
+	// -- If client error, build the new response.
 	let error_response =
 		client_status_error
 			.as_ref()
