@@ -43,16 +43,16 @@ impl FromStr for Token {
 	fn from_str(token_str: &str) -> std::result::Result<Self, Self::Err> {
 		let splits: Vec<&str> = token_str.split('.').collect();
 		if splits.len() != 3 {
-			return Err(Error::TokenInvalidFormat);
+			return Err(Error::InvalidFormat);
 		}
 		let (ident_b64u, exp_b64u, sign_b64u) = (splits[0], splits[1], splits[2]);
 
 		Ok(Self {
 			ident: b64u_decode_into_string(ident_b64u)
-				.map_err(|_| Error::TokenCannotDecodeIdent)?,
+				.map_err(|_| Error::CannotDecodeIdent)?,
 
 			exp: b64u_decode_into_string(exp_b64u)
-				.map_err(|_| Error::TokenCannotDecodeExp)?,
+				.map_err(|_| Error::CannotDecodeExp)?,
 
 			sign_b64u: sign_b64u.to_string(),
 		})
@@ -105,16 +105,15 @@ pub fn validate_token(origin_token: &Token, salt: &str, key: &[u8]) -> Result<()
 		sign_token_into_b64u(&origin_token.ident, &origin_token.exp, salt, key)?;
 
 	if new_sign_b64u != origin_token.sign_b64u {
-		return Err(Error::TokenSignatureNotMatching);
+		return Err(Error::SignatureNotMatching);
 	}
 
 	// -- Validate expiration.
-	let origin_exp =
-		parse_utc(&origin_token.exp).map_err(|_| Error::TokenExpNotIso)?;
+	let origin_exp = parse_utc(&origin_token.exp).map_err(|_| Error::ExpNotIso)?;
 	let now = now_utc();
 
 	if origin_exp < now {
-		return Err(Error::TokenExpired);
+		return Err(Error::Expired);
 	}
 
 	Ok(())
@@ -238,7 +237,7 @@ mod tests {
 
 		// -- Check
 		assert!(
-			matches!(res, Err(Error::TokenExpired)),
+			matches!(res, Err(Error::Expired)),
 			"Should have matched `Err(Error::TokenExpired)` but was `{res:?}`"
 		);
 

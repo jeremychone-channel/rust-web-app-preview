@@ -6,14 +6,14 @@ pub type Result<T> = core::result::Result<T, Error>;
 pub enum Error {
 	HmacFailNewFromSlice,
 
-	TokenInvalidFormat,
-	TokenCannotDecodeIdent,
-	TokenCannotDecodeExp,
-	TokenSignatureNotMatching,
-	TokenExpNotIso,
-	TokenExpired,
-	TokenCannotDecodeSign,
-	TokenUserNotMatching,
+	InvalidFormat,
+	CannotDecodeIdent,
+	CannotDecodeExp,
+	SignatureNotMatching,
+	ExpNotIso,
+	Expired,
+	CannotDecodeSign,
+	UserNotMatching,
 }
 
 // region:    --- Error Boilerplate
