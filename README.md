@@ -9,14 +9,14 @@ MIT OR Apache, all free to use.
 This is a multi-crate Rust Web application with the following structure. 
 
 - `crates/libs` - These are the library crates utilized by the service crates.
-	- `base` - Contains essential utilities frequently used throughout the codebase, including modules like **config**, **time**, **encoding**, and other common utilities.
-	- `core` - The core logic library employed by most or all application services. Key modules encompass: 
-		- **model** layer, accountable for all data structuring and logic.
-		- **ctx** layer, an integral part of the **model** layer and a precursor to the future **event** layer.
-		- **pwd** layer, handling encryption, **passwords**, and **token** validation.
+	- `base` - Provides primitive utilities for other libraries and services. Should remain as minimalist as possible
+	- `core` - provides core functionalities for application services (e.g., Web Service and Job Service). Key sub-modules within this library include: 
+		- **model** layer, accountable for all data typing and access.
+		- **ctx** layer, responsible of holding the authenticated request context for authorization and tracability. 
+		- **event** layer will be responsible to provide the event infrastructure of the applicaction services.
 - `crates/services` - Represents the application services. For **rust-web-app**, being a singular web application, there's just one service: 
 	- `web-server` - The Web server servicing the Web APIs and static files.
-- `crates/tools` - Comprises development tool crates, typically used as binary executables (e.g., executing `cargo run -b gen_query`).
+- `crates/tools` - Comprises development tool crates, typically used as binary executables (e.g., executing `cargo run -b gen_key` to generate a new key that can be used for the application).
 
 ## Starting the DB
 
