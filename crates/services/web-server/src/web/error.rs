@@ -29,7 +29,7 @@ pub enum Error {
 
 	// -- Modules
 	Model(model::Error),
-	Crypt(pwd::Error),
+	Pwd(pwd::Error),
 	Token(token::Error),
 
 	// -- External Modules
@@ -45,7 +45,7 @@ impl From<model::Error> for Error {
 
 impl From<pwd::Error> for Error {
 	fn from(val: pwd::Error) -> Self {
-		Self::Crypt(val)
+		Self::Pwd(val)
 	}
 }
 

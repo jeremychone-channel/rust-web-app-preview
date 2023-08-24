@@ -12,8 +12,8 @@ This is a multi-crate Rust Web application with the following structure.
 	- `base` - Contains essential utilities frequently used throughout the codebase, including modules like **config**, **time**, **encoding**, and other common utilities.
 	- `core` - The core logic library employed by most or all application services. Key modules encompass: 
 		- **model** layer, accountable for all data structuring and logic.
-		- **crypt** layer, handling encryption, **passwords**, and **token** validation.
 		- **ctx** layer, an integral part of the **model** layer and a precursor to the future **event** layer.
+		- **pwd** layer, handling encryption, **passwords**, and **token** validation.
 - `crates/services` - Represents the application services. For **rust-web-app**, being a singular web application, there's just one service: 
 	- `web-server` - The Web server servicing the Web APIs and static files.
 - `crates/tools` - Comprises development tool crates, typically used as binary executables (e.g., executing `cargo run -b gen_query`).
