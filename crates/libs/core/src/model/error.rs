@@ -11,7 +11,7 @@ pub enum Error {
 	UserAlreadyExists { username: String },
 
 	// -- Modules
-	Crypt(pwd::Error),
+	Pwd(pwd::Error),
 	Store(store::Error),
 
 	// -- Externals
@@ -27,7 +27,7 @@ impl From<store::Error> for Error {
 
 impl From<pwd::Error> for Error {
 	fn from(val: pwd::Error) -> Self {
-		Error::Crypt(val)
+		Error::Pwd(val)
 	}
 }
 
