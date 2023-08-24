@@ -5,7 +5,7 @@ members = [
 
     # -- Application Libraries
     "crates/libs/base", # e.g., config, time, encoding, utilities.
-    "crates/libs/core", # e.g., model/store, ctx, pwd/token, events.
+    "crates/libs/core", # e.g., model/store, events (token/pwd).
 
     # -- Application Services
     "crates/services/web-server"
