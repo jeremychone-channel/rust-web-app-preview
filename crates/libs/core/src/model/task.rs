@@ -69,6 +69,10 @@ impl TaskBmc {
 		base::update::<Self, _>(ctx, mm, id, task_u).await
 	}
 
+	pub async fn show(ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<()> {
+		base::show::<Self>(ctx, mm, id).await
+	}
+
 	pub async fn delete(ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<()> {
 		base::delete::<Self>(ctx, mm, id).await
 	}

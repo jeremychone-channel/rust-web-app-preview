@@ -40,6 +40,19 @@ pub async fn update_task(
 	Ok(DataResult::new(task))
 }
 
+pub async fn show_task(
+	ctx: Ctx,
+	mm: ModelManager,
+	params: ParamsIded,
+) -> Result<DataResult<Task>> {
+	let ParamsIded { id } = params;
+
+	let task = TaskBmc::get(&ctx, &mm, id).await?;
+	TaskBmc::show(&ctx, &mm, id).await?;
+
+	Ok(DataResult::new(task))
+}
+
 pub async fn delete_task(
 	ctx: Ctx,
 	mm: ModelManager,

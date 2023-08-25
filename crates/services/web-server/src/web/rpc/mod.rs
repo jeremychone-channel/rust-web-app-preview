@@ -3,7 +3,9 @@
 mod task_rpc;
 
 use crate::web::mw_auth::CtxW;
-use crate::web::rpc::task_rpc::{create_task, delete_task, list_tasks, update_task};
+use crate::web::rpc::task_rpc::{
+	create_task, delete_task, list_tasks, show_task, update_task,
+};
 use crate::web::{Error, Result};
 use axum::extract::State;
 use axum::response::{IntoResponse, Response};
@@ -124,6 +126,7 @@ async fn _rpc_handler(
 		"create_task" => exec_rpc_fn!(create_task, ctx, mm, rpc_params),
 		"list_tasks" => exec_rpc_fn!(list_tasks, ctx, mm),
 		"update_task" => exec_rpc_fn!(update_task, ctx, mm, rpc_params),
+		"show_task" => exec_rpc_fn!(show_task, ctx, mm, rpc_params),
 		"delete_task" => exec_rpc_fn!(delete_task, ctx, mm, rpc_params),
 
 		// -- Fallback as Err.

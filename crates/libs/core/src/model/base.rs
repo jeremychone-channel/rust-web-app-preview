@@ -112,6 +112,25 @@ where
 	}
 }
 
+pub async fn show<MC>(_ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<()>
+where
+	MC: DbBmc,
+{
+	let db = mm.db();
+
+	let entity = sqlb::select()
+		.table(MC::TABLE)
+		.and_where("id", "=", id)
+		.exec(db)
+		.await?;
+
+	if entity == 0 {
+		Err(Error::EntityNotFound { entity: MC::TABLE, id })
+	} else {
+		Ok(())
+	}
+}
+
 pub async fn delete<MC>(_ctx: &Ctx, mm: &ModelManager, id: i64) -> Result<()>
 where
 	MC: DbBmc,

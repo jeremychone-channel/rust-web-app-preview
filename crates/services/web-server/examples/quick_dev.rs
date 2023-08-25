@@ -25,12 +25,12 @@ async fn main() -> Result<()> {
 			"method": "create_task",
 			"params": {
 				"data": {
-					"title": "task AAA"
+					"title": "task CCC"
 				}
 			}
 		}),
 	);
-	req_create_task.await?.print().await?;
+	// req_create_task.await?.print().await?;
 
 	let req_update_task = hc.do_post(
 		"/api/rpc",
@@ -45,7 +45,19 @@ async fn main() -> Result<()> {
 			}
 		}),
 	);
-	req_update_task.await?.print().await?;
+	// req_update_task.await?.print().await?;
+
+	let req_show_task = hc.do_post(
+		"/api/rpc",
+		json!({
+			"id": 1,
+			"method": "show_task",
+			"params": {
+				"id": 1002 // Harcode the task id
+			}
+		}),
+	);
+	req_show_task.await?.print().await?;
 
 	let req_delete_task = hc.do_post(
 		"/api/rpc",
@@ -57,7 +69,7 @@ async fn main() -> Result<()> {
 			}
 		}),
 	);
-	req_delete_task.await?.print().await?;
+	// req_delete_task.await?.print().await?;
 
 	let req_list_tasks = hc.do_post(
 		"/api/rpc",
